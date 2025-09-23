@@ -1,0 +1,818 @@
+{
+  "base_url": "http://localhost:5000/",
+  "timestamp": 1758613129.582189,
+  "results": [
+    {
+      "type": "POSTJSON",
+      "path": "/api/users",
+      "baseline_status": 200,
+      "checks": [
+        {
+          "payload": "' (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 500,
+          "length_diff": 1,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"unrecognized token: \\\"'''\\\"\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 404,
+          "length_diff": -34,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"not found\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' OR '1'='1 (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 200,
+          "length_diff": 0,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"email\":\"alice@example.com\",\"id\":1,\"username\":\"alice\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" OR \"1\"=\"1 (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 404,
+          "length_diff": -34,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"not found\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' OR 1=1 --  (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 200,
+          "length_diff": 0,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"email\":\"alice@example.com\",\"id\":1,\"username\":\"alice\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" OR 1=1 --  (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 404,
+          "length_diff": -34,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"not found\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' OR 'a'='a (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 200,
+          "length_diff": 0,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"email\":\"alice@example.com\",\"id\":1,\"username\":\"alice\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" OR \"a\"=\"a (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 404,
+          "length_diff": -34,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"not found\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' AND 'x'='y (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 404,
+          "length_diff": -34,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"not found\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" AND \"x\"=\"y (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 404,
+          "length_diff": -34,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"not found\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "'; -- (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 404,
+          "length_diff": -34,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"not found\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\"; -- (field=email)",
+          "url": "http://localhost:5000/api/users",
+          "status": 404,
+          "length_diff": -34,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"not found\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        }
+      ]
+    },
+    {
+      "type": "GET",
+      "path": "/user?id=1",
+      "baseline": {
+        "status": 200,
+        "text": "{\"email\":\"alice@example.com\",\"id\":1,\"username\":\"alice\"}\n",
+        "url": "http://localhost:5000/user?id=1"
+      },
+      "checks": [
+        {
+          "payload": "'",
+          "url": "http://localhost:5000/user?id=%27",
+          "status": 500,
+          "length_diff": -1,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"unrecognized token: \\\"'\\\"\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\"",
+          "url": "http://localhost:5000/user?id=%22",
+          "status": 500,
+          "length_diff": 0,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"unrecognized token: \\\"\\\"\\\"\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' OR '1'='1",
+          "url": "http://localhost:5000/user?id=%27+OR+%271%27%3D%271",
+          "status": 500,
+          "length_diff": -2,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"near \\\"1\\\": syntax error\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" OR \"1\"=\"1",
+          "url": "http://localhost:5000/user?id=%22+OR+%221%22%3D%221",
+          "status": 500,
+          "length_diff": -2,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"near \\\"1\\\": syntax error\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' OR 1=1 -- ",
+          "url": "http://localhost:5000/user?id=%27+OR+1%3D1+--+",
+          "status": 500,
+          "length_diff": 10,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"unrecognized token: \\\"' OR 1=1 -- \\\"\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" OR 1=1 -- ",
+          "url": "http://localhost:5000/user?id=%22+OR+1%3D1+--+",
+          "status": 500,
+          "length_diff": 11,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"unrecognized token: \\\"\\\" OR 1=1 -- \\\"\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' OR 'a'='a",
+          "url": "http://localhost:5000/user?id=%27+OR+%27a%27%3D%27a",
+          "status": 500,
+          "length_diff": -2,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"near \\\"a\\\": syntax error\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" OR \"a\"=\"a",
+          "url": "http://localhost:5000/user?id=%22+OR+%22a%22%3D%22a",
+          "status": 500,
+          "length_diff": -2,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"near \\\"a\\\": syntax error\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' AND 'x'='y",
+          "url": "http://localhost:5000/user?id=%27+AND+%27x%27%3D%27y",
+          "status": 500,
+          "length_diff": 2,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"unrecognized token: \\\"x'='\\\"\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" AND \"x\"=\"y",
+          "url": "http://localhost:5000/user?id=%22+AND+%22x%22%3D%22y",
+          "status": 500,
+          "length_diff": -2,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"near \\\"x\\\": syntax error\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "'; --",
+          "url": "http://localhost:5000/user?id=%27%3B+--",
+          "status": 500,
+          "length_diff": 3,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"unrecognized token: \\\"'; --\\\"\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\"; --",
+          "url": "http://localhost:5000/user?id=%22%3B+--",
+          "status": 500,
+          "length_diff": 4,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"unrecognized token: \\\"\\\"; --\\\"\"}\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": null,
+            "keys_added": [
+              "msg",
+              "error"
+            ],
+            "keys_removed": [
+              "id",
+              "username",
+              "email"
+            ]
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        }
+      ]
+    },
+    {
+      "type": "POST",
+      "path": "/search",
+      "baseline_status": 200,
+      "checks": [
+        {
+          "payload": "'",
+          "url": "http://localhost:5000/search",
+          "status": 500,
+          "length_diff": 25,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "{\"error\":\"db error\",\"msg\":\"unrecognized token: \\\"'\\\"\"}\n",
+          "json_diff": {
+            "type_changed": true,
+            "record_count_change": null,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\"",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": -27,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": -1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' OR '1'='1",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": 26,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[{\"id\":1,\"username\":\"alice\"},{\"id\":2,\"username\":\"bob\"}]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": 1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" OR \"1\"=\"1",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": -27,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": -1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' OR 1=1 -- ",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": 26,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[{\"id\":1,\"username\":\"alice\"},{\"id\":2,\"username\":\"bob\"}]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": 1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" OR 1=1 -- ",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": -27,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": -1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' OR 'a'='a",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": 26,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[{\"id\":1,\"username\":\"alice\"},{\"id\":2,\"username\":\"bob\"}]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": 1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" OR \"a\"=\"a",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": -27,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": -1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "' AND 'x'='y",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": -27,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": -1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\" AND \"x\"=\"y",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": -27,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": -1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "'; --",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": 26,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[{\"id\":1,\"username\":\"alice\"},{\"id\":2,\"username\":\"bob\"}]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": 1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": true,
+          "saved_body": null,
+          "raw_error": null
+        },
+        {
+          "payload": "\"; --",
+          "url": "http://localhost:5000/search",
+          "status": 200,
+          "length_diff": -27,
+          "error_detected": false,
+          "error_pattern": null,
+          "text_excerpt": "[]\n",
+          "json_diff": {
+            "type_changed": false,
+            "record_count_change": -1,
+            "keys_added": [],
+            "keys_removed": []
+          },
+          "high_confidence": false,
+          "saved_body": null,
+          "raw_error": null
+        }
+      ]
+    }
+  ]
+}
