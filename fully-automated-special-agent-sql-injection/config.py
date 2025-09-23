@@ -1,0 +1,6 @@
+
+# config.py
+CEREBRAS_API_KEY = "YOUR_CEREBRAS_KEY"
+BASE_URL = "http://localhost:5000"
+MAX_WORKERS = 4
+TIMEOUT = 8
