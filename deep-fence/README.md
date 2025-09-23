@@ -24,7 +24,7 @@ Notes:
 4. Suppose a special agent that specializes in sql injection is to be installed in a project that can also be done, this will check for all possible ways to use sql injection in the codebase
 5. Ideally the deep fence swarm or individual special agents run once per PR using github actions
 6. Once the reports are generated, the agent would be able to create PR on top of the repo for the issue that has been created by the PR, add commit messages if working in a github action mode.. and so on
-7. 
+7. one agent can generate openapi spec file to enable other agents to do better
 
 
 # Different Types of Special Agents/ Literally every possible attack vector
