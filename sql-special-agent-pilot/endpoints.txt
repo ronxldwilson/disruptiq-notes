@@ -1,0 +1,4 @@
+
+GET /user?id=1
+POST /search q=alice
+POSTJSON /api/users {"email":"alice@example.com"}
