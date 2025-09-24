@@ -1,10 +1,15 @@
-
 FROM python:3.11-slim
 WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y supervisor php
+
 COPY . /app
 RUN pip install -r requirements.txt
+
 # create data dir
 RUN mkdir -p /data
+
 # initialize db
 RUN python - <<'PY'
 import sqlite3, os
@@ -16,5 +21,7 @@ conn.commit()
 conn.close()
 print("DB initialized")
 PY
-EXPOSE 5000
-CMD ["python", "app.py"]
+
+EXPOSE 5000 8000
+
+CMD ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]
