@@ -21,31 +21,35 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 OUTPUT="$DUMP_DIR/repo_dump_$TIMESTAMP.txt"
 
 echo "[INFO] Creating repo dump: $OUTPUT"
-echo "" > "$OUTPUT"
 
-# get list of files tracked by git or not ignored (respects .gitignore)
+# gather file list (respecting .gitignore, skip repo_dump)
 FILES=$(cd "$REPO_DIR" && git ls-files --cached --others --exclude-standard | grep -v '^repo_dump/')
-
 TOTAL=$(echo "$FILES" | wc -l)
-COUNT=0
 
-# process each file
 echo "[INFO] Processing $TOTAL files..."
 echo
 
-while IFS= read -r file; do
-    COUNT=$((COUNT + 1))
+# prepare progress checkpoints (10%, 20%, ...)
+CHECKPOINTS=$(seq 10 10 100)
+NEXT_CHECKPOINT=10
 
-    # log progress
-    echo -ne "[INFO] ($COUNT/$TOTAL) Processing: $file\r"
+COUNT=0
 
-    {
-        echo "##### $file "
+(
+    for file in $FILES; do
+        COUNT=$((COUNT + 1))
+        echo "##### $file #####"
         cat "$REPO_DIR/$file"
         echo -e "\n"
-    } >> "$OUTPUT"
 
-done <<< "$FILES"
+        # log progress only at checkpoints
+        PERCENT=$((COUNT * 100 / TOTAL))
+        if [ $PERCENT -ge $NEXT_CHECKPOINT ]; then
+            echo "[INFO] $NEXT_CHECKPOINT% completed ($COUNT/$TOTAL files)" >&2
+            NEXT_CHECKPOINT=$((NEXT_CHECKPOINT + 10))
+        fi
+    done
+) > "$OUTPUT"
 
 # stats
 LINES=$(wc -l < "$OUTPUT")
