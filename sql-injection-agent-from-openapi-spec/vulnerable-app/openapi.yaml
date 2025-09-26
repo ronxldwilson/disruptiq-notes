@@ -1,0 +1,198 @@
+openapi: 3.1.0
+info:
+  title: Vulnerable Application API
+  description: The API for the vulnerable application, demonstrating various security vulnerabilities.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+paths:
+  /login:
+    post:
+      summary: User Login
+      description: Weak authentication endpoint.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The user's name.
+                password:
+                  type: string
+                  description: The user's password.
+      responses:
+        '200':
+          description: Login successful.
+        '401':
+          description: Invalid username or password.
+  /user:
+    get:
+      summary: Get User by ID
+      description: SQLi vulnerable endpoint to get user by ID.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found.
+        '404':
+          description: User not found.
+        '500':
+          description: Database error.
+  /api/user/{user_id}:
+    get:
+      summary: Get User by ID (API)
+      description: IDOR vulnerable endpoint to get user by ID.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User found.
+        '404':
+          description: User not found.
+  /search:
+    post:
+      summary: Search Users
+      description: SQLi vulnerable endpoint to search for users.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                q:
+                  type: string
+                  description: The search query.
+      responses:
+        '200':
+          description: Search results.
+  /api/users:
+    post:
+      summary: Get User by Email (API)
+      description: SQLi vulnerable endpoint to get user by email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The user's email.
+      responses:
+        '200':
+          description: User found.
+        '404':
+          description: User not found.
+  /tools/dns-lookup:
+    get:
+      summary: DNS Lookup
+      description: Command injection vulnerable endpoint.
+      parameters:
+        - name: host
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: DNS lookup results.
+  /xxe:
+    post:
+      summary: XXE Injection
+      description: XXE injection vulnerable endpoint.
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: XML processing result.
+        '500':
+          description: Error processing XML.
+  /hello:
+    get:
+      summary: Hello
+      description: XSS vulnerable endpoint.
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A greeting message.
+  /pickle:
+    post:
+      summary: Insecure Deserialization
+      description: Insecure deserialization vulnerable endpoint.
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              format: base64
+      responses:
+        '200':
+          description: Deserialization result.
+        '500':
+          description: Error deserializing data.
+  /proxy:
+    get:
+      summary: Proxy
+      description: SSRF vulnerable endpoint.
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The content of the proxied URL.
+  /page:
+    get:
+      summary: Page
+      description: LFI vulnerable endpoint.
+      parameters:
+        - name: p
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The content of the requested page.
+        '404':
+          description: Page not found.
+  /files:
+    get:
+      summary: Files
+      description: Path traversal vulnerable endpoint.
+      parameters:
+        - name: filename
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The content of the requested file.
+        '404':
+          description: File not found.
