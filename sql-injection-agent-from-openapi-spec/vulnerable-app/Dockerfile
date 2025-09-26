@@ -24,4 +24,4 @@ PY
 
 EXPOSE 5000 8000
 
-CMD ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/app/supervisord.conf"]
