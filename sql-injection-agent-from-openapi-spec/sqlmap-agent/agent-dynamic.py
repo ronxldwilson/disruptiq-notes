@@ -22,6 +22,7 @@ and this tool assume no liability for misuse. Use --confirm to enable destructiv
 enumeration (listing DBs/tables/dumping). Without --confirm the script only scans.
 """
 
+import logging
 import argparse
 import os
 import subprocess
@@ -36,7 +37,7 @@ import sys
 import time
 
 # ---------- DEFAULT CONFIG ----------
-DEFAULT_OPENAPI_FILE = '../vulnerable-app/openapi.yaml'
+DEFAULT_OPENAPI_FILE = '../openapi-go-gin-postgress-sqlc/openapi.yaml'
 DEFAULT_LOGS_DIR = 'attack-logs-dynamic'
 DEFAULT_SQLMAP_PATH = r'F://disruptiq-notes//sqlmap-dev//sqlmap.py'
 DEFAULT_SQLMAP_EXTRA = ['--batch', '--level=5', '--risk=3']  # Highest possible for thoroughness
@@ -206,9 +207,9 @@ def shell_join(cmd_list):
         return ' '.join(shlex.quote(x) for x in cmd_list)
 
 
-def run_sqlmap(cmd_list, capture_output=True, log_to_file=None, timeout=None):
+def run_sqlmap(cmd_list, master_log_file, log_full_output, capture_output=True, timeout=None):
     """Run sqlmap command (list form). Return (returncode, stdout+stderr text)."""
-    print('[*] Exec:', shell_join(cmd_list))
+    logging.info(f'Executing command: {shell_join(cmd_list)}')
     try:
         # ensure sqlmap cannot prompt for input
         proc = subprocess.Popen(
@@ -231,7 +232,9 @@ def run_sqlmap(cmd_list, capture_output=True, log_to_file=None, timeout=None):
                 if line is None:
                     break
                 out_lines.append(line)
-                print(line.rstrip())
+                # Filter out ASCII art and non-critical warnings
+                if not re.match(r'^\s*(\[\*\]|___|\|)|\s*$', line) and 'testing connection' not in line and 'using\' as the output directory' not in line:
+                    logging.info(line.rstrip())
                 # check timeout between lines (in case process emits long streams)
                 if timeout and (time.time() - start) > timeout:
                     proc.kill()
@@ -263,12 +266,15 @@ def run_sqlmap(cmd_list, capture_output=True, log_to_file=None, timeout=None):
         rc = proc.poll()
         full = ''.join(out_lines)
 
-        if log_to_file:
+        if log_full_output:
             try:
-                with open(log_to_file, 'a', encoding='utf-8') as f:
+                with open(master_log_file, 'a', encoding='utf-8') as f:
+                    f.write(f'\n{"-"*20} EXECUTING COMMAND {"-"*20}\n')
+                    f.write(shell_join(cmd_list) + '\n')
+                    f.write(f'{"-"*50}\n')
                     f.write(full)
             except Exception as e:
-                print('[!] Warning: could not write log file:', e)
+                logging.warning(f'Could not write to master log file: {e}')
 
         return rc, full
 
@@ -386,18 +392,15 @@ def safe_summary_to_filename(summary):
     return safe[:200]
 
 
-def execute_and_capture(cmd_list, logs_dir, summary):
+def execute_and_capture(cmd_list, logs_dir, summary, log_full_output):
     ensure_dir(logs_dir)
     safe_name = safe_summary_to_filename(summary)
     log_file = os.path.join(logs_dir, f'{safe_name}.log')
-    rc, out = run_sqlmap(cmd_list, log_to_file=log_file)
-    # append a small copy of output to a summary file
-    with open(os.path.join(logs_dir, f'{safe_name}_summary.txt'), 'w', encoding='utf-8') as f:
-        f.write(out[:20000])
+    rc, out = run_sqlmap(cmd_list, master_log_file=None, log_full_output=log_full_output)
     return rc, out, log_file
 
 
-def enumerate_if_vulnerable(base_cmd, url, logs_dir, summary, sqlmap_path, confirm, max_tables, max_rows):
+def enumerate_if_vulnerable(base_cmd, url, logs_dir, summary, sqlmap_path, confirm, max_tables, max_rows, master_log_file, log_full_output):
     # run a discovery (non-destructive) scan
     discovery = list(base_cmd)
     # enforce safer discovery techniques unless user overrides
@@ -410,46 +413,48 @@ def enumerate_if_vulnerable(base_cmd, url, logs_dir, summary, sqlmap_path, confi
     if not any(arg.startswith('--risk') for arg in discovery):
         discovery.extend(['--risk', '1'])     
         
-    rc, out, logfile = execute_and_capture(discovery, logs_dir, summary + '_discovery')
+    rc, out, logfile = execute_and_capture(discovery, logs_dir, summary + '_discovery', log_full_output)
 
     if not detected_injection_in_output(out):
-        print('[+] No clear injection detected during discovery for', url)
+        logging.info(f'No clear injection detected during discovery for {url}')
         return False, out
 
-    print('[!] Potential injection detected. Output saved to', logfile)
+    logging.warning(f'Potential injection detected. Output saved to {logfile}')
+    with open(os.path.join(logs_dir, f'{summary}_vulnerable.log'), 'w', encoding='utf-8') as f:
+        f.write(out)
 
     if not confirm:
-        print('[!] --confirm not set: skipping enumeration (DB listing / dumping). Use --confirm to enable.)')
+        logging.warning('--confirm not set: skipping enumeration (DB listing / dumping). Use --confirm to enable.')
         return True, out
 
     # get DB list
     dbs_cmd = list(base_cmd) + ['--dbs']
-    rc, out_dbs, dbs_log = execute_and_capture(dbs_cmd, logs_dir, summary + '_dbs')
+    rc, out_dbs, dbs_log = execute_and_capture(dbs_cmd, logs_dir, summary + '_dbs', log_full_output)
     dbs = extract_db_names(out_dbs)
     if not dbs:
-        print('[!] Could not parse DB names, but sqlmap output saved to', dbs_log)
+        logging.warning(f'Could not parse DB names, but sqlmap output saved to {dbs_log}')
     else:
-        print('[+] Found DBs:', dbs)
+        logging.info(f'Found DBs: {dbs}')
 
     # enumerate tables per DB (limited)
     all_found = {}
     for db in dbs[:max_tables]:
         tables_cmd = list(base_cmd) + ['-D', db, '--tables']
-        rc, out_tables, tables_log = execute_and_capture(tables_cmd, logs_dir, f'{summary}_tables_{db}')
+        rc, out_tables, tables_log = execute_and_capture(tables_cmd, logs_dir, f'{summary}_tables_{db}', log_full_output)
         # crude parse for table names
         tables = re.findall(r'Table: (.+)\n', out_tables)
         if not tables:
             # try alternative parsing
             tables = re.findall(r'\|\s*(\w+)\s*\|', out_tables)
         tables = list(dict.fromkeys([t.strip() for t in tables if t.strip()]))
-        print(f'[+] DB {db} - tables found (limit {max_tables}):', tables[:max_tables])
+        logging.info(f'DB {db} - tables found (limit {max_tables}): {tables[:max_tables]}')
         all_found[db] = tables
 
         # dump each table (limited by max_rows)
         for tbl in tables[:max_tables]:
             dump_cmd = list(base_cmd) + ['-D', db, '-T', tbl, '--dump', '--limit', str(max_rows)]
-            rc, out_dump, dump_log = execute_and_capture(dump_cmd, logs_dir, f'{summary}_dump_{db}_{tbl}')
-            print(f'[+] Dump for {db}.{tbl} saved to', dump_log)
+            rc, out_dump, dump_log = execute_and_capture(dump_cmd, logs_dir, f'{summary}_dump_{db}_{tbl}', log_full_output)
+            logging.info(f'Dump for {db}.{tbl} saved to {dump_log}')
 
     return True, out
 
@@ -467,13 +472,38 @@ def main_cli():
     ap.add_argument('--max-tables', type=int, default=10, help='limit tables per DB to inspect')
     ap.add_argument('--max-rows', type=int, default=50, help='limit rows per table when dumping')
     ap.add_argument('--timeout', type=int, default=600, help='timeout per sqlmap subprocess (seconds)')
+    ap.add_argument('--log-level', default='INFO', help='Set the logging level (e.g., DEBUG, INFO, WARNING, ERROR, CRITICAL)')
+    ap.add_argument('--server-url', default=None, help='The server URL to test against.')
+    ap.add_argument('--log-full-output', action='store_true', help='Enable logging of the full sqlmap output for all endpoints.')
     args = ap.parse_args()
+
+    ensure_dir(args.logs)
+
+    # Configure logging
+    log_level = getattr(logging, args.log_level.upper(), logging.INFO)
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+
+    master_log_file = os.path.join(args.logs, 'master_log.txt')
+
+    # Add a handler for console output
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
+    logger.addHandler(console_handler)
+
+    # Add a handler for file output
+    file_handler = logging.FileHandler(master_log_file)
+    file_handler.setLevel(log_level)
+    file_handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
+    logger.addHandler(file_handler)
 
     spec, base_dir = load_openapi(args.openapi)
     servers = spec.get('servers', [{'url': 'http://localhost:5000'}])
     server_url = servers[0].get('url', 'http://localhost:5000')
+    if args.server_url:
+        server_url = args.server_url
 
-    ensure_dir(args.logs)
     sqlmap_path = Path(args.sqlmap)
 
     # build global extra flags
@@ -545,11 +575,11 @@ def main_cli():
                             flush_cmd += ['--data', payload]
 
                         # run flush (non-interactive)
-                        run_sqlmap(flush_cmd, log_to_file=flush_log, timeout=args.timeout)
-                        print(f'[+] Flushed sqlmap session for {url_for_flush} (log: {flush_log})')
+                        run_sqlmap(flush_cmd, master_log_file=master_log_file, log_full_output=args.log_full_output, timeout=args.timeout)
+                        logging.info(f'Flushed sqlmap session for {url_for_flush} (log: {flush_log})')
 
                     except Exception as e:
-                        print('[!] Warning: error when flushing session:', e)
+                        logging.warning(f'Warning: error when flushing session: {e}')
 
                 # Run discovery -> then optional enumerate
                 try:
@@ -567,11 +597,14 @@ def main_cli():
                         sqlmap_path,
                         args.confirm,
                         args.max_tables,
-                        args.max_rows
+                        args.max_rows,
+                        master_log_file,
+                        args.log_full_output
                     )
                 except Exception as e:
-                    print('[ERROR] Exception during scanning:', e)
+                    logging.error(f'Exception during scanning: {e}')
 
 
 if __name__ == '__main__':
     main_cli()
+    logging.shutdown()

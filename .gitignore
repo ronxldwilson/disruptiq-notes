@@ -1,3 +1,4 @@
 .env
 sqlmap-dev
 # next-test-app
+openapi-go-gin-postgres-sqlc
