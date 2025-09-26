@@ -196,3 +196,120 @@ paths:
           description: The content of the requested file.
         '404':
           description: File not found.
+  /products:
+    get:
+      summary: Get all products
+      description: Retrieves a list of all products.
+      responses:
+        '200':
+          description: A list of products.
+        '500':
+          description: Database error.
+  /products/search:
+    get:
+      summary: Search for a product
+      description: SQLi vulnerable endpoint to search for products by name.
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of matching products.
+        '500':
+          description: Database error.
+  /products/{product_id}:
+    get:
+      summary: Get a specific product
+      description: SQLi vulnerable endpoint to retrieve a product by its ID.
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The requested product.
+        '404':
+          description: Product not found.
+        '500':
+          description: Database error.
+  /orders:
+    post:
+      summary: Create an order
+      description: SQLi vulnerable endpoint to create a new order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                product_id:
+                  type: integer
+                quantity:
+                  type: integer
+      responses:
+        '200':
+          description: Order created successfully.
+        '500':
+          description: Database error.
+  /orders/{user_id}:
+    get:
+      summary: Get orders for a user
+      description: SQLi vulnerable endpoint to retrieve orders for a specific user.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of orders for the user.
+        '500':
+          description: Database error.
+  /reviews:
+    post:
+      summary: Add a review for a product
+      description: SQLi vulnerable endpoint to add a review for a product.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: integer
+                user_id:
+                  type: integer
+                review:
+                  type: string
+                rating:
+                  type: integer
+      responses:
+        '200':
+          description: Review added successfully.
+        '500':
+          description: Database error.
+  /reviews/{product_id}:
+    get:
+      summary: Get reviews for a product
+      description: SQLi vulnerable endpoint to retrieve reviews for a specific product.
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of reviews for the product.
+        '500':
+          description: Database error.

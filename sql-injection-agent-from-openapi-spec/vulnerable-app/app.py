@@ -14,6 +14,25 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "super-secret-key-that-should-not-be-in-code"
 app.config["GITHUB_API_TOKEN"] = "ghp_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0"
 
+def get_db():
+    db = getattr(g, "_db", None)
+    if db is None:
+        db = sqlite3.connect(DB)
+        g._db = db
+    return db
+
+@app.teardown_appcontext
+def close_db(exc):
+    db = getattr(g, "_db", None)
+    if db:
+        db.close()
+
+@app.route("/")
+def index():
+    return "SQLi, XSS, RCE, LFI, SSRF, Path Traversal, XXE, IDOR, Weak Auth demo app"
+
+# ... (existing vulnerable endpoints) ...
+
 # Weak authentication endpoint
 @app.route("/login", methods=["POST"])
 def login():
@@ -33,23 +52,6 @@ def login():
             return jsonify({"status": "failed", "message": "Invalid username or password"}), 401
     except Exception as e:
         return jsonify({"error": "db error", "msg": str(e)}), 500
-
-def get_db():
-    db = getattr(g, "_db", None)
-    if db is None:
-        db = sqlite3.connect(DB)
-        g._db = db
-    return db
-
-@app.teardown_appcontext
-def close_db(exc):
-    db = getattr(g, "_db", None)
-    if db:
-        db.close()
-
-@app.route("/")
-def index():
-    return "SQLi, XSS, RCE, LFI, SSRF, Path Traversal, XXE, IDOR, Weak Auth demo app"
 
 # Vulnerable GET endpoint: user id in query string used unsafely (SQLi)
 @app.route("/user")
@@ -85,7 +87,7 @@ def api_user(user_id):
 @app.route("/search", methods=["POST"])
 def search_user():
     q = request.form.get("q", "")
-    sql = "SELECT id, username FROM users WHERE username LIKE '%" + q + "%'"
+    sql = "SELECT id, username FROM users WHERE username LIKE '_" + q + "_%'"
     try:
         cur = get_db().execute(sql)
         rows = cur.fetchall()
@@ -182,6 +184,102 @@ def files():
             return f.read()
     except Exception as e:
         return str(e), 404
+
+# New Endpoints
+
+# Get all products
+@app.route("/products", methods=["GET"])
+def get_products():
+    try:
+        cur = get_db().execute("SELECT * FROM products")
+        rows = cur.fetchall()
+        return jsonify([{"id": r[0], "name": r[1], "description": r[2], "price": r[3]} for r in rows])
+    except Exception as e:
+        return jsonify({"error": "db error", "msg": str(e)}), 500
+
+# Search for a product (SQLi)
+@app.route("/products/search", methods=["GET"])
+def search_products():
+    name = request.args.get("name", "")
+    sql = f"SELECT * FROM products WHERE name LIKE '%{name}%'"
+    try:
+        cur = get_db().execute(sql)
+        rows = cur.fetchall()
+        return jsonify([{"id": r[0], "name": r[1], "description": r[2], "price": r[3]} for r in rows])
+    except Exception as e:
+        return jsonify({"error": "db error", "msg": str(e)}), 500
+
+# Get a specific product (SQLi)
+@app.route("/products/<product_id>", methods=["GET"])
+def get_product(product_id):
+    sql = f"SELECT * FROM products WHERE id = {product_id}"
+    try:
+        cur = get_db().execute(sql)
+        row = cur.fetchone()
+        if row:
+            return jsonify({"id": row[0], "name": row[1], "description": row[2], "price": row[3]})
+        return jsonify({"error": "not found"}), 404
+    except Exception as e:
+        return jsonify({"error": "db error", "msg": str(e)}), 500
+
+# Create an order (SQLi)
+@app.route("/orders", methods=["POST"])
+def create_order():
+    body = request.get_json(silent=True) or {}
+    user_id = body.get("user_id")
+    product_id = body.get("product_id")
+    quantity = body.get("quantity")
+
+    # Vulnerable to SQL Injection
+    sql = f"INSERT INTO orders (user_id, product_id, quantity) VALUES ({user_id}, {product_id}, {quantity})"
+    try:
+        get_db().execute(sql)
+        get_db().commit()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"error": "db error", "msg": str(e)}), 500
+
+# Get orders for a user (SQLi)
+@app.route("/orders/<user_id>", methods=["GET"])
+def get_orders(user_id):
+    # Vulnerable to SQL Injection
+    sql = f"SELECT * FROM orders WHERE user_id = {user_id}"
+    try:
+        cur = get_db().execute(sql)
+        rows = cur.fetchall()
+        return jsonify([{"id": r[0], "user_id": r[1], "product_id": r[2], "quantity": r[3], "total_price": r[4], "order_date": r[5]} for r in rows])
+    except Exception as e:
+        return jsonify({"error": "db error", "msg": str(e)}), 500
+
+# Add a review for a product (SQLi)
+@app.route("/reviews", methods=["POST"])
+def add_review():
+    body = request.get_json(silent=True) or {}
+    product_id = body.get("product_id")
+    user_id = body.get("user_id")
+    review = body.get("review")
+    rating = body.get("rating")
+
+    # Vulnerable to SQL Injection
+    sql = f"INSERT INTO reviews (product_id, user_id, review, rating) VALUES ({product_id}, {user_id}, '{review}', {rating})"
+    try:
+        get_db().execute(sql)
+        get_db().commit()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"error": "db error", "msg": str(e)}), 500
+
+# Get reviews for a product (SQLi)
+@app.route("/reviews/<product_id>", methods=["GET"])
+def get_reviews(product_id):
+    # Vulnerable to SQL Injection
+    sql = f"SELECT * FROM reviews WHERE product_id = {product_id}"
+    try:
+        cur = get_db().execute(sql)
+        rows = cur.fetchall()
+        return jsonify([{"id": r[0], "product_id": r[1], "user_id": r[2], "review": r[3], "rating": r[4], "review_date": r[5]} for r in rows])
+    except Exception as e:
+        return jsonify({"error": "db error", "msg": str(e)}), 500
 
 if __name__ == "__main__":
     # Create a pages directory for the LFI vulnerability

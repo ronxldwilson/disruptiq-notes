@@ -39,7 +39,7 @@ import time
 DEFAULT_OPENAPI_FILE = '../vulnerable-app/openapi.yaml'
 DEFAULT_LOGS_DIR = 'attack-logs-dynamic'
 DEFAULT_SQLMAP_PATH = r'F://disruptiq-notes//sqlmap-dev//sqlmap.py'
-DEFAULT_SQLMAP_EXTRA = ['--batch', '--level=3', '--risk=1']  # safer defaults for discovery
+DEFAULT_SQLMAP_EXTRA = ['--batch', '--level=5', '--risk=3']  # Highest possible for thoroughness
 
 DEFAULT_TEST_VALUE = {
     'string': 'test',

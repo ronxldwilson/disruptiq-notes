@@ -1,0 +1,61 @@
+        ___
+       __H__
+ ___ ___[']_____ ___ ___  {1.9.9.4#dev}
+|_ -| . [.]     | .'| . |
+|___|_  ["]_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+
+[!] legal disclaimer: Usage of sqlmap for attacking targets without prior mutual consent is illegal. It is the end user's responsibility to obey all applicable local, state and federal laws. Developers assume no liability and are not responsible for any misuse or damage caused by this program
+
+[*] starting @ 12:30:41 /2025-09-26/
+
+[12:30:43] [WARNING] using 'F:\disruptiq-notes\sql-injection-agent-from-openapi-spec\sqlmap-agent\attack-logs-dynamic\Get_User_by_ID_sqlmap' as the output directory
+[12:30:44] [INFO] testing connection to the target URL
+[12:30:44] [WARNING] the web server responded with an HTTP error code (500) which could interfere with the results of the tests
+[12:30:44] [INFO] checking if the target is protected by some kind of WAF/IPS
+[12:30:44] [INFO] testing if the target URL content is stable
+[12:30:44] [INFO] target URL content is stable
+[12:30:45] [WARNING] heuristic (basic) test shows that GET parameter 'id' might not be injectable
+[12:30:45] [INFO] testing for SQL injection on GET parameter 'id'
+[12:30:45] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause'
+[12:30:45] [WARNING] reflective value(s) found and filtering out
+[12:30:46] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (subquery - comment)'
+[12:30:46] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (comment)'
+[12:30:46] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (MySQL comment)'
+[12:30:47] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (Microsoft Access comment)'
+[12:30:47] [INFO] testing 'MySQL RLIKE boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause'
+[12:30:48] [INFO] testing 'MySQL AND boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause (MAKE_SET)'
+[12:30:49] [INFO] testing 'PostgreSQL AND boolean-based blind - WHERE or HAVING clause (CAST)'
+[12:30:50] [INFO] testing 'Oracle AND boolean-based blind - WHERE or HAVING clause (CTXSYS.DRITHSX.SN)'
+[12:30:51] [INFO] testing 'SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)'
+[12:30:51] [INFO] testing 'Boolean-based blind - Parameter replace (original value)'
+[12:30:51] [INFO] testing 'PostgreSQL boolean-based blind - Parameter replace'
+[12:30:52] [INFO] testing 'Microsoft SQL Server/Sybase boolean-based blind - Parameter replace'
+[12:30:52] [INFO] testing 'Oracle boolean-based blind - Parameter replace'
+[12:30:52] [INFO] testing 'Informix boolean-based blind - Parameter replace'
+[12:30:52] [INFO] testing 'Microsoft Access boolean-based blind - Parameter replace'
+[12:30:52] [INFO] testing 'Boolean-based blind - Parameter replace (DUAL)'
+[12:30:52] [INFO] testing 'Boolean-based blind - Parameter replace (DUAL - original value)'
+[12:30:52] [INFO] testing 'Boolean-based blind - Parameter replace (CASE)'
+[12:30:52] [INFO] testing 'Boolean-based blind - Parameter replace (CASE - original value)'
+[12:30:52] [INFO] testing 'MySQL >= 5.0 boolean-based blind - ORDER BY, GROUP BY clause'
+[12:30:52] [INFO] testing 'MySQL >= 5.0 boolean-based blind - ORDER BY, GROUP BY clause (original value)'
+[12:30:52] [INFO] testing 'MySQL < 5.0 boolean-based blind - ORDER BY, GROUP BY clause'
+[12:30:52] [INFO] testing 'PostgreSQL boolean-based blind - ORDER BY, GROUP BY clause'
+[12:30:52] [INFO] testing 'Microsoft SQL Server/Sybase boolean-based blind - ORDER BY clause'
+[12:30:52] [INFO] testing 'Oracle boolean-based blind - ORDER BY, GROUP BY clause'
+[12:30:52] [INFO] testing 'HAVING boolean-based blind - WHERE, GROUP BY clause'
+[12:30:53] [INFO] testing 'PostgreSQL boolean-based blind - Stacked queries'
+[12:30:54] [INFO] testing 'Microsoft SQL Server/Sybase boolean-based blind - Stacked queries (IF)'
+it is recommended to perform only basic UNION tests if there is not at least one other (potential) technique found. Do you want to reduce the number of requests? [Y/n] Y
+[12:30:54] [INFO] testing 'Generic UNION query (NULL) - 1 to 10 columns'
+[12:30:55] [INFO] testing 'Generic UNION query (random number) - 1 to 10 columns'
+[12:30:55] [INFO] testing 'MySQL UNION query (NULL) - 1 to 10 columns'
+[12:30:56] [INFO] testing 'MySQL UNION query (random number) - 1 to 10 columns'
+[12:30:56] [WARNING] GET parameter 'id' does not seem to be injectable
+[12:30:56] [CRITICAL] all tested parameters do not appear to be injectable. Try to increase values for '--level'/'--risk' options if you wish to perform more tests. Rerun without providing the option '--technique'. If you suspect that there is some kind of protection mechanism involved (e.g. WAF) maybe you could try to use option '--tamper' (e.g. '--tamper=space2comment') and/or switch '--random-agent'
+[12:30:56] [WARNING] HTTP error codes detected during run:
+500 (Internal Server Error) - 567 times, 404 (Not Found) - 15 times
+
+[*] ending @ 12:30:56 /2025-09-26/
+

