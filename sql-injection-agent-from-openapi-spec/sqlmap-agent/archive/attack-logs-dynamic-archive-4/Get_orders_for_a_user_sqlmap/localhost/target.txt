@@ -1,0 +1,1 @@
+http://localhost:5000/orders/test (GET)  # F:\disruptiq-notes\sqlmap-dev\sqlmap.py -u http://localhost:5000/orders/test --output-dir attack-logs-dynamic\Get_orders_for_a_user_sqlmap --batch --level=5 --risk=3 --threads 5 --dbs

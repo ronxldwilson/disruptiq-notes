@@ -210,26 +210,68 @@ def run_sqlmap(cmd_list, capture_output=True, log_to_file=None, timeout=None):
     """Run sqlmap command (list form). Return (returncode, stdout+stderr text)."""
     print('[*] Exec:', shell_join(cmd_list))
     try:
-        proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-        out = []
+        # ensure sqlmap cannot prompt for input
+        proc = subprocess.Popen(
+            cmd_list,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL,        # prevent child from reading stdin
+            text=True,                       # same as universal_newlines=True
+            encoding='utf-8',                # force utf-8 decode (use errors='replace')
+            errors='replace',
+            bufsize=1                         # line buffered
+        )
+
+        out_lines = []
         start = time.time()
-        while True:
-            line = proc.stdout.readline()
-            if line == '' and proc.poll() is not None:
-                break
-            if line:
-                out.append(line)
+
+        try:
+            # read lines as they become available; don't block forever because we will use wait(timeout)
+            for line in proc.stdout:
+                if line is None:
+                    break
+                out_lines.append(line)
                 print(line.rstrip())
-            if timeout and (time.time() - start) > timeout:
+                # check timeout between lines (in case process emits long streams)
+                if timeout and (time.time() - start) > timeout:
+                    proc.kill()
+                    out_lines.append('\n[ERROR] Timeout reached and process killed\n')
+                    break
+
+            # If the for-loop ends but process still alive, wait with remaining timeout
+            if proc.poll() is None:
+                if timeout:
+                    elapsed = time.time() - start
+                    remaining = max(0.1, timeout - elapsed)
+                    try:
+                        proc.wait(timeout=remaining)
+                    except subprocess.TimeoutExpired:
+                        proc.kill()
+                        out_lines.append('\n[ERROR] Timeout reached during wait() and process killed\n')
+                else:
+                    proc.wait()
+
+        except KeyboardInterrupt:
+            # If user interrupts, kill child process cleanly
+            try:
                 proc.kill()
-                out.append('\n[ERROR] Timeout reached and process killed\n')
-                break
+            except Exception:
+                pass
+            out_lines.append('\n[ERROR] KeyboardInterrupt - process killed by parent\n')
+            raise
+
         rc = proc.poll()
-        full = ''.join(out)
+        full = ''.join(out_lines)
+
         if log_to_file:
-            with open(log_to_file, 'a', encoding='utf-8') as f:
-                f.write(full)
+            try:
+                with open(log_to_file, 'a', encoding='utf-8') as f:
+                    f.write(full)
+            except Exception as e:
+                print('[!] Warning: could not write log file:', e)
+
         return rc, full
+
     except FileNotFoundError as e:
         return 255, f'[ERROR] sqlmap executable not found: {e}'
     except Exception as e:
@@ -359,10 +401,15 @@ def enumerate_if_vulnerable(base_cmd, url, logs_dir, summary, sqlmap_path, confi
     # run a discovery (non-destructive) scan
     discovery = list(base_cmd)
     # enforce safer discovery techniques unless user overrides
-    if '--technique' not in discovery:
+    # ensure tactics if not forced already
+    if not any(arg.startswith('--technique') for arg in discovery):
         discovery.extend(['--technique', 'BU'])
-    if '--risk' not in discovery and '--level' not in discovery:
-        discovery.extend(['--level', '3', '--risk', '1'])
+    # add level/risk only if they don't already exist in args
+    if not any(arg.startswith('--level') for arg in discovery):
+        discovery.extend(['--level', '3'])
+    if not any(arg.startswith('--risk') for arg in discovery):
+        discovery.extend(['--risk', '1'])     
+        
     rc, out, logfile = execute_and_capture(discovery, logs_dir, summary + '_discovery')
 
     if not detected_injection_in_output(out):
@@ -447,15 +494,81 @@ def main_cli():
                 summary = operation.get('summary') or operation.get('operationId') or f"{method}_{raw_path}"
                 safe_name = safe_summary_to_filename(summary)
 
-                base_cmd = construct_sqlmap_command(server_url, raw_path, method, path_item, operation, spec, base_dir, sqlmap_path, os.path.join(args.logs, safe_name + '_sqlmap'), extra_flags)
+                base_cmd = construct_sqlmap_command(
+                    server_url, raw_path, method, path_item, operation,
+                    spec, base_dir,
+                    sqlmap_path, os.path.join(args.logs, safe_name + '_sqlmap'),
+                    extra_flags
+                )
 
                 # optionally flush session per-target
                 if args.flush_session:
-                    base_cmd = ['python', str(sqlmap_path), '--flush-session'] + base_cmd
+                    try:
+                        # produce the same concrete path used by the scan (substitute path params)
+                        substituted_path = substitute_path_params(
+                            raw_path,
+                            collect_parameters(path_item, operation, spec, base_dir),
+                            spec,
+                            base_dir
+                        )
+                        url_for_flush = server_url.rstrip('/') + substituted_path
+
+                        # Build a safer flush command: non-interactive + minimal payload for POST-like methods
+                        flush_cmd = [
+                            sys.executable,
+                            str(sqlmap_path),
+                            '--batch',
+                            '--flush-session',
+                            '-u',
+                            url_for_flush,
+                        ]
+
+                        flush_log = os.path.join(args.logs, safe_name + '_flush.log')
+
+                        if method.lower() in ('post', 'put', 'patch'):
+                            payload = None
+                            if 'requestBody' in operation:
+                                content = operation['requestBody'].get('content', {})
+                                if 'application/x-www-form-urlencoded' in content:
+                                    props = content['application/x-www-form-urlencoded'].get('schema', {}).get('properties', {}) or {}
+                                    payload = urlencode({k: choose_test_value_for_schema(v, spec, base_dir) for k, v in props.items()}, doseq=True)
+                                elif 'multipart/form-data' in content:
+                                    props = content['multipart/form-data'].get('schema', {}).get('properties', {}) or {}
+                                    payload = urlencode({k: choose_test_value_for_schema(v, spec, base_dir) for k, v in props.items()}, doseq=True)
+                                elif 'application/json' in content:
+                                    schema = content['application/json'].get('schema', {}) or {}
+                                    payload = construct_json_string_from_schema(schema, spec, base_dir)
+                            if not payload:
+                                payload = 'test=1'
+                            if payload.strip().startswith('{'):
+                                flush_cmd += ['-H', 'Content-Type: application/json']
+                            flush_cmd += ['--data', payload]
+
+                        # run flush (non-interactive)
+                        run_sqlmap(flush_cmd, log_to_file=flush_log, timeout=args.timeout)
+                        print(f'[+] Flushed sqlmap session for {url_for_flush} (log: {flush_log})')
+
+                    except Exception as e:
+                        print('[!] Warning: error when flushing session:', e)
 
                 # Run discovery -> then optional enumerate
                 try:
-                    vulnerable, raw_out = enumerate_if_vulnerable(base_cmd, server_url + raw_path, args.logs, safe_name, sqlmap_path, args.confirm, args.max_tables, args.max_rows)
+                    scan_url = server_url.rstrip('/') + substitute_path_params(
+                        raw_path,
+                        collect_parameters(path_item, operation, spec, base_dir),
+                        spec,
+                        base_dir
+                    )
+                    vulnerable, raw_out = enumerate_if_vulnerable(
+                        base_cmd,
+                        scan_url,
+                        args.logs,
+                        safe_name,
+                        sqlmap_path,
+                        args.confirm,
+                        args.max_tables,
+                        args.max_rows
+                    )
                 except Exception as e:
                     print('[ERROR] Exception during scanning:', e)
 

