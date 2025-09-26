@@ -419,7 +419,7 @@ def main_cli():
     ap.add_argument('--max-dbs', type=int, default=5, help='limit number of DBs to enumerate')
     ap.add_argument('--max-tables', type=int, default=10, help='limit tables per DB to inspect')
     ap.add_argument('--max-rows', type=int, default=50, help='limit rows per table when dumping')
-    ap.add_argument('--timeout', type=int, default=300, help='timeout per sqlmap subprocess (seconds)')
+    ap.add_argument('--timeout', type=int, default=600, help='timeout per sqlmap subprocess (seconds)')
     args = ap.parse_args()
 
     spec, base_dir = load_openapi(args.openapi)
