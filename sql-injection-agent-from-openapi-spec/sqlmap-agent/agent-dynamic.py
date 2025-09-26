@@ -37,7 +37,7 @@ import sys
 import time
 
 # ---------- DEFAULT CONFIG ----------
-DEFAULT_OPENAPI_FILE = '../openapi-go-gin-postgress-sqlc/openapi.yaml'
+DEFAULT_OPENAPI_FILE = '../deddit/openapi.yaml'
 DEFAULT_LOGS_DIR = 'attack-logs-dynamic'
 DEFAULT_SQLMAP_PATH = r'F://disruptiq-notes//sqlmap-dev//sqlmap.py'
 DEFAULT_SQLMAP_EXTRA = ['--batch', '--level=5', '--risk=3']  # Highest possible for thoroughness
@@ -499,8 +499,8 @@ def main_cli():
     logger.addHandler(file_handler)
 
     spec, base_dir = load_openapi(args.openapi)
-    servers = spec.get('servers', [{'url': 'http://localhost:5000'}])
-    server_url = servers[0].get('url', 'http://localhost:5000')
+    servers = spec.get('servers', [{'url': 'http://localhost:8000'}])
+    server_url = servers[0].get('url', 'http://localhost:8000')
     if args.server_url:
         server_url = args.server_url
 
