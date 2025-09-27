@@ -3,3 +3,5 @@ sqlmap-dev
 # next-test-app
 deddit
 openapi-go-gin-postgres-sqlc
+# https://github.com/daptin/daptin.git
+daptin 
