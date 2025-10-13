@@ -2,6 +2,7 @@ import ast
 
 def parse_file(file_path):
     """Parses a Python file and extracts Flask route information."""
+    print(f"Parsing file: {file_path}")
     endpoints = []
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()

@@ -2,6 +2,7 @@ import os
 
 def scan_project(project_path, ignore_paths=None):
     """Scans the project directory and returns a list of all files."""
+    print(f"Scanning project directory: {project_path}")
     if ignore_paths is None:
         ignore_paths = []
     ignore_paths.extend(["__pycache__", ".git", "node_modules", "venv"])

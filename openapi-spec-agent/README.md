@@ -11,8 +11,10 @@ The project is structured as follows:
   - `scanner.py`: Contains the logic for scanning the project directory.
   - `parser.py`: Contains the logic for parsing the source code and extracting API information.
   - `generator.py`: Contains the logic for generating the OpenAPI spec.
+  - `ai_model.py`: Contains the logic for interacting with the AI model.
 - `tests/`: Contains unit tests for the agent.
 - `tmp/`: Contains temporary files used by the agent.
+- `output.yaml`: The generated OpenAPI spec.
 
 ## How to Use
 
@@ -30,25 +32,11 @@ To see the agent's capabilities, you can run it on the sample Flask application 
    python src/main.py
    ```
 
-   This will scan the `tmp` directory for the sample Flask application, parse the code to extract the API endpoints, and then generate an OpenAPI spec in YAML format, which will be printed to the console.
+   This will scan the `tmp` directory for the sample Flask application, parse the code to extract the API endpoints, and then use a simulated AI model to generate an OpenAPI spec. The generated spec will be saved to the `output.yaml` file.
 
-## How to Run Tests
+## Configuration
 
-To run the tests for the agent, you can use the `unittest` module.
-
-1. **Navigate to the project directory:**
-
-   ```bash
-   cd openapi-spec-agent
-   ```
-
-2. **Run the tests:**
-
-   ```bash
-   python -m unittest discover tests
-   ```
-
-   This will discover and run all the tests in the `tests` directory.
+The agent is configured to use the Ollama API endpoint at `http://localhost:11434/api/generate`. If you are using a different endpoint, you can change it in the `src/ollama_client.py` file by modifying the `OLLAMA_API_URL` variable.
 
 ## Current Capabilities
 

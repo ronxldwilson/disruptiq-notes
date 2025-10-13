@@ -5,3 +5,4 @@ deddit
 openapi-go-gin-postgres-sqlc
 # https://github.com/daptin/daptin.git
 daptin 
+__pycache__
