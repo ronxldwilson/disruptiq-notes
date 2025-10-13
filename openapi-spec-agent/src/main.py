@@ -2,14 +2,11 @@ import yaml
 from scanner import scan_project
 from parser import parse_file
 from ai_model import enhance_spec_with_ai
+import re
 
 def main():
     """The main entry point for the agent."""
     print("--- Starting OpenAPI Spec Agent ---")
-    from scanner import scan_project
-    from parser import parse_file
-    from ai_model import enhance_spec_with_ai
-    import re
 
     print("\n--- Step 1: Scanning project files ---")
     files = scan_project("tmp")

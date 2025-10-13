@@ -1,24 +1,19 @@
-import ast
+import os
+from .parsers.python_flask_parser import parse_flask_routes
+from .parsers.javascript_express_parser import parse_express_routes
 
 def parse_file(file_path):
-    """Parses a Python file and extracts Flask route information."""
+    """Parses a file and dispatches to the appropriate language-specific parser."""
     print(f"Parsing file: {file_path}")
-    endpoints = []
+    _, file_extension = os.path.splitext(file_path)
+
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    try:
-        tree = ast.parse(content)
-        for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef):
-                for decorator in node.decorator_list:
-                    if isinstance(decorator, ast.Call) and isinstance(decorator.func, ast.Attribute):
-                        if decorator.func.attr == 'route':
-                            path = decorator.args[0].s
-                            methods = [m.s for m in decorator.keywords[0].value.elts] if decorator.keywords else ['GET']
-                            endpoints.append({"path": path, "methods": methods})
-    except ast.ParseError:
-        # Not a valid Python file, or some other parsing error
-        pass
-
-    return endpoints
+    if file_extension == ".py":
+        return parse_flask_routes(content)
+    elif file_extension == ".js":
+        return parse_express_routes(content)
+    # Add more language parsers here as needed
+    else:
+        return [] # Return empty list for unsupported file types

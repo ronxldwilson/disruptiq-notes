@@ -31,5 +31,36 @@ def test_route():
         self.assertEqual(endpoints[0]["path"], "/test")
         self.assertEqual(endpoints[0]["methods"], ["GET"])
 
+    def test_parse_file_with_express_route(self):
+        # Create a temporary JavaScript file with an Express route
+        content = """
+const express = require('express');
+const app = express();
+
+app.get('/api/data', (req, res) => {
+  res.send('Hello from Node.js!');
+});
+
+app.post('/api/users', (req, res) => {
+  res.send('Create a new user');
+});
+"""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".js", delete=False) as f:
+            f.write(content)
+            temp_file_path = f.name
+
+        # Parse the temporary file
+        endpoints = parse_file(temp_file_path)
+
+        # Clean up the temporary file
+        os.remove(temp_file_path)
+
+        # Assert that the endpoints are correct
+        self.assertEqual(len(endpoints), 2)
+        self.assertEqual(endpoints[0]["path"], "/api/data")
+        self.assertEqual(endpoints[0]["methods"], ["GET"])
+        self.assertEqual(endpoints[1]["path"], "/api/users")
+        self.assertEqual(endpoints[1]["methods"], ["POST"])
+
 if __name__ == "__main__":
     unittest.main()
