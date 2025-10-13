@@ -7,18 +7,12 @@ def enhance_spec_with_ai(endpoints):
     prompt = (
         "Given the following API endpoints extracted from a Python Flask application, "
         "generate a complete OpenAPI 3.0.0 specification in YAML format. "
-        "The specification should include:
-"
-        "- A single path item for each unique path.
-"
-        "- Fully defined schemas for all request and response bodies.
-"
-        "- Summaries and descriptions for each endpoint.
-"
-        "- Example responses for each endpoint.
-"
-        "Do not wrap the output in a code block.
-"
+        "The specification should include:"
+        "- A single path item for each unique path."
+        "- Fully defined schemas for all request and response bodies."
+        "- Summaries and descriptions for each endpoint."
+        "- Example responses for each endpoint."
+        "Do not wrap the output in a code block."
         "Endpoints:\n"
     )
 
