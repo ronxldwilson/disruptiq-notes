@@ -9,7 +9,7 @@ def get_ollama_response(prompt):
         with requests.post(
             OLLAMA_API_URL,
             json={
-                "model": "qwen3:4b",
+                "model": "gemma3:4b",
                 "prompt": prompt,
                 "stream": True
             },
