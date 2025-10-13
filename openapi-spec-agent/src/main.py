@@ -8,9 +8,8 @@ def main():
     print("--- Starting OpenAPI Spec Agent ---")
     from scanner import scan_project
     from parser import parse_file
-    from ai_model import enhance_spec_with_ai, generate_path_spec
+    from ai_model import enhance_spec_with_ai
     import re
-    import yaml
 
     print("\n--- Step 1: Scanning project files ---")
     files = scan_project("tmp")
@@ -24,24 +23,16 @@ def main():
     print(f"Found {len(all_endpoints)} endpoints.")
 
     print("\n--- Step 3: Enhancing the OpenAPI spec with an AI model ---")
-    info_and_components_generator = enhance_spec_with_ai(all_endpoints)
-    info_and_components = "".join(info_and_components_generator)
+    response_generator = enhance_spec_with_ai(all_endpoints)
 
-    paths = {}
-    for endpoint in all_endpoints:
-        path_spec_generator = generate_path_spec(endpoint)
-        path_spec = "".join(path_spec_generator)
-        # Remove code blocks from the AI model's output
-        path_spec = re.sub(r"```(?:yml)?\n?", "", path_spec)
-        paths.update(yaml.safe_load(path_spec))
-
-    # Combine the info, components, and paths into a single spec
-    spec = yaml.safe_load(info_and_components)
-    spec["paths"] = paths
-
-    print("\n--- Step 4: Saving the OpenAPI spec to output.yaml ---")
+    print("\n--- Step 4: Saving the OpenAPI spec to output.yaml (streaming) ---")
     with open("output.yaml", "w", encoding="utf-8") as f:
-        yaml.dump(spec, f, sort_keys=False)
+        for chunk in response_generator:
+            if chunk:
+                # Remove code blocks from the AI model's output
+                chunk = re.sub(r"```(?:yml)?\n?", "", chunk)
+                f.write(chunk)
+                f.flush()
 
     print("\n--- OpenAPI spec generated successfully! ---")
 
