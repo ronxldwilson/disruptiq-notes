@@ -62,11 +62,23 @@ This section outlines the roadmap for making the OpenAPI Spec Agent an S-tier, i
 ### Core Features
 
 - **Support for more languages and frameworks:**
-  - JavaScript/TypeScript (with Express, Nest.js, etc.)
-  - Java (with Spring Boot, JAX-RS, etc.)
-  - C# (with ASP.NET Core)
-  - Go (with Gin, etc.)
-  - Ruby (with Rails, Sinatra, etc.)
+  - Python:
+    - Flask (Implemented)
+    - Django (In Progress)
+    - FastAPI (In Progress)
+  - JavaScript/TypeScript:
+    - Express (Implemented)
+    - Nest.js (In Progress)
+    - Next.js (In Progress)
+  - Java:
+    - Spring Boot (In Progress)
+    - JAX-RS (In Progress)
+  - C#:
+    - ASP.NET Core (In Progress)
+  - Go:
+    - Gin (In Progress)
+  - Ruby:
+    - Rails (In Progress)
 - **Sophisticated code analysis:**
   - Extract request/response models and data schemas.
   - Infer data types from code.
