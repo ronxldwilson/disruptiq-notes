@@ -10,7 +10,7 @@ The project is structured as follows:
   - `main.py`: The main entry point for the agent.
   - `scanner.py`: Contains the logic for scanning the project directory.
   - `parser.py`: Contains the logic for parsing the source code and extracting API information.
-  - `generator.py`: Contains the logic for generating the OpenAPI spec.
+  - `parsers/`: Contains language-specific parsers.
   - `ai_model.py`: Contains the logic for interacting with the AI model.
 - `tests/`: Contains unit tests for the agent.
 - `tmp/`: Contains temporary files used by the agent.
@@ -18,12 +18,12 @@ The project is structured as follows:
 
 ## How to Use
 
-To see the agent's capabilities, you can run it on the sample Flask application provided in the `tmp` directory.
+To see the agent's capabilities, you can run it on the sample applications provided in the `tmp` directory (e.g., Flask, Express).
 
 1. **Install the dependencies:**
 
    ```bash
-   pip install flask pyyaml
+   pip install flask
    ```
 
 2. **Run the agent:**
@@ -32,7 +32,7 @@ To see the agent's capabilities, you can run it on the sample Flask application 
    python src/main.py
    ```
 
-   This will scan the `tmp` directory for the sample Flask application, parse the code to extract the API endpoints, and then use a simulated AI model to generate an OpenAPI spec. The generated spec will be saved to the `output.yaml` file.
+   This will scan the `tmp` directory for sample applications, parse the code to extract the API endpoints, and then use a simulated AI model to generate an OpenAPI spec. The generated spec will be saved to the `output.yaml` file.
 
 ## Configuration
 
@@ -42,8 +42,9 @@ The agent is configured to use the Ollama API endpoint at `http://localhost:1143
 
 The agent can currently:
 
-- Scan a project directory and identify Python files.
+- Scan a project directory and identify Python and JavaScript files.
 - Parse Python files and extract Flask route information (`@app.route(...)`).
+- Parse JavaScript files and extract Express route information (`app.get(...)`, `app.post(...)`, etc.).
 - Generate a basic OpenAPI spec in YAML format, including paths and HTTP methods.
 
 ## How it Works
@@ -51,11 +52,9 @@ The agent can currently:
 The agent works in the following steps:
 
 1.  **Scanning:** The agent scans the project directory to find all the relevant files.
-2.  **Parsing:** It then parses the files to extract API endpoints and their corresponding methods.
-3.  **Generating Info and Components:** The agent sends a request to the AI model to generate the `info` and `components` sections of the OpenAPI spec.
-4.  **Generating Paths:** For each endpoint, the agent sends a separate request to the AI model to generate the path item for that endpoint.
-5.  **Assembling the Spec:** The agent combines the `info`, `components`, and `paths` into a single OpenAPI spec.
-6.  **Saving the Spec:** Finally, the agent saves the generated spec to the `output.yaml` file.
+2.  **Parsing:** It then parses the files, dispatching to language-specific parsers, to extract API endpoints and their corresponding methods.
+3.  **Enhancing and Generating Spec:** The agent sends the extracted endpoints to the AI model to enhance them and generate the complete OpenAPI spec.
+4.  **Saving the Spec:** Finally, the agent saves the generated spec to the `output.yaml` file.
 
 
 This section outlines the roadmap for making the OpenAPI Spec Agent an S-tier, industry-best software.

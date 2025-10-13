@@ -62,5 +62,35 @@ app.post('/api/users', (req, res) => {
         self.assertEqual(endpoints[1]["path"], "/api/users")
         self.assertEqual(endpoints[1]["methods"], ["POST"])
 
+    def test_parse_file_with_django_urls(self):
+        # Create a temporary Python file with Django URL patterns
+        content = """
+from django.urls import path
+
+urlpatterns = [
+    path('articles/', views.article_list, name='article-list'),
+    path('articles/<int:pk>/', views.article_detail, name='article-detail'),
+    path('users/', views.user_list, name='user-list'),
+]
+"""
+        with tempfile.NamedTemporaryFile(mode="w", suffix="urls.py", delete=False) as f:
+            f.write(content)
+            temp_file_path = f.name
+
+        # Parse the temporary file
+        endpoints = parse_file(temp_file_path)
+
+        # Clean up the temporary file
+        os.remove(temp_file_path)
+
+        # Assert that the endpoints are correct
+        self.assertEqual(len(endpoints), 3)
+        self.assertEqual(endpoints[0]["path"], "articles/")
+        self.assertEqual(endpoints[0]["methods"], ["GET"])
+        self.assertEqual(endpoints[1]["path"], "articles/{param}/")
+        self.assertEqual(endpoints[1]["methods"], ["GET"])
+        self.assertEqual(endpoints[2]["path"], "users/")
+        self.assertEqual(endpoints[2]["methods"], ["GET"])
+
 if __name__ == "__main__":
     unittest.main()
