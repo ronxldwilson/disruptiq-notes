@@ -46,7 +46,17 @@ The agent can currently:
 - Parse Python files and extract Flask route information (`@app.route(...)`).
 - Generate a basic OpenAPI spec in YAML format, including paths and HTTP methods.
 
-## Roadmap
+## How it Works
+
+The agent works in the following steps:
+
+1.  **Scanning:** The agent scans the project directory to find all the relevant files.
+2.  **Parsing:** It then parses the files to extract API endpoints and their corresponding methods.
+3.  **Generating Info and Components:** The agent sends a request to the AI model to generate the `info` and `components` sections of the OpenAPI spec.
+4.  **Generating Paths:** For each endpoint, the agent sends a separate request to the AI model to generate the path item for that endpoint.
+5.  **Assembling the Spec:** The agent combines the `info`, `components`, and `paths` into a single OpenAPI spec.
+6.  **Saving the Spec:** Finally, the agent saves the generated spec to the `output.yaml` file.
+
 
 This section outlines the roadmap for making the OpenAPI Spec Agent an S-tier, industry-best software.
 
