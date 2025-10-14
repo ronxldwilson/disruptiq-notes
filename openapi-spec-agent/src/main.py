@@ -5,12 +5,12 @@ from scanner import scan_project
 from parser import parse_file
 from ai_model import enhance_spec_with_ai
 
-def main(client_name, model):
+def main(client_name, model, path):
     """The main entry point for the agent."""
     print("--- Starting OpenAPI Spec Agent ---")
 
     print("\n--- Step 1: Scanning project files ---")
-    files = scan_project("tmp")
+    files = scan_project(path)
     print(f"Found {len(files)} files to parse.")
 
     print("\n--- Step 2: Parsing files and extracting endpoints ---")
@@ -38,5 +38,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenAPI Spec Agent")
     parser.add_argument("--client", type=str, default="ollama", help="The AI client to use (e.g., ollama, openai, claude, cerebras, openrouter)")
     parser.add_argument("--model", type=str, default="llama3.2", help="The model to use for the AI client")
+    parser.add_argument("--path", type=str, default="tmp", help="The path to the project to scan")
     args = parser.parse_args()
-    main(args.client, args.model)
+    main(args.client, args.model, args.path)

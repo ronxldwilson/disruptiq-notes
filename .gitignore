@@ -6,3 +6,4 @@ openapi-go-gin-postgres-sqlc
 # https://github.com/daptin/daptin.git
 daptin 
 __pycache__
+node_modules
