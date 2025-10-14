@@ -1,9 +1,9 @@
 import yaml
 import re
 import argparse
-from scanner import scan_project
-from parser import parse_file
-from ai_model import enhance_spec_with_ai
+from .scanner import scan_project
+from .parser import parse_file
+from .ai_model import enhance_spec_with_ai
 
 def main(client_name, model, path):
     """The main entry point for the agent."""

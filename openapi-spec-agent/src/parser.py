@@ -55,16 +55,41 @@ def _parse_cs(src):
 
 def _parse_go(src):
     endpoints = []
-    # match r.GET("/ping", ...), router.GET("/x", ...)
+    # handle route groups
+    group_matches = re.finditer(r'(\w+)\.Group\("([^"]+)"\)', src)
+    for group_match in group_matches:
+        group_var = group_match.group(1)
+        group_prefix = group_match.group(2)
+        # find routes within the group
+        for m in re.finditer(r'' + group_var + r'\.(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\(\s*"([^"]+)"', src):
+            verb = m.group(1).upper()
+            path = _normalize_path(group_prefix + m.group(2))
+            path = re.sub(r':(\w+)', r'{\1}', path) # convert gin path params to openapi format
+            existing = next((e for e in endpoints if e["path"] == path), None)
+            if existing:
+                if verb not in existing["methods"]:
+                    existing["methods"].append(verb)
+            else:
+                endpoints.append({"path": path, "methods": [verb]})
+
+    # handle routes outside of groups
     for m in re.finditer(r'\b\w+\.(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\(\s*"([^"]+)"', src):
         verb = m.group(1).upper()
         path = _normalize_path(m.group(2))
-        existing = next((e for e in endpoints if e["path"] == path), None)
-        if existing:
-            if verb not in existing["methods"]:
-                existing["methods"].append(verb)
-        else:
-            endpoints.append({"path": path, "methods": [verb]})
+        path = re.sub(r':(\w+)', r'{\1}', path) # convert gin path params to openapi format
+        # check if the path is already handled by a group
+        in_group = False
+        for endpoint in endpoints:
+            if endpoint["path"].startswith(path):
+                in_group = True
+                break
+        if not in_group:
+            existing = next((e for e in endpoints if e["path"] == path), None)
+            if existing:
+                if verb not in existing["methods"]:
+                    existing["methods"].append(verb)
+            else:
+                endpoints.append({"path": path, "methods": [verb]})
     return endpoints
 
 def _parse_java(src):
@@ -108,15 +133,63 @@ def _parse_python(src, ext):
     # Django: path('articles/', ...)
     if "from django.urls" in src or "urlpatterns" in src:
         endpoints = []
-        for m in re.finditer(r'path\(\s*[\'"]([^\'"]+)[\'"]\s*,', src):
+        for m in re.finditer(r'path\(\s*[\'"]([^\'"]+)[\'"]\s*,\s*views\.([^,)]+)', src):
             path = m.group(1)
-            endpoints.append({"path": path, "methods": ["GET"]})
+            view_name = m.group(2)
+            methods = []
+            # function-based view with @api_view
+            view_func_match = re.search(r'@api_view\(\s*\[([^\]]+)\]\s*\)\s*def\s+' + view_name, src)
+            if view_func_match:
+                methods = [meth.strip().strip('\'"') for meth in view_func_match.group(1).split(',')]
+            else:
+                # class-based view
+                view_class_match = re.search(r'class\s+' + view_name + r'\(APIView\):', src)
+                if view_class_match:
+                    class_src = src[view_class_match.end():]
+                    # find end of class
+                    end_of_class = re.search(r'^\w', class_src, re.MULTILINE)
+                    if end_of_class:
+                        class_src = class_src[:end_of_class.start()]
+                    if "def get" in class_src:
+                        methods.append("GET")
+                    if "def post" in class_src:
+                        methods.append("POST")
+                    if "def put" in class_src:
+                        methods.append("PUT")
+                    if "def delete" in class_src:
+                        methods.append("DELETE")
+                    if "def patch" in class_src:
+                        methods.append("PATCH")
+
+            if not methods:
+                methods = ["GET"] # default to GET
+            endpoints.append({"path": path, "methods": methods})
         return endpoints
     # FastAPI: @app.get("/items/")
     if "FastAPI" in src or "@app.get" in src:
         endpoints = []
-        for m in re.finditer(r'@app\.(get|post|put|delete|patch|head|options)\(\s*["\']([^"\']+)["\']', src, flags=re.IGNORECASE):
-            endpoints.append({"path": _normalize_path(m.group(2)), "methods": [m.group(1).upper()]})
+        for m in re.finditer(r'@app\.(get|post|put|delete|patch|head|options)\(\s*["\']([^"\']+)["\']\)', src, flags=re.IGNORECASE):
+            path = _normalize_path(m.group(2))
+            methods = [m.group(1).upper()]
+            # very basic heuristics to get request/response models
+            func_line = src[m.end():].split('\n')[0]
+            response_model = re.search(r'response_model=(\w+)', func_line)
+            if response_model:
+                response_model = response_model.group(1)
+            else:
+                response_model = None
+            request_body = re.search(r'(\w+):\s*(\w+)', func_line)
+            if request_body:
+                request_body = request_body.group(2)
+            else:
+                request_body = None
+
+            endpoints.append({
+                "path": path,
+                "methods": methods,
+                "request_body": request_body,
+                "response_model": response_model,
+            })
         return endpoints
     # Flask: @app.route("/test", methods=["GET"])
     if "@app.route" in src:
@@ -135,18 +208,42 @@ def _parse_python(src, ext):
 def _parse_ruby(src):
     endpoints = []
     # explicit get 'welcome/index'
-    for m in re.finditer(r'\bget\s+[\'"]([^\'"]+)[\'"]', src):
-        endpoints.append({"path": _normalize_path("/" + m.group(1).lstrip('/')), "methods": ["GET"]})
+    for m in re.finditer(r'\b(get|post|put|patch|delete)\s+[\'"]([^\'"]+)[\'"]', src):
+        verb = m.group(1).upper()
+        path = _normalize_path("/" + m.group(2).lstrip('/'))
+        path = re.sub(r':(\w+)', r'{\1}', path) # convert rails path params to openapi format
+        existing = next((e for e in endpoints if e["path"] == path), None)
+        if existing:
+            if verb not in existing["methods"]:
+                existing["methods"].append(verb)
+        else:
+            endpoints.append({"path": path, "methods": [verb]})
+
     # resources :articles -> expand common RESTful routes in expected order
-    if re.search(r'\bresources\s+:articles', src):
-        # index, create, show, update (PUT/PATCH), delete
+    for m in re.finditer(r'\bresources\s+:(\w+)', src):
+        resource = m.group(1)
         endpoints.extend([
-            {"path": "/articles", "methods": ["GET"]},
-            {"path": "/articles", "methods": ["POST"]},
-            {"path": "/articles/{id}", "methods": ["GET"]},
-            {"path": "/articles/{id}", "methods": ["PUT", "PATCH"]},
-            {"path": "/articles/{id}", "methods": ["DELETE"]},
+            {"path": f"/{resource}", "methods": ["GET"]},
+            {"path": f"/{resource}", "methods": ["POST"]},
+            {"path": f"/{resource}/{{id}}", "methods": ["GET"]},
+            {"path": f"/{resource}/{{id}}", "methods": ["PUT", "PATCH"]},
+            {"path": f"/{resource}/{{id}}", "methods": ["DELETE"]},
         ])
+
+    # nested resources
+    for m in re.finditer(r'resources\s+:(\w+)\s+do\s+(.*?)\s+end', src, re.DOTALL):
+        parent_resource = m.group(1)
+        nested_block = m.group(2)
+        for nested_m in re.finditer(r'resources\s+:(\w+)', nested_block):
+            nested_resource = nested_m.group(1)
+            endpoints.extend([
+                {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}", "methods": ["GET"]},
+                {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}", "methods": ["POST"]},
+                {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}/{{id}}", "methods": ["GET"]},
+                {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}/{{id}}", "methods": ["PUT", "PATCH"]},
+                {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}/{{id}}", "methods": ["DELETE"]},
+            ])
+
     return endpoints
 
 def _parse_nestjs(src):

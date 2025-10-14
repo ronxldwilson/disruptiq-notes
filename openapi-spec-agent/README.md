@@ -29,7 +29,7 @@ To see the agent's capabilities, you can run it on the sample applications provi
 2. **Run the agent:**
 
    ```bash
-   python src/main.py --client <client_name> --model <model_name>
+   python -m src.main --client <client_name> --model <model_name> --path <path_to_project>
    ```
 
    - `--client`: The AI client to use (e.g., `ollama`, `openai`, `claude`, `cerebras`, `openrouter`). Defaults to `ollama`.
@@ -61,9 +61,10 @@ The agent supports the following AI clients:
 
 The agent can currently:
 
-- Scan a project directory and identify Python and JavaScript files.
+- Scan a project directory and identify Python, JavaScript, and TypeScript files.
 - Parse Python files and extract Flask route information (`@app.route(...)`).
 - Parse JavaScript files and extract Express route information (`app.get(...)`, `app.post(...)`, etc.).
+- Parse TypeScript files and extract Next.js and Nest.js route information.
 - Generate a basic OpenAPI spec in YAML format, including paths and HTTP methods.
 
 ## How it Works
@@ -83,21 +84,21 @@ This section outlines the roadmap for making the OpenAPI Spec Agent an S-tier, i
 - **Support for more languages and frameworks:**
   - Python:
     - Flask (Implemented)
-    - Django (In Progress)
-    - FastAPI (In Progress)
+    - Django (Implemented)
+    - FastAPI (Implemented)
   - JavaScript/TypeScript:
     - Express (Implemented)
-    - Nest.js (In Progress)
-    - Next.js (In Progress)
+    - Nest.js (Implemented)
+    - Next.js (Implemented)
   - Java:
-    - Spring Boot (In Progress)
-    - JAX-RS (In Progress)
+    - Spring Boot (To Do)
+    - JAX-RS (To Do)
   - C#:
-    - ASP.NET Core (In Progress)
+    - ASP.NET Core (To Do)
   - Go:
-    - Gin (In Progress)
+    - Gin (Implemented)
   - Ruby:
-    - Rails (In Progress)
+    - Rails (Implemented)
 - **Sophisticated code analysis:**
   - Extract request/response models and data schemas.
   - Infer data types from code.

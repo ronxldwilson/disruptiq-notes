@@ -1,4 +1,4 @@
-from clients.base_client import get_ai_client
+from .clients.base_client import get_ai_client
 
 def enhance_spec_with_ai(endpoints, client_name, model):
     """Uses an AI model to enhance the OpenAPI spec."""

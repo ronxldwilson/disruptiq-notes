@@ -15,7 +15,7 @@ def parse_typescript_file(file_path):
     endpoints = []
 
     # Extract path from file path
-    path = os.path.splitext(file_path)[0].replace("\", "/")
+    path = os.path.splitext(file_path)[0].replace("\\", "/")
     path = "/" + "/api/".join(path.split("/api/")[1:])
     path = path.replace("/index", "")
     path = re.sub(r'\[(.*?)\]', r'{\1}', path)
