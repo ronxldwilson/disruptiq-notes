@@ -1,101 +1,242 @@
-Here is the complete OpenAPI 3.0.0 specification in YAML format:
-
 openapi: 3.0.0
 info:
-  title: My API
-  description: This is my API
+  title: API Documentation
   version: 1.0.0
-
+  description: This is an API documentation for various endpoints.
 components:
   schemas:
-    UserRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        age:
-          type: integer
-
-    UserResponse:
+    User:
       type: object
       properties:
         id:
           type: integer
         name:
           type: string
-        age:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        id: 1
+        name: John Doe
+        email: johndoe@example.com
+        password: password123
+    PostRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        author_id:
+          $ref: '#/components/schemas/User'
+      example:
+        title: Sample Post
+        content: This is a sample post
+        author_id:
+          $ref: '#/components/schemas/User#1'
+    CommentRequest:
+      type: object
+      properties:
+        comment:
+          type: string
+        post_id:
           type: integer
-
-  requestBodies:
-    userRequest:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/UserRequest'
-
-  responses:
-    201 Created:
-      description: User created successfully
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/UserResponse'
-    400 Bad Request:
-      description: Invalid request data
-      content:
-        application/json:
-          schema:
-            type: object
+      example:
+        comment: Great post!
+        post_id: 1
 
 paths:
   /users:
-    post:
-      summary: Create a new user
-      description: Creates a new user with the provided details.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRequest'
-      responses:
-        201:
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-        400:
-          description: Invalid request data
-          content:
-            application/json:
-              schema:
-                type: object
-
     get:
-      summary: Get all users
-      description: Returns a list of all users.
+      summary: Retrieve a list of users
+      description: Retrieves a list of all users.
       responses:
-        200:
-          description: Users returned successfully
+        '200':
+          description: List of users
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserResponse'
-
-  /users/{id}:
-    get:
-      summary: Get a user by ID
-      description: Returns a single user with the provided ID.
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Create a new user
+      description: Creates a new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
       responses:
-        200:
-          description: User returned successfully
+        '201':
+          description: User created successfully
+
+  /posts:
+    get:
+      summary: Retrieve a list of posts
+      description: Retrieves a list of all posts.
+      responses:
+        '200':
+          description: List of posts
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
-        404:
-          description: User not found
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostRequest'
+    post:
+      summary: Create a new post
+      description: Creates a new post.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+      responses:
+        '201':
+          description: Post created successfully
+
+  /comments:
+    get:
+      summary: Retrieve a list of comments
+      description: Retrieves a list of all comments.
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentRequest'
+    post:
+      summary: Create a new comment
+      description: Creates a new comment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+      responses:
+        '201':
+          description: Comment created successfully
+
+  /users/{user_id}:
+    get:
+      summary: Retrieve a user by ID
+      description: Retrieves a user by their ID.
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User retrieved successfully
+
+  /posts/{post_id}:
+    get:
+      summary: Retrieve a post by ID
+      description: Retrieves a post by their ID.
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Post retrieved successfully
+
+  /comments/{comment_id}:
+    get:
+      summary: Retrieve a comment by ID
+      description: Retrieves a comment by their ID.
+      parameters:
+        - in: path
+          name: comment_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Comment retrieved successfully
+
+  /users/{user_id}:
+    put:
+      summary: Update a user by ID
+      description: Updates a user by their ID.
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+
+  /posts/{post_id}:
+    put:
+      summary: Update a post by ID
+      description: Updates a post by their ID.
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+      responses:
+        '200':
+          description: Post updated successfully
+
+  /comments/{comment_id}:
+    put:
+      summary: Update a comment by ID
+      description: Updates a comment by their ID.
+      parameters:
+        - in: path
+          name: comment_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+      responses:
+        '200':
+          description: Comment updated successfully
+
+  /comments/{comment_id}:
+    delete:
+      summary: Delete a comment by ID
+      description: Deletes a comment by their ID.
+      parameters:
+        - in: path
+          name: comment_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Comment deleted successfully

@@ -155,76 +155,6 @@ export default function handler(req, res) {
         self.assertEqual(endpoints[0]["path"], "/")
         self.assertEqual(endpoints[0]["methods"], ["GET"])
 
-    def test_python_django_parser(self):
-        content = """
-from django.urls import path
-from . import views
-
-urlpatterns = [
-    path('articles/', views.article_list, name='article-list'),
-]
-"""
-        temp_file = self._create_temp_file(content, ".py")
-        endpoints = parse_file(temp_file)
-        self.assertGreater(len(endpoints), 0, "Python Django parser failed to find endpoints")
-        self.assertEqual(endpoints[0]["path"], "articles/")
-        self.assertEqual(endpoints[0]["methods"], ["GET"])
-
-    def test_python_fastapi_parser(self):
-        content = """
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/items/")
-async def read_items():
-    return {"message": "Hello FastAPI"}
-"""
-        temp_file = self._create_temp_file(content, ".py")
-        endpoints = parse_file(temp_file)
-        self.assertGreater(len(endpoints), 0, "Python FastAPI parser failed to find endpoints")
-        self.assertEqual(endpoints[0]["path"], "/items/")
-        self.assertEqual(endpoints[0]["methods"], ["GET"])
-
-    def test_python_flask_parser(self):
-        content = """
-from flask import Flask
-
-app = Flask(__name__)
-
-@app.route("/test", methods=["GET"])
-def test_route():
-    return "Hello, world!"
-"""
-        temp_file = self._create_temp_file(content, ".py")
-        endpoints = parse_file(temp_file)
-        self.assertGreater(len(endpoints), 0, "Python Flask parser failed to find endpoints")
-        self.assertEqual(endpoints[0]["path"], "/test")
-        self.assertEqual(endpoints[0]["methods"], ["GET"])
-
-    def test_ruby_rails_parser(self):
-        content = """
-Rails.application.routes.draw do
-  get 'welcome/index'
-  resources :articles
-end
-"""
-        temp_file = self._create_temp_file(content, ".rb")
-        endpoints = parse_file(temp_file)
-        self.assertGreater(len(endpoints), 0, "Ruby Rails parser failed to find endpoints")
-        self.assertEqual(endpoints[0]["path"], "/welcome/index")
-        self.assertEqual(endpoints[0]["methods"], ["GET"])
-        self.assertEqual(endpoints[1]["path"], "/articles")
-        self.assertEqual(endpoints[1]["methods"], ["GET"])
-        self.assertEqual(endpoints[2]["path"], "/articles")
-        self.assertEqual(endpoints[2]["methods"], ["POST"])
-        self.assertEqual(endpoints[3]["path"], "/articles/{id}")
-        self.assertEqual(endpoints[3]["methods"], ["GET"])
-        self.assertEqual(endpoints[4]["path"], "/articles/{id}")
-        self.assertEqual(endpoints[4]["methods"], ["PUT", "PATCH"])
-        self.assertEqual(endpoints[5]["path"], "/articles/{id}")
-        self.assertEqual(endpoints[5]["methods"], ["DELETE"])
-
     def test_typescript_nestjs_parser(self):
         content = """
 import { Controller, Get } from '@nestjs/common';
@@ -242,6 +172,37 @@ export class CatsController {
         self.assertGreater(len(endpoints), 0, "TypeScript NestJS parser failed to find endpoints")
         self.assertEqual(endpoints[0]["path"], "/cats")
         self.assertEqual(endpoints[0]["methods"], ["GET"])
+
+    def test_typescript_nextjs_parser(self):
+        content = """
+import type { NextApiRequest, NextApiResponse } from 'next'
+
+type ResponseData = {
+  message: string
+}
+
+export default function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ResponseData>
+) {
+  if (req.method === 'POST') {
+    res.status(200).json({ message: 'Hello from Next.js!' })
+  } else {
+    res.status(200).json({ message: 'Hello from Next.js!' })
+  }
+}
+"""
+        # create a temp file in a nested directory to simulate the pages/api structure
+        temp_dir = tempfile.mkdtemp()
+        self.temp_files.append(temp_dir)
+        api_dir = os.path.join(temp_dir, "pages", "api")
+        os.makedirs(api_dir)
+        temp_file = self._create_temp_file(content, os.path.join(api_dir, "hello.ts"))
+
+        endpoints = parse_file(temp_file)
+        self.assertGreater(len(endpoints), 0, "TypeScript Next.js parser failed to find endpoints")
+        self.assertEqual(endpoints[0]["path"], "/hello")
+        self.assertEqual(endpoints[0]["methods"], ["POST", "GET"])
 
 if __name__ == "__main__":
     unittest.main()

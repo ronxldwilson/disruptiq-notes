@@ -1,5 +1,6 @@
 import os
 import re
+from .parsers.typescript_parser import parse_typescript_file
 
 # Very small heuristic parsers per language/framework used by tests.
 # Returns list of {"path": "...", "methods": [...]}
@@ -83,6 +84,7 @@ def _parse_java(src):
         return endpoints
     return []
 
+
 def _parse_js(src):
     # Express: app.get('/api/data', ...)
     endpoints = []
@@ -147,7 +149,7 @@ def _parse_ruby(src):
         ])
     return endpoints
 
-def _parse_typescript(src):
+def _parse_nestjs(src):
     # NestJS: @Controller('cats') and @Get()
     ctrl = re.search(r'@Controller\(\s*[\'"]([^\'"]+)[\'"]\s*\)', src)
     if ctrl:
@@ -166,13 +168,22 @@ def _parse_typescript(src):
 def parse_file(file_path):
     if not os.path.exists(file_path):
         return []
+
+    ext = os.path.splitext(file_path)[1].lower()
+
+    if ext in (".ts", ".tsx"):
+        with open(file_path, "r", encoding="utf-8") as f:
+            src = f.read()
+        if "@nestjs/common" in src:
+            return _parse_nestjs(src)
+        else:
+            return parse_typescript_file(file_path)
+
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             src = f.read()
     except Exception:
         return []
-
-    ext = os.path.splitext(file_path)[1].lower()
 
     if ext == ".cs":
         return _parse_cs(src)
@@ -186,7 +197,5 @@ def parse_file(file_path):
         return _parse_python(src, ext)
     if ext == ".rb":
         return _parse_ruby(src)
-    if ext == ".ts":
-        return _parse_typescript(src)
 
     return []

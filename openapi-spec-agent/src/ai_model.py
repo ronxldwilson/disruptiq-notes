@@ -6,11 +6,12 @@ def enhance_spec_with_ai(endpoints, client_name, model):
     prompt = (
         "Given the following API endpoints and their corresponding code, "
         "generate a complete OpenAPI 3.0.0 specification in YAML format. "
+        "**Important: The specification must be based *only* on the information provided in the code. Do not invent any new information, endpoints, or schemas.**\n\n"
         "The specification should be as detailed as possible and should include the following sections:\n"
         "- `openapi: 3.0.0`\n"
         "- `info`: Generate a descriptive title, version, and description for the API based on the provided endpoints.\n"
-        "- `paths`: For each endpoint, include all HTTP methods (GET, POST, PUT, DELETE, etc.). For each method, provide a summary, description, and any parameters (path, query, etc.) with their descriptions and schemas.\n"
-        "- `components`: Infer data schemas for all request and response bodies from the provided code. Use descriptive names for the schemas based on the types in the code. Include examples for all schemas.\n\n"
+        "- `paths`: For each unique path, create a single path item and combine all HTTP methods (GET, POST, PUT, DELETE, etc.) under that path. For each method, provide a summary, description, and any parameters (path, query, etc.) with their descriptions and schemas.\n"
+        "- `components`: Infer data schemas for all request and response bodies strictly from the provided code. Use descriptive names for the schemas based on the types in the code. Include examples for all schemas based on the code.\n\n"
         "Do not wrap the output in a code block.\n\n"
         "Here are the endpoints and their code:\n"
     )
