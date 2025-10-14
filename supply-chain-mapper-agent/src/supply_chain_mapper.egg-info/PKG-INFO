@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: supply-chain-mapper
+Version: 0.1.0
+Summary: A static analysis tool to map supply chain dependencies and risks.
+Author-email: Gemini CLI <gemini@google.com>
+Requires-Dist: pathspec
+Requires-Dist: toml
+Requires-Dist: ruamel.yaml

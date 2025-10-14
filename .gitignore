@@ -7,3 +7,6 @@ openapi-go-gin-postgres-sqlc
 daptin 
 __pycache__
 node_modules
+
+# Allow
+!supply-chain-mapper-agent/repo-to-scan/node_modules/*
