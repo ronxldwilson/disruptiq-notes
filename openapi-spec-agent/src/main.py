@@ -1,10 +1,11 @@
 import yaml
+import re
+import argparse
 from scanner import scan_project
 from parser import parse_file
 from ai_model import enhance_spec_with_ai
-import re
 
-def main():
+def main(client_name, model):
     """The main entry point for the agent."""
     print("--- Starting OpenAPI Spec Agent ---")
 
@@ -20,7 +21,7 @@ def main():
     print(f"Found {len(all_endpoints)} endpoints.")
 
     print("\n--- Step 3: Enhancing the OpenAPI spec with an AI model ---")
-    response_generator = enhance_spec_with_ai(all_endpoints)
+    response_generator = enhance_spec_with_ai(all_endpoints, client_name, model)
 
     print("\n--- Step 4: Saving the OpenAPI spec to output.yaml (streaming) ---")
     with open("output.yaml", "w", encoding="utf-8") as f:
@@ -34,4 +35,8 @@ def main():
     print("\n--- OpenAPI spec generated successfully! ---")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="OpenAPI Spec Agent")
+    parser.add_argument("--client", type=str, default="ollama", help="The AI client to use (e.g., ollama, openai, claude, cerebras, openrouter)")
+    parser.add_argument("--model", type=str, default="llama3.2", help="The model to use for the AI client")
+    args = parser.parse_args()
+    main(args.client, args.model)

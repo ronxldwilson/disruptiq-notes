@@ -23,20 +23,39 @@ To see the agent's capabilities, you can run it on the sample applications provi
 1. **Install the dependencies:**
 
    ```bash
-   pip install flask
+   pip install requests
    ```
 
 2. **Run the agent:**
 
    ```bash
-   python src/main.py
+   python src/main.py --client <client_name> --model <model_name>
    ```
 
-   This will scan the `tmp` directory for sample applications, parse the code to extract the API endpoints, and then use a simulated AI model to generate an OpenAPI spec. The generated spec will be saved to the `output.yaml` file.
+   - `--client`: The AI client to use (e.g., `ollama`, `openai`, `claude`, `cerebras`, `openrouter`). Defaults to `ollama`.
+   - `--model`: The model to use for the AI client. Defaults to `llama3.2`.
 
-## Configuration
+   This will scan the `tmp` directory for sample applications, parse the code to extract the API endpoints, and then use the selected AI model to generate an OpenAPI spec. The generated spec will be saved to the `output.yaml` file.
 
-The agent is configured to use the Ollama API endpoint at `http://localhost:11434/api/generate`. If you are using a different endpoint, you can change it in the `src/ollama_client.py` file by modifying the `OLLAMA_API_URL` variable.
+## Supported AI Clients
+
+The agent supports the following AI clients:
+
+- **Ollama:**
+  - Client name: `ollama`
+  - No API key required.
+- **OpenAI:**
+  - Client name: `openai`
+  - Requires the `OPENAI_API_KEY` environment variable to be set.
+- **Claude (Anthropic):**
+  - Client name: `claude`
+  - Requires the `CLAUDE_API_KEY` environment variable to be set.
+- **Cerebras:**
+  - Client name: `cerebras`
+  - Requires the `CEREBRAS_API_KEY` environment variable to be set.
+- **OpenRouter:**
+  - Client name: `openrouter`
+  - Requires the `OPENROUTER_API_KEY` environment variable to be set.
 
 ## Current Capabilities
 

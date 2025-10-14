@@ -1,8 +1,8 @@
-from ollama_client import get_ollama_response
+from clients.base_client import get_ai_client
 
-def enhance_spec_with_ai(endpoints):
+def enhance_spec_with_ai(endpoints, client_name, model):
     """Uses an AI model to enhance the OpenAPI spec."""
-    print("Sending request to AI model to enhance the OpenAPI spec...")
+    print(f"Sending request to {client_name} to enhance the OpenAPI spec...")
     prompt = (
         "Given the following API endpoints extracted from a Python Flask application, "
         "generate a complete OpenAPI 3.0.0 specification in YAML format. "
@@ -23,6 +23,7 @@ def enhance_spec_with_ai(endpoints):
     prompt += "\nPlease generate the complete OpenAPI spec based on this information."
     print(f"Prompt sent to AI model:\n{prompt}")
 
-    # Get the AI-generated spec from Ollama
-    ollama_response = get_ollama_response(prompt)
-    return ollama_response
+    # Get the AI-generated spec from the selected client
+    ai_client = get_ai_client(client_name, model)
+    ai_response = ai_client.get_response(prompt)
+    return ai_response
