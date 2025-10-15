@@ -1,0 +1,16 @@
+detectors:
+  - id: hardcoded_url_v1
+    enabled: true
+    severity: medium
+    languages: ["javascript", "python", "go"]
+    regex: "https?://[\\w\\.-/:?=&%+#]+"
+    explanation: "Detects hardcoded endpoint strings."
+
+  - id: port_exposure_v1
+    enabled: true
+    severity: high
+    languages: ["javascript", "python", "go"]
+    regex: "(listen|bind|serve)\\\\s*\\\\(\\\\s*(\\\\d{2,5})\\\\s*\\\\)"
+    conditions:
+      - ensure_not_dev_only: true
+    explanation: "Server appears to bind to a port"
