@@ -16,9 +16,6 @@ once all of these agents are done attacking they will go back and regroup until 
 which then generates after review, then see if theses issues create any bigger issue and then 
 compiles and gives a report.
 
-Proposed Architecture (v 0.1.0)
-![alt text](arch0-1-0.png)
-
 
 Notes:
 1. Shift left security scans. Ideally all issues should be caught on early on the development process

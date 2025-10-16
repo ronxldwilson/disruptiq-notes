@@ -1,1 +1,0 @@
-This agent will be able to take an entire openapi spec sheet of a project and then using a an agent to generate custom command mappings to run various SQL injection tools to test out the various APIs for vulnerabilities and then write the output to the final report
