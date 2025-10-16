@@ -115,7 +115,8 @@ def setup_logging(verbose):
         level=level,
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.StreamHandler(sys.stdout)
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('network-mapper.log', mode='w')
         ]
     )
 
@@ -123,7 +124,7 @@ def main():
     parser = argparse.ArgumentParser(description='Network Mapper')
     parser.add_argument('command', choices=['scan'], help='command to execute')
     parser.add_argument('--repo', required=True, help='path to repository root')
-    parser.add_argument('--output', help='output path (defaults to stdout)')
+    parser.add_argument('--output', default='report.json', help='output path (defaults to report.json)')
     parser.add_argument('--format', choices=['json', 'sarif', 'table'], default='json', help='output format')
     parser.add_argument('--ruleset', help='custom ruleset file')
     parser.add_argument('--languages', help='limit scanning to languages (comma-separated)')

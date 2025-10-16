@@ -605,7 +605,7 @@ jobs:
 2. Implement a `Detector` subclass that defines `id`, `name`, `supported_languages`, and `match()` method.
 3. Add unit tests in `tests/detectors/test_my_detector.py`.
 4. Add entry to `rulesets/default.yaml` (optional).
-5. Run `python main.py --repo .` and ensure new detector appears in `metadata.detectors_loaded`.
+5. Run `python main.py scan --repo .` and ensure new detector appears in `metadata.detectors_loaded`.
 
 ## Example detector skeleton (Python)
 
