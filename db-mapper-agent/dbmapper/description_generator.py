@@ -73,7 +73,11 @@ class DescriptionGenerator:
             return self._generate_generic_description(finding, file_type)
 
         # Fill in template variables
-        description = self._fill_template(template, finding, file_type)
+        try:
+            description = self._fill_template(template, finding, file_type)
+        except Exception as e:
+            # If template filling fails, use generic
+            return self._generate_generic_description(finding, file_type)
 
         # Add security context if applicable
         if finding.get("severity") in ["critical", "high"]:
@@ -111,23 +115,38 @@ class DescriptionGenerator:
         type_templates = self.templates.get(finding_type, {})
 
         # Try framework-specific template first
-        if framework and framework in type_templates:
+        if framework and isinstance(type_templates, dict) and framework in type_templates:
             return type_templates[framework]
 
         # Try type-specific template
-        if finding_type in type_templates:
+        if isinstance(type_templates, dict):
             # For some types, we need to determine subtype
             if finding_type == "raw_sql":
-                return self._get_sql_template(finding, type_templates)
+                template = self._get_sql_template(finding, type_templates)
+                if template:
+                    return template
             elif finding_type == "connection":
-                return self._get_connection_template(finding, type_templates)
+                template = self._get_connection_template(finding, type_templates)
+                if template:
+                    return template
             elif finding_type == "secret":
-                return self._get_secret_template(finding, type_templates)
+                template = self._get_secret_template(finding, type_templates)
+                if template:
+                    return template
             elif finding_type == "migration":
-                return self._get_migration_template(finding, type_templates)
+                template = self._get_migration_template(finding, type_templates)
+                if template:
+                    return template
+            # Check if the type itself is a direct template
+            elif finding_type in type_templates:
+                return type_templates[finding_type]
+
+        # Return the template directly if it's not a dict
+        if isinstance(type_templates, str):
+            return type_templates
 
         # Return default template for the type
-        return type_templates.get("default")
+        return type_templates.get("default") if isinstance(type_templates, dict) else None
 
     def _get_sql_template(self, finding: Dict[str, Any], templates: Dict[str, Any]) -> Optional[str]:
         """Get appropriate SQL template based on query type."""
@@ -152,13 +171,18 @@ class DescriptionGenerator:
     def _get_connection_template(self, finding: Dict[str, Any], templates: Dict[str, Any]) -> Optional[str]:
         """Get appropriate connection template based on context."""
         evidence = " ".join(finding.get("evidence", []))
+        file_path = finding.get("file", "").lower()
 
+        # Check for environment variable pattern
         if "=" in evidence and ("DB_" in evidence.upper() or "DATABASE" in evidence.upper()):
             return templates.get("env_var")
-        elif finding.get("file", "").endswith((".yml", ".yaml", ".json", ".xml", ".conf", ".ini")):
+
+        # Check for config files
+        if any(file_path.endswith(ext) for ext in [".yml", ".yaml", ".json", ".xml", ".conf", ".ini"]):
             return templates.get("config_file")
-        else:
-            return templates.get("hardcoded")
+
+        # Default to hardcoded for source files
+        return templates.get("hardcoded")
 
     def _get_secret_template(self, finding: Dict[str, Any], templates: Dict[str, Any]) -> Optional[str]:
         """Get appropriate secret template based on secret type."""

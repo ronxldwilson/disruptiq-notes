@@ -1,8 +1,8 @@
-# DB Mapper — Advanced Static Repository Scanner
+# DB Mapper — Enterprise-Grade Database Security Scanner
 
-> **DB Mapper** is a comprehensive, enterprise-grade static analysis tool that scans software repositories to discover and map all database-related artifacts. It detects connection strings, ORM models, raw SQL queries, hardcoded secrets, migration files, schema changes, and provides data flow visualization.
+> **DB Mapper** is a comprehensive, AI-powered static analysis tool that scans software repositories to discover, analyze, and secure all database-related artifacts. It provides intelligent detection of connection strings, ORM models, raw SQL queries, hardcoded secrets, migration files, schema changes, and generates natural language security reports with actionable recommendations.
 
-This README describes the advanced features, installation, usage, detection capabilities, and extensibility of the project.
+This README describes the cutting-edge features, installation, usage, detection capabilities, and enterprise-grade security analysis of the project.
 
 ## Table of Contents
 
@@ -32,15 +32,18 @@ DB Mapper is a **static DB mapping tool** that analyzes source code and reposito
 
 It outputs:
 
-* **Database Connections**: DSN detection, environment variables, provider identification
-* **ORM Models**: Django, SQLAlchemy, Sequelize, TypeORM, JPA/Hibernate, ActiveRecord, GORM
-* **Raw SQL Queries**: Inline SQL detection with context and risk assessment
-* **Secret Detection**: API keys, tokens, passwords, private keys, JWT tokens, AWS credentials
-* **Migration Files**: Django, Alembic, Flyway, Liquibase, Rails migrations
-* **Schema Changes**: CREATE/ALTER/DROP TABLE statements across frameworks
-* **Data Flow Visualization**: Graphviz DOT files showing relationships between components
-* **Multiple Output Formats**: JSON, CSV, HTML reports, and interactive graphs
-* **Cross-file Analysis**: Model-to-query mapping and relationship inference
+* **🔗 Database Connections**: Advanced DSN detection, environment variables, provider identification with connection validation
+* **🏗️ ORM Models**: Comprehensive support for Django, SQLAlchemy, Sequelize, TypeORM, JPA/Hibernate, ActiveRecord, GORM, Entity Framework, Laravel Eloquent
+* **💉 Raw SQL Queries**: Intelligent inline SQL detection with injection risk assessment and parameterized query recommendations
+* **🔐 Secret Detection**: Enterprise-grade detection of API keys, tokens, passwords, private keys, JWT tokens, AWS credentials, database passwords with allowlist filtering
+* **📋 Migration Files**: Framework-specific migration analysis for Django, Alembic, Flyway, Liquibase, Rails, Entity Framework migrations
+* **⚡ Schema Changes**: DDL statement analysis with impact assessment for CREATE/ALTER/DROP operations
+* **🕸️ Data Flow Visualization**: Interactive Graphviz DOT files showing component relationships and data flow
+* **📊 Multiple Output Formats**: JSON (API-ready), CSV (SIEM integration), HTML (interactive reports), Graphviz (visualization)
+* **🔍 Cross-file Analysis**: Intelligent model-to-query mapping, relationship inference, and usage context analysis
+* **🧠 Natural Language Reports**: AI-generated descriptions with actionable security recommendations and risk explanations
+* **⚠️ Risk Scoring**: Advanced risk assessment with severity classification, contextual multipliers, and compliance indicators
+* **🚀 Parallel Processing**: High-performance multi-threaded scanning for large codebases
 
 ---
 
@@ -63,28 +66,32 @@ It outputs:
 
 ## High-level Workflow
 
-1. **Input Processing**: Accept repository path with flexible filtering options.
-2. **Intelligent File Discovery**: Multi-language file detection with extension and content-based heuristics.
-3. **Advanced Parsing**: Regex-based pattern matching with AST support for complex analysis.
-4. **Comprehensive Detection**:
-   - Connection strings and environment variables
-   - ORM models across multiple frameworks
-   - Raw SQL queries with risk assessment
-   - Hardcoded secrets and credentials
-   - Migration files and schema changes
-5. **Relationship Analysis**: Cross-file mapping between models, queries, and migrations.
-6. **Risk Assessment**: Confidence scoring and severity classification for findings.
-7. **Multiple Outputs**: JSON, CSV, HTML reports, and Graphviz visualization.
+1. **🎯 Input Processing**: Accept repository path with advanced filtering, language selection, and configuration options.
+2. **🔍 Intelligent File Discovery**: Multi-language file detection with extension and content-based heuristics across 7+ languages.
+3. **🧠 Advanced Parsing**: Hybrid approach using AST parsing for Python and sophisticated regex patterns for all languages.
+4. **🔬 Comprehensive Detection Engine**:
+   - Database connections with provider validation
+   - ORM models across 10+ frameworks with field analysis
+   - Raw SQL queries with injection risk assessment
+   - Enterprise-grade secret detection with allowlist filtering
+   - Framework-specific migration file analysis
+   - DDL statement parsing with impact assessment
+5. **🔗 Intelligent Relationship Analysis**: Cross-file mapping, model-to-query relationships, and usage context inference.
+6. **⚠️ Advanced Risk Assessment**: Multi-factor risk scoring with severity classification, contextual multipliers, and compliance indicators.
+7. **📝 Natural Language Generation**: AI-powered descriptions with actionable security recommendations.
+8. **📊 Multiple Output Generation**: Parallel processing for JSON, CSV, HTML, and Graphviz formats with enterprise integrations.
 
 ---
 
 ## Design Principles
 
-* **Modular:** Add or remove detectors easily.
-* **Language-first:** Use ASTs where possible, regex fallback otherwise.
-* **Deterministic:** Identical input = identical results.
-* **Configurable:** Fine-tune confidence, languages, and detectors.
-* **Explainable:** Each finding includes evidence and confidence.
+* **🏗️ Modular Architecture:** Plugin-based detector system with easy extension and customization.
+* **🌍 Language-Agnostic:** Universal support with language-specific optimizations (AST for Python, regex for others).
+* **🔄 Deterministic Results:** Consistent output across runs with identical inputs.
+* **⚙️ Enterprise Configurable:** Fine-tune confidence thresholds, risk scoring, language support, and output formats.
+* **📖 Explainable AI:** Natural language descriptions with actionable security recommendations.
+* **🚀 High Performance:** Parallel processing, memory-efficient streaming, and optimized algorithms.
+* **🔒 Security-First:** Safe static analysis with comprehensive secret detection and risk assessment.
 
 ---
 
@@ -124,14 +131,17 @@ Walks repo, filters relevant files, detects languages.
 **Parsers**
 Wraps ASTs or uses text-based regex scanning.
 
-**Detectors**
+**Core Detection Engine**
 
-* `connection_detector`: DSN patterns, environment variables, provider normalization
-* `orm_detector`: Multi-framework ORM model detection (Django, SQLAlchemy, Sequelize, TypeORM, JPA, ActiveRecord, GORM)
-* `raw_sql_detector`: Inline SQL queries with context and risk assessment
-* `secret_detector`: API keys, tokens, passwords, private keys, JWT, AWS credentials with allowlist filtering
-* `migration_detector`: Framework-specific migration detection (Django, Alembic, Flyway, Liquibase, Rails)
-* `schema_detector`: Database schema changes and DDL statements
+* **`detectors.py`**: Main orchestration engine with parallel processing
+* **`ast_parser.py`**: Abstract Syntax Tree parsing for Python code accuracy
+* **`secret_detector.py`**: Enterprise-grade secret detection with pattern matching and allowlist filtering
+* **`migration_detector.py`**: Framework-specific migration file analysis
+* **`csharp_detector.py`**: Entity Framework and .NET ORM detection
+* **`php_detector.py`**: Laravel Eloquent and Doctrine ORM detection
+* **`cross_references.py`**: Intelligent relationship mapping between components
+* **`risk_scorer.py`**: Advanced risk assessment with contextual scoring
+* **`description_generator.py`**: AI-powered natural language report generation
 
 **Crosslinker**
 Connects models and their usage in queries or services.
@@ -215,11 +225,12 @@ Comprehensive multi-language support:
 * Schema definition files
 
 **Infrastructure & Configuration**
-* Docker Compose database services
-* Terraform AWS RDS, GCP Cloud SQL
-* Kubernetes ConfigMaps and Secrets
-* Environment files (.env, .env.local)
-* YAML/TOML/JSON configuration files
+* Docker Compose database services with service discovery
+* Terraform AWS RDS, GCP Cloud SQL, Azure Database infrastructure
+* Kubernetes ConfigMaps and Secrets with security validation
+* Environment files (.env, .env.local) with secret detection
+* YAML/TOML/JSON configuration files with schema validation
+* CloudFormation and ARM templates for cloud database resources
 
 ---
 
@@ -240,14 +251,15 @@ db-mapper scan /path/to/repo --output findings.json
 --path PATH                Repository path (required)
 --output FILE              Output file base name (default: findings)
 --formats json,csv,html,graph  Output formats (default: json)
---include GLOB             Glob patterns for files to include
---exclude GLOB             Glob patterns for files to exclude
---languages python,js,java,ruby,go,sql  Limit to specific languages
---plugins PLUGINS          Enable additional detector plugins
+--include GLOB             Glob patterns for files to include (e.g., "**/*.py")
+--exclude GLOB             Glob patterns for files to exclude (e.g., "**/test/**")
+--languages python,js,java,csharp,php,ruby,go,sql  Limit to specific languages
+--plugins PLUGINS          Enable additional detector plugins (future feature)
 --min-confidence FLOAT     Filter results below confidence threshold (default: 0.5)
---verbose                  Enable verbose logging
---threads N                Number of parallel worker threads (default: 4)
---config FILE              Path to YAML configuration file
+--verbose                  Enable verbose logging with progress indicators
+--threads N                Number of parallel worker threads (default: 4, max: 16)
+--config FILE              Path to YAML configuration file (future feature)
+--risk-threshold critical,high,medium,low  Minimum risk level to report (default: low)
 ```
 
 **Sample Output (JSON)**
@@ -272,6 +284,49 @@ db-mapper scan /path/to/repo --output findings.json
       "file": "models/user.py",
       "evidence": ["class User(models.Model):"],
       "confidence": 0.95
+    }
+  ]
+}
+```
+
+### Enhanced JSON Schema with AI Descriptions
+
+```json
+{
+  "summary": {
+    "files_scanned": 150,
+    "findings": 45,
+    "severity_breakdown": {
+      "critical": 3,
+      "high": 12,
+      "medium": 20,
+      "low": 10
+    }
+  },
+  "findings": [
+    {
+      "id": "f-0001",
+      "type": "secret",
+      "secret_type": "aws_access_key",
+      "severity": "critical",
+      "risk_score": 9.2,
+      "file": "config/production.py",
+      "line": 25,
+      "evidence": ["AWS_ACCESS_KEY_ID = \"********\""],
+      "confidence": 0.95,
+      "description": "AWS access key ID found in configuration file. This credential provides access to AWS services and should be stored in secure credential management systems.",
+      "relationships": [
+        {
+          "type": "used_by_connection",
+          "target_id": "f-0002",
+          "description": "This AWS key is used by database connection in the same file"
+        }
+      ],
+      "usage_context": {
+        "environment_indicators": ["production"],
+        "security_implications": ["cloud_resource_access", "potential_data_exposure"]
+      },
+      "risk_factors": ["production_environment", "hardcoded_credentials", "cloud_resource_access"]
     }
   ]
 }
@@ -426,32 +481,37 @@ db-mapper = "dbmapper.__main__:main"
 
 ## Roadmap & Future Enhancements
 
-### ✅ **Implemented**
-* Multi-language framework support (Python, JS/TS, Java, Ruby, Go, SQL)
-* Secret detection with allowlist filtering
-* Migration file detection across frameworks
-* Graphviz visualization with relationship mapping
-* CSV export for enterprise integration
-* Risk scoring and severity classification
-* Parallel processing capabilities
+### ✅ **Implemented (v1.0)**
+* **🔬 Advanced Detection Engine**: Multi-language support (Python, JS/TS, Java, C#, PHP, Ruby, Go, SQL) with 10+ ORM frameworks
+* **🔐 Enterprise Secret Detection**: API keys, tokens, passwords, private keys, JWT, AWS credentials with intelligent allowlist filtering
+* **📋 Migration Analysis**: Framework-specific migration detection (Django, Alembic, Flyway, Liquibase, Rails, Entity Framework)
+* **🕸️ Data Flow Visualization**: Interactive Graphviz DOT files showing component relationships and data flow
+* **📊 Multi-Format Outputs**: JSON (API-ready), CSV (SIEM integration), HTML (interactive reports), Graphviz (visualization)
+* **🔍 Intelligent Cross-References**: Model-to-query mapping, relationship inference, and usage context analysis
+* **🧠 AI-Powered Descriptions**: Natural language generation with actionable security recommendations
+* **⚠️ Advanced Risk Assessment**: Multi-factor risk scoring with severity classification and contextual multipliers
+* **🚀 High-Performance Processing**: Parallel multi-threaded scanning with optimized algorithms
+* **🏗️ AST-Based Parsing**: Python AST parsing for enhanced accuracy with regex fallbacks for other languages
 
-### 🔄 **In Development**
-* AST-based parsing for improved accuracy
-* Plugin system for custom detectors
-* Configuration file support (YAML)
-* Interactive HTML reports with filtering
+### 🔄 **In Development (v1.1)**
+* Plugin architecture for custom detectors and rules
+* YAML configuration file support
+* Interactive HTML filtering and search capabilities
+* Performance optimizations for large codebases
 
-### 🚀 **Planned Features**
-* Tree-sitter integration for advanced language parsing
-* SQL AST analysis for column-level data flow
-* CI/CD integration with GitHub Actions, Jenkins
-* Cloud provider detection (AWS RDS, GCP Cloud SQL, Azure Database)
-* GUI application for interactive analysis
-* Real-time monitoring and alerting
-* Integration with security scanners (SAST, DAST)
-* Support for additional languages (C#, PHP, Kotlin, Rust)
-* Machine learning-based pattern recognition
-* Compliance reporting (GDPR, HIPAA, SOX)
+### 🚀 **Planned Features (v2.0+)**
+* Tree-sitter integration for advanced multi-language parsing
+* SQL AST analysis for column-level data flow and dependency mapping
+* CI/CD integration with GitHub Actions, GitLab CI, Jenkins, Azure DevOps
+* Cloud provider infrastructure detection (AWS RDS, GCP Cloud SQL, Azure Database)
+* Real-time monitoring and alerting system
+* Integration with commercial security scanners (SAST, DAST, SCA)
+* Support for additional languages (Kotlin, Rust, Scala, Swift)
+* Machine learning-based pattern recognition and anomaly detection
+* Compliance reporting and audit trails (GDPR, HIPAA, SOX, PCI-DSS)
+* GUI application for interactive analysis and remediation
+* REST API for integration with security platforms
+* Custom rule engine with domain-specific language
 
 ---
 
