@@ -2,6 +2,42 @@ import os
 import re
 from .parsers.typescript_parser import parse_typescript_file
 
+def extract_snippet(src, match_start):
+    """Extract the entire function/method containing the match."""
+    lines = src.splitlines()
+    # Find the line number of the match
+    char_count = 0
+    match_line = 0
+    for i, line in enumerate(lines):
+        char_count += len(line) + 1  # +1 for newline
+        if char_count > match_start:
+            match_line = i
+            break
+
+    # Find function start: search backwards for 'def ', 'function ', 'func ', or decorator @
+    start_line = match_line
+    while start_line > 0:
+        line = lines[start_line].strip()
+        if re.match(r'(def|function|func)\s+\w+', line) or line.startswith('@'):
+            break
+        start_line -= 1
+
+    # Find function end: search forwards for next function start or end of file
+    end_line = match_line
+    indent_level = len(lines[match_line]) - len(lines[match_line].lstrip())
+    while end_line < len(lines) - 1:
+        end_line += 1
+        line = lines[end_line]
+        stripped = line.strip()
+        if stripped and not line.startswith(' ') * indent_level:  # Assuming consistent indentation
+            if re.match(r'(def|function|func)\s+\w+', stripped) or stripped.startswith('@'):
+                end_line -= 1  # Don't include next function
+                break
+
+    # Extract from start_line to end_line
+    snippet = '\n'.join(lines[start_line:end_line + 1])
+    return snippet
+
 # Very small heuristic parsers per language/framework used by tests.
 # Returns list of {"path": "...", "methods": [...]}
 
@@ -50,8 +86,8 @@ def _parse_cs(src):
             if verb not in existing["methods"]:
                 existing["methods"].append(verb)
         else:
-            endpoints.append({"path": path, "methods": [verb]})
-    return endpoints or [{"path": _normalize_path(controller_route), "methods": ["GET"]}]
+            endpoints.append({"path": path, "methods": [verb], "code": extract_snippet(src, m2.start())})
+    return endpoints or [{"path": _normalize_path(controller_route), "methods": ["GET"], "code": ""}]
 
 def _parse_go(src):
     endpoints = []
@@ -70,7 +106,7 @@ def _parse_go(src):
                 if verb not in existing["methods"]:
                     existing["methods"].append(verb)
             else:
-                endpoints.append({"path": path, "methods": [verb]})
+                endpoints.append({"path": path, "methods": [verb], "code": extract_snippet(src, m.start())})
 
     # handle routes outside of groups
     for m in re.finditer(r'\b\w+\.(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\(\s*"([^"]+)"', src):
@@ -89,14 +125,14 @@ def _parse_go(src):
                 if verb not in existing["methods"]:
                     existing["methods"].append(verb)
             else:
-                endpoints.append({"path": path, "methods": [verb]})
+                endpoints.append({"path": path, "methods": [verb], "code": extract_snippet(src, m.start())})
     return endpoints
 
 def _parse_java(src):
     # try Spring @GetMapping
     endpoints = []
     for m in re.finditer(r'@GetMapping\(\s*"([^"]+)"\s*\)', src):
-        endpoints.append({"path": _normalize_path(m.group(1)), "methods": ["GET"]})
+        endpoints.append({"path": _normalize_path(m.group(1)), "methods": ["GET"], "code": extract_snippet(src, m.start())})
     if endpoints:
         return endpoints
     # try JAX-RS: class @Path and method @GET/@POST
@@ -105,7 +141,7 @@ def _parse_java(src):
         base = class_path.group(1)
         for m in re.finditer(r'@(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b', src):
             verb = m.group(0).strip('@').upper()
-            endpoints.append({"path": _normalize_path(base), "methods": [verb]})
+            endpoints.append({"path": _normalize_path(base), "methods": [verb], "code": extract_snippet(src, m.start())})
         return endpoints
     return []
 
@@ -121,12 +157,12 @@ def _parse_js(src):
             if verb not in existing["methods"]:
                 existing["methods"].append(verb)
         else:
-            endpoints.append({"path": path, "methods": [verb]})
+            endpoints.append({"path": path, "methods": [verb], "code": extract_snippet(src, m2.start())})
     if endpoints:
         return endpoints
     # Next.js API route heuristic: export default handler -> root path
     if re.search(r'export\s+default\s+function\s+\w*\(\s*req\s*,\s*res', src):
-        return [{"path": "/", "methods": ["GET"]}]
+        return [{"path": "/", "methods": ["GET"], "code": ""}]
     return []
 
 def _parse_python(src, ext):
@@ -163,7 +199,7 @@ def _parse_python(src, ext):
 
             if not methods:
                 methods = ["GET"] # default to GET
-            endpoints.append({"path": path, "methods": methods})
+            endpoints.append({"path": path, "methods": methods, "code": extract_snippet(src, m.start())})
         return endpoints
     # FastAPI: @app.get("/items/")
     if "FastAPI" in src or "@app.get" in src:
@@ -185,10 +221,11 @@ def _parse_python(src, ext):
                 request_body = None
 
             endpoints.append({
-                "path": path,
-                "methods": methods,
-                "request_body": request_body,
-                "response_model": response_model,
+            "path": path,
+            "methods": methods,
+            "request_body": request_body,
+            "response_model": response_model,
+            "code": extract_snippet(src, m.start()),
             })
         return endpoints
     # Flask: @app.route("/test", methods=["GET"])
@@ -201,7 +238,7 @@ def _parse_python(src, ext):
                 methods = [meth.strip().strip('\'"').upper() for meth in re.split(r',\s*', methods_raw)]
             else:
                 methods = ["GET"]
-            endpoints.append({"path": _normalize_path(path), "methods": methods})
+            endpoints.append({"path": _normalize_path(path), "methods": methods, "code": extract_snippet(src, m.start())})
         return endpoints
     return []
 
@@ -217,17 +254,17 @@ def _parse_ruby(src):
             if verb not in existing["methods"]:
                 existing["methods"].append(verb)
         else:
-            endpoints.append({"path": path, "methods": [verb]})
+            endpoints.append({"path": path, "methods": [verb], "code": extract_snippet(src, m2.start())})
 
     # resources :articles -> expand common RESTful routes in expected order
     for m in re.finditer(r'\bresources\s+:(\w+)', src):
         resource = m.group(1)
         endpoints.extend([
-            {"path": f"/{resource}", "methods": ["GET"]},
-            {"path": f"/{resource}", "methods": ["POST"]},
-            {"path": f"/{resource}/{{id}}", "methods": ["GET"]},
-            {"path": f"/{resource}/{{id}}", "methods": ["PUT", "PATCH"]},
-            {"path": f"/{resource}/{{id}}", "methods": ["DELETE"]},
+        {"path": f"/{resource}", "methods": ["GET"], "code": ""},
+        {"path": f"/{resource}", "methods": ["POST"], "code": ""},
+        {"path": f"/{resource}/{{id}}", "methods": ["GET"], "code": ""},
+        {"path": f"/{resource}/{{id}}", "methods": ["PUT", "PATCH"], "code": ""},
+        {"path": f"/{resource}/{{id}}", "methods": ["DELETE"], "code": ""},
         ])
 
     # nested resources
@@ -237,11 +274,11 @@ def _parse_ruby(src):
         for nested_m in re.finditer(r'resources\s+:(\w+)', nested_block):
             nested_resource = nested_m.group(1)
             endpoints.extend([
-                {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}", "methods": ["GET"]},
-                {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}", "methods": ["POST"]},
-                {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}/{{id}}", "methods": ["GET"]},
-                {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}/{{id}}", "methods": ["PUT", "PATCH"]},
-                {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}/{{id}}", "methods": ["DELETE"]},
+            {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}", "methods": ["GET"], "code": ""},
+            {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}", "methods": ["POST"], "code": ""},
+            {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}/{{id}}", "methods": ["GET"], "code": ""},
+            {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}/{{id}}", "methods": ["PUT", "PATCH"], "code": ""},
+            {"path": f"/{parent_resource}/{{{parent_resource}_id}}/{nested_resource}/{{id}}", "methods": ["DELETE"], "code": ""},
             ])
 
     return endpoints
@@ -257,9 +294,9 @@ def _parse_nestjs(src):
             methods.append(verb)
         # if any method decorators without inline path -> base route
         if methods:
-            return [{"path": base, "methods": sorted(set(methods))}]
+            return [{"path": base, "methods": sorted(set(methods)), "code": extract_snippet(src, ctrl.start())}]
         else:
-            return [{"path": base, "methods": ["GET"]}]
+            return [{"path": base, "methods": ["GET"], "code": extract_snippet(src, ctrl.start())}]
     return []
 
 def parse_file(file_path):

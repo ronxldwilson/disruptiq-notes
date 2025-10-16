@@ -22,7 +22,10 @@ def enhance_spec_with_ai(endpoints, client_name, model):
         prompt += f"  Code:\n```typescript\n{endpoint['code']}\n```\n\n"
 
     prompt += "Please generate the complete OpenAPI spec based on this information."
-    print(f"Prompt sent to AI model:\n{prompt}")
+
+    # Save the prompt to temp.txt for auditing
+    with open("temp.txt", "w", encoding="utf-8") as f:
+        f.write(prompt)
 
     # Get the AI-generated spec from the selected client
     ai_client = get_ai_client(client_name, model)

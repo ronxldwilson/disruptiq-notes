@@ -23,7 +23,7 @@ def main(client_name, model, path):
     print("\n--- Step 3: Enhancing the OpenAPI spec with an AI model ---")
     response_generator = enhance_spec_with_ai(all_endpoints, client_name, model)
 
-    print("\n--- Step 4: Saving the OpenAPI spec to output.yaml (streaming) ---")
+    print("\n--- Step 4: Saving the OpenAPI spec to output.yaml ---")
     with open("output.yaml", "w", encoding="utf-8") as f:
         for chunk in response_generator:
             if chunk:
