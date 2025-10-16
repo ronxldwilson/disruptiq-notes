@@ -1,0 +1,723 @@
+{
+  "summary": {
+    "files_scanned": 20,
+    "findings": 65
+  },
+  "findings": [
+    {
+      "id": "f-0001",
+      "type": "connection",
+      "provider": "postgresql",
+      "file": "example_project\\.env",
+      "line": 2,
+      "evidence": [
+        "postgresql://user:password@localhost:5432/myapp_db"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0002",
+      "type": "connection",
+      "provider": "mysql",
+      "file": "example_project\\.env",
+      "line": 3,
+      "evidence": [
+        "mysql://root:secret@db-server:3306/production"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0003",
+      "type": "connection",
+      "provider": "mongodb",
+      "file": "example_project\\.env",
+      "line": 5,
+      "evidence": [
+        "mongodb://user:pass@mongo-cluster:27017/myapp"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0004",
+      "type": "connection",
+      "provider": "postgresql",
+      "file": "example_project\\.env",
+      "line": 2,
+      "evidence": [
+        "DATABASE_URL=postgresql://user:password@localhost:5432/myapp_db"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "id": "f-0005",
+      "type": "connection",
+      "provider": "mysql",
+      "file": "example_project\\.env",
+      "line": 3,
+      "evidence": [
+        "DB_HOST=mysql://root:secret@db-server:3306/production"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "id": "f-0006",
+      "type": "connection",
+      "provider": "mongodb",
+      "file": "example_project\\.env",
+      "line": 5,
+      "evidence": [
+        "MONGODB_URL=mongodb://user:pass@mongo-cluster:27017/myapp"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "id": "f-0007",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\config\\database.py",
+      "line": 32,
+      "evidence": [
+        "SELECT\n            C..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0008",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\config\\database.py",
+      "line": 39,
+      "evidence": [
+        "SELECT p..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0009",
+      "type": "connection",
+      "provider": "postgresql",
+      "file": "example_project\\config\\settings.yaml",
+      "line": 7,
+      "evidence": [
+        "postgresql://dbuser:dbpass123@localhost:5432/myapp_db"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0010",
+      "type": "connection",
+      "provider": "mongodb",
+      "file": "example_project\\config\\settings.yaml",
+      "line": 18,
+      "evidence": [
+        "mongodb://user:pass@mongo-cluster:27017/myapp"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0011",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\go\\models\\post.go",
+      "line": 59,
+      "evidence": [
+        "SELECT p..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0012",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\go\\models\\user.go",
+      "line": 51,
+      "evidence": [
+        "INSERT I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0013",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\go\\models\\user.go",
+      "line": 52,
+      "evidence": [
+        "SELECT u..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0014",
+      "type": "connection",
+      "provider": "postgresql",
+      "file": "example_project\\infrastructure\\docker-compose.yml",
+      "line": 57,
+      "evidence": [
+        "postgresql://dbuser:dbpassword123@postgres:5432/myapp"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0015",
+      "type": "connection",
+      "provider": "mongodb",
+      "file": "example_project\\infrastructure\\docker-compose.yml",
+      "line": 59,
+      "evidence": [
+        "mongodb://admin:password123@mongo:27017/myapp"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0016",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\js\\models\\post.js",
+      "line": 42,
+      "evidence": [
+        "SELECT p..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0017",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\js\\models\\post.js",
+      "line": 55,
+      "evidence": [
+        "INSERT I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0018",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\js\\models\\post.js",
+      "line": 56,
+      "evidence": [
+        "SELECT t..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0019",
+      "type": "orm_model",
+      "framework": "django",
+      "file": "example_project\\models\\post.py",
+      "line": 4,
+      "evidence": [
+        "class Category(models.Model):"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0020",
+      "type": "orm_model",
+      "framework": "django",
+      "file": "example_project\\models\\post.py",
+      "line": 12,
+      "evidence": [
+        "class Post(models.Model):"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0021",
+      "type": "orm_model",
+      "framework": "django",
+      "file": "example_project\\models\\post.py",
+      "line": 31,
+      "evidence": [
+        "class Comment(models.Model):"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0022",
+      "type": "orm_model",
+      "framework": "django",
+      "file": "example_project\\models\\user.py",
+      "line": 12,
+      "evidence": [
+        "class Profile(models.Model):"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "f-0023",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\ruby\\app\\models\\post.rb",
+      "line": 27,
+      "evidence": [
+        "INSERT I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0024",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\ruby\\app\\models\\post.rb",
+      "line": 28,
+      "evidence": [
+        "SELECT t..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0025",
+      "type": "raw_sql",
+      "sql_type": "CREATE TABLE",
+      "file": "example_project\\scripts\\migrate_data.py",
+      "line": 18,
+      "evidence": [
+        "CREATE TABLE I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0026",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\scripts\\migrate_data.py",
+      "line": 19,
+      "evidence": [
+        "SELECT *..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0027",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\scripts\\migrate_data.py",
+      "line": 24,
+      "evidence": [
+        "INSERT I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0028",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\scripts\\migrate_data.py",
+      "line": 25,
+      "evidence": [
+        "SELECT u..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0029",
+      "type": "raw_sql",
+      "sql_type": "UPDATE",
+      "file": "example_project\\scripts\\migrate_data.py",
+      "line": 30,
+      "evidence": [
+        "Update p..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0030",
+      "type": "raw_sql",
+      "sql_type": "UPDATE",
+      "file": "example_project\\scripts\\migrate_data.py",
+      "line": 32,
+      "evidence": [
+        "UPDATE u..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0031",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\scripts\\migrate_data.py",
+      "line": 34,
+      "evidence": [
+        "SELECT C..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0032",
+      "type": "raw_sql",
+      "sql_type": "UPDATE",
+      "file": "example_project\\scripts\\migrate_data.py",
+      "line": 48,
+      "evidence": [
+        "UPDATE u..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0033",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\scripts\\migrate_data.py",
+      "line": 51,
+      "evidence": [
+        "SELECT e..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0034",
+      "type": "raw_sql",
+      "sql_type": "CREATE TABLE",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 4,
+      "evidence": [
+        "CREATE TABLE u..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0035",
+      "type": "raw_sql",
+      "sql_type": "CREATE TABLE",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 15,
+      "evidence": [
+        "CREATE TABLE p..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0036",
+      "type": "raw_sql",
+      "sql_type": "DELETE",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 21,
+      "evidence": [
+        "DELETE C..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0037",
+      "type": "raw_sql",
+      "sql_type": "CREATE TABLE",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 27,
+      "evidence": [
+        "CREATE TABLE c..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0038",
+      "type": "raw_sql",
+      "sql_type": "DELETE",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 30,
+      "evidence": [
+        "DELETE C..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0039",
+      "type": "raw_sql",
+      "sql_type": "DELETE",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 31,
+      "evidence": [
+        "DELETE C..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0040",
+      "type": "raw_sql",
+      "sql_type": "CREATE TABLE",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 36,
+      "evidence": [
+        "CREATE TABLE c..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0041",
+      "type": "raw_sql",
+      "sql_type": "ALTER TABLE",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 45,
+      "evidence": [
+        "ALTER TABLE p..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0042",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 53,
+      "evidence": [
+        "Insert s..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0043",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 54,
+      "evidence": [
+        "INSERT I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0044",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\sql\\create_tables.sql",
+      "line": 58,
+      "evidence": [
+        "INSERT I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0045",
+      "type": "raw_sql",
+      "sql_type": "CREATE TABLE",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 4,
+      "evidence": [
+        "CREATE TABLE u..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0046",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 4,
+      "evidence": [
+        "SELECT *..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0047",
+      "type": "raw_sql",
+      "sql_type": "CREATE TABLE",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 5,
+      "evidence": [
+        "CREATE TABLE p..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0048",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 5,
+      "evidence": [
+        "SELECT *..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0049",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 8,
+      "evidence": [
+        "INSERT I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0050",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 9,
+      "evidence": [
+        "SELECT\n    u..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0051",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 19,
+      "evidence": [
+        "INSERT I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0052",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 20,
+      "evidence": [
+        "SELECT\n    t..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0053",
+      "type": "raw_sql",
+      "sql_type": "UPDATE",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 33,
+      "evidence": [
+        "Update u..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0054",
+      "type": "raw_sql",
+      "sql_type": "UPDATE",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 34,
+      "evidence": [
+        "UPDATE u..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0055",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 36,
+      "evidence": [
+        "SELECT C..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0056",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 42,
+      "evidence": [
+        "INSERT I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0057",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 43,
+      "evidence": [
+        "SELECT\n    c..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0058",
+      "type": "raw_sql",
+      "sql_type": "UPDATE",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 56,
+      "evidence": [
+        "Update t..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0059",
+      "type": "raw_sql",
+      "sql_type": "UPDATE",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 57,
+      "evidence": [
+        "UPDATE u..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0060",
+      "type": "raw_sql",
+      "sql_type": "UPDATE",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 58,
+      "evidence": [
+        "UPDATE p..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0061",
+      "type": "raw_sql",
+      "sql_type": "CREATE TABLE",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 61,
+      "evidence": [
+        "CREATE TABLE m..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0062",
+      "type": "raw_sql",
+      "sql_type": "INSERT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 69,
+      "evidence": [
+        "INSERT I..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0063",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 70,
+      "evidence": [
+        "SELECT C..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0064",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 71,
+      "evidence": [
+        "SELECT C..."
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "f-0065",
+      "type": "raw_sql",
+      "sql_type": "SELECT",
+      "file": "example_project\\sql\\migrate_data.sql",
+      "line": 72,
+      "evidence": [
+        "SELECT C..."
+      ],
+      "confidence": 0.8
+    }
+  ]
+}
