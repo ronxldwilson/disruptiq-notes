@@ -60,12 +60,12 @@ def parse_typescript_file(file_path):
     # Find all methods in the handler
     methods = re.findall(r"if \(req.method === '([A-Z]+)'\)", code)
     if not methods:
-    methods = ["GET"] # Default to GET if no methods are specified
+        methods = ["GET"] # Default to GET if no methods are specified
 
     # Extract snippet around the handler
     handler_match = re.search(r'export\s+default', code)
     if handler_match:
-    snippet = extract_snippet(code, handler_match.start())
+        snippet = extract_snippet(code, handler_match.start())
     else:
         snippet = code  # Fallback to full code
 

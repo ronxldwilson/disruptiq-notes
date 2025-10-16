@@ -157,7 +157,7 @@ def _parse_js(src):
             if verb not in existing["methods"]:
                 existing["methods"].append(verb)
         else:
-            endpoints.append({"path": path, "methods": [verb], "code": extract_snippet(src, m2.start())})
+            endpoints.append({"path": path, "methods": [verb], "code": extract_snippet(src, m.start())})
     if endpoints:
         return endpoints
     # Next.js API route heuristic: export default handler -> root path
@@ -254,7 +254,7 @@ def _parse_ruby(src):
             if verb not in existing["methods"]:
                 existing["methods"].append(verb)
         else:
-            endpoints.append({"path": path, "methods": [verb], "code": extract_snippet(src, m2.start())})
+            endpoints.append({"path": path, "methods": [verb], "code": extract_snippet(src, m.start())})
 
     # resources :articles -> expand common RESTful routes in expected order
     for m in re.finditer(r'\bresources\s+:(\w+)', src):

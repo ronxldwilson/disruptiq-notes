@@ -19,7 +19,7 @@ def enhance_spec_with_ai(endpoints, client_name, model):
     for endpoint in endpoints:
         prompt += f"- Path: {endpoint['path']}\n"
         prompt += f"  Methods: {endpoint['methods']}\n"
-        prompt += f"  Code:\n```typescript\n{endpoint['code']}\n```\n\n"
+        prompt += f"  Code:\n```\n{endpoint['code']}\n```\n\n"
 
     prompt += "Please generate the complete OpenAPI spec based on this information."
 
