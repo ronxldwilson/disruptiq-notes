@@ -8,7 +8,7 @@ daptin
 __pycache__
 node_modules
 temp.txt
-study-loop-web-app
+test-application
 
 # Allow
 !supply-chain-mapper-agent/repo-to-scan/node_modules/*

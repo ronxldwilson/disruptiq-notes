@@ -283,6 +283,37 @@ def _parse_ruby(src):
 
     return endpoints
 
+def _parse_php(src):
+    endpoints = []
+    # Laravel routes: Route::get('/path', ...)
+    for m in re.finditer(r'Route::(get|post|put|patch|delete|options|head|any)\(\s*[\'\"]([^\']+[\'\"]\s*,)', src, flags=re.IGNORECASE):
+        verb = m.group(1).upper()
+        if verb == 'ANY':
+            methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
+        else:
+            methods = [verb]
+        path = _normalize_path(m.group(2))
+        # Laravel uses {id}, already in OpenAPI format
+        existing = next((e for e in endpoints if e["path"] == path), None)
+        if existing:
+            existing["methods"] = sorted(set(existing["methods"] + methods))
+        else:
+            endpoints.append({"path": path, "methods": methods, "code": extract_snippet(src, m.start())})
+    # Symfony: @Route("/path", methods={"GET"})
+    for m in re.finditer(r'@Route\(\s*[\'\"]([^\']+[\'\"]\s*)(?:,\s*methods\s*=\s*\{([^}]+)\})?', src):
+        path = _normalize_path(m.group(1))
+        methods_str = m.group(2)
+        if methods_str:
+            methods = [meth.strip().strip('\"').upper() for meth in methods_str.split(',')]
+        else:
+            methods = ['GET']  # default
+            existing = next((e for e in endpoints if e["path"] == path), None)
+            if existing:
+                existing["methods"] = sorted(set(existing["methods"] + methods))
+            else:
+                endpoints.append({"path": path, "methods": methods, "code": extract_snippet(src, m.start())})
+    return endpoints
+
 def _parse_nestjs(src):
     # NestJS: @Controller('cats') and @Get()
     ctrl = re.search(r'@Controller\(\s*[\'"]([^\'"]+)[\'"]\s*\)', src)
@@ -331,5 +362,7 @@ def parse_file(file_path):
         return _parse_python(src, ext)
     if ext == ".rb":
         return _parse_ruby(src)
+    if ext == ".php":
+        return _parse_php(src)
 
     return []
