@@ -1,0 +1,9 @@
+{
+  "scan_extensions": [".js", ".py", ".java", ".cpp", ".c", ".cs"],
+  "ignore_patterns": ["node_modules", ".git", "__pycache__", ".vscode", ".idea"],
+  "max_file_size_mb": 10,
+  "min_variable_name_length": 1,
+  "max_line_length": 1000,
+  "output_file": "report.json",
+  "verbose": false
+}

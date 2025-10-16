@@ -1,0 +1,2 @@
+# Requirements for Obfuscation Checker Agent
+# Using standard library only for simplicity
