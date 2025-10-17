@@ -25,7 +25,7 @@ def enhance_spec_with_ai(endpoints, clients, batch_size=1):
                 "- `info`: Generate a descriptive title, version, and description for the API based on the provided endpoints.\n"
                 "- `paths`: For each unique path, create a single path item and combine all HTTP methods under that path. Provide summaries, descriptions, parameters, and schemas.\n"
                 "- `components`: Infer data schemas for request/response bodies from the code. Use descriptive names and include examples.\n\n"
-                "Do not wrap the output in a code block.\n\n"
+                "Output only the YAML specification, nothing else. Do not include any explanatory text, headers, or code blocks.\n\n"
                 "Here are the endpoints:\n"
             )
         else:
@@ -36,6 +36,7 @@ def enhance_spec_with_ai(endpoints, clients, batch_size=1):
                 "Update the spec accordingly by adding new paths, components, and schemas based *only* on the provided code. "
                 "Do not invent any new information. Merge appropriately.\n\n"
                 "The updated specification should still be valid OpenAPI 3.0.0 YAML.\n\n"
+                "Output only the complete updated YAML specification, nothing else. Do not include any explanatory text, headers, or code blocks.\n\n"
                 "Here are the new endpoints to add:\n"
             )
 
@@ -77,7 +78,13 @@ def enhance_spec_with_ai(endpoints, clients, batch_size=1):
 
         # Clean and update current spec
         updated_spec_yaml = re.sub(r"```(?:yml)?\n?", "", updated_spec_yaml)
-        current_spec_yaml = updated_spec_yaml
+        # Extract only the YAML part starting from 'openapi:'
+        match = re.search(r"(?s)openapi:\s*3\.0\.0.*", updated_spec_yaml)
+        if match:
+            updated_spec_yaml = match.group(0)
+        else:
+            print(f"Warning: Could not find valid OpenAPI YAML in response for batch {batch_num}")
+        current_spec_yaml = updated_spec_yaml.strip()
 
         # Stream to output.yaml
         with open("output.yaml", "w", encoding="utf-8") as f:

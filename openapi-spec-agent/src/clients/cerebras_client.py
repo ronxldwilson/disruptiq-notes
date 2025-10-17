@@ -1,7 +1,6 @@
 import requests
 import json
 import os
-import time
 import logging
 from .base_classes import BaseAIClient
 from .base_client import ContextExceeded
@@ -32,10 +31,9 @@ class CerebrasClient(BaseAIClient):
             try:
                 with requests.post(self.api_url, headers=headers, json=data, stream=True) as response:
                     if response.status_code == 429:
-                        wait_time = 60
-                        logging.info(f"Rate limit exceeded, waiting {wait_time} seconds...")
-                        time.sleep(wait_time)
-                        continue  # Retry
+                        logging.info(f"Rate limit exceeded, switching to next client...")
+                        yield None
+                        return
                     elif response.status_code == 400:
                         if 'context_length_exceeded' in response.text:
                             raise ContextExceeded(f"Context length exceeded for {self.model}")

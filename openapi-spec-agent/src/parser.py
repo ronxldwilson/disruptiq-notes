@@ -34,8 +34,27 @@ def extract_snippet(src, match_start):
                 end_line -= 1  # Don't include next function
                 break
 
-    # Extract from start_line to end_line
-    snippet = '\n'.join(lines[start_line:end_line + 1])
+    # Find class start if the function is inside a class
+    class_start = start_line
+    while class_start > 0:
+        line = lines[class_start].strip()
+        if re.match(r'class\s+\w+', line):
+            break
+        class_start -= 1
+    if class_start < start_line:
+        start_line = class_start
+
+    # Find imports at the top
+    imports = []
+    for i in range(len(lines)):
+        line = lines[i].strip()
+        if line.startswith(('import ', 'from ', 'using ', '#include', 'require(', 'const ', 'var ', 'let ')) or '@' in line:
+            imports.append(lines[i])
+        elif line and not line.startswith('//') and not line.startswith('#'):
+            break  # Stop at first non-import/non-comment line
+
+    # Combine imports + snippet
+    snippet = '\n'.join(imports) + '\n\n' + '\n'.join(lines[start_line:end_line + 1])
     return snippet
 
 # Very small heuristic parsers per language/framework used by tests.

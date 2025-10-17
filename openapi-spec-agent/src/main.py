@@ -40,7 +40,7 @@ def get_active_clients():
     
     return clients
 
-def main(clients, path, batch_size=10):
+def main(clients, path, batch_size=1):
     """The main entry point for the agent."""
     print("--- Starting OpenAPI Spec Agent ---")
 
