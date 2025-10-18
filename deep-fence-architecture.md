@@ -192,3 +192,58 @@ Finally all the output from all the organizer agents is passed on to the reporti
 The final report is a comprehensive document which contains all the vulnerabilities found in the codebase across all layers of the application stack. The report is divided into various sections based on the type of vulnerability and contains detailed information about each vulnerability along with recommendations for fixing them. 
 
 The report also contains a step by step guide for remediating the vulnerabilities found in the codebase. It also contains step by step instructions on how to replicate the findings locally.
+
+--- 
+
+Note: section below is genrated using AI and some parts are still under planning and are not finialized yet. 
+
+## Monetization Strategy
+
+To balance open-source accessibility with sustainable business growth, DeepFence AI adopts a hybrid model where the core foundational components are open-sourced, empowering the developer community and fostering innovation, while premium features and enterprise-grade capabilities are monetized through subscriptions and services. This approach ensures that individuals, small teams, and open-source projects can benefit from the tool at no cost, while enterprises can access advanced functionalities tailored to their needs.
+
+### Open-Source Components
+A substantial portion of DeepFence AI is made available under an open-source license (e.g., Apache 2.0 or MIT), including:
+- **Mapper Agents:** All core mapper agents (e.g., OpenAPI Specification Agent, Raw One-File Script, DB Mapper Agent, Network Mapper Agent, Supply Chain Mapper Agent, Obfuscation Detector, and the planned Code Mapper Agent) are fully open-source. This allows developers to run basic scans, generate foundational documents, and contribute to the project's evolution.
+- **Basic Organizers:** Static Analysis Organizer, Secret Scanner Organizer, and Software Composition Analysis Organizer are open-source, enabling community-driven improvements and integrations with free tools like Semgrep, Bandit, and Trivy.
+- **Core Framework and Architecture:** The underlying modular architecture, including the trigger event system, parsed mapper output processing, and basic reporting structures, is open-source to encourage extensibility and collaboration.
+
+By open-sourcing these elements, DeepFence AI positions itself as a community-driven platform, attracting contributions, building trust, and accelerating adoption in the developer ecosystem.
+
+### Monetization Opportunities
+While the core remains free and open-source, revenue is generated through premium offerings that provide added value for larger organizations, teams requiring advanced features, or users needing professional support:
+
+1. **SaaS Platform (Subscription-Based):**
+   - Offer a cloud-hosted version of DeepFence AI where users can upload codebases for automated, on-demand audits. Pricing tiers could include:
+     - **Free Tier:** Limited scans (e.g., small codebases, basic reports) to attract users and demonstrate value.
+     - **Pro Tier:** Unlimited scans, access to all organizer agents (including Dynamic Analysis, Interactive Application Security Testing, Business Logic Analysis, etc.), and enhanced reporting with actionable insights.
+     - **Enterprise Tier:** Custom integrations, real-time CI/CD pipeline hooks, compliance-specific reports (e.g., for SOC 2, GDPR, HIPAA), and priority support.
+   - Charge based on codebase size, scan frequency, or number of users (e.g., $9/month for individuals, $49/month per user for teams, $999/month for enterprises).
+
+2. **Premium Organizer Agents and Modules:**
+   - While basic organizers are open-source, advanced or specialized ones (e.g., Dynamic Analysis Organizer, Network Security Analysis Organizer, Database Security Analysis Organizer, Supply Chain Security Analysis Organizer) could be offered as paid add-ons. Users can purchase individual modules or bundles.
+   - Introduce custom-built agents for niche needs (e.g., blockchain security, IoT vulnerabilities), sold as licensed plugins.
+
+3. **Enhanced Reporting and Analytics:**
+   - The Reporting Organizer is open-source for basic functionality, but premium versions could include AI-powered remediation suggestions, historical trend analysis, risk scoring dashboards, and exportable compliance reports.
+   - Monetize through subscription add-ons, such as advanced visualization tools (e.g., interactive graphs via integrations with tools like Grafana) or automated report generation in formats like PDF, JSON, or CSV with branding.
+
+4. **API and Integrations:**
+   - Provide open-source SDKs and APIs for self-hosted deployments, but charge for cloud API usage (e.g., per API call or data volume). This allows businesses to integrate DeepFence AI into their workflows without hosting costs.
+   - Offer paid integrations with popular platforms (e.g., GitHub, GitLab, Jenkins, Slack) for automated triggers and notifications.
+
+5. **Professional Services and Support:**
+   - Offer consulting services for custom agent development, integration assistance, or tailored security audits.
+   - Provide premium support packages (e.g., 24/7 chat, dedicated account managers) and training programs for enterprise clients.
+   - Sell access to a marketplace of community-contributed agents, where verified or enterprise-grade modules are available for a fee.
+
+6. **Data-Driven Insights and Marketplace:**
+   - Aggregate anonymized vulnerability data from open-source scans to create industry benchmarks and insights, sold as premium reports (e.g., "State of Application Security 2025").
+   - Build a marketplace for third-party tools and agents, taking a commission on transactions.
+
+### Ensuring Sustainability and Community Alignment
+- **Transparency and Governance:** Maintain an open governance model with a community advisory board to guide development and ensure the open-source portions remain robust.
+- **Funding from Premium Users:** Revenue from enterprise subscriptions can fund ongoing development, bug fixes, and enhancements to the open-source core.
+- **Incentivizing Contributions:** Offer rewards (e.g., free premium access) for top contributors to the open-source repository, encouraging a vibrant ecosystem.
+- **Ethical Considerations:** Ensure that critical security features remain accessible to non-profits, educational institutions, and open-source projects at no cost to promote widespread security improvements.
+
+This monetization strategy allows DeepFence AI to scale as an open-source leader in application security testing while generating revenue to support long-term innovation and sustainability.
