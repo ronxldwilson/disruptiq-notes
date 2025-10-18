@@ -1,0 +1,59 @@
+# CodeQL Configuration
+# Semantic code analysis for security vulnerability detection
+
+enabled: false  # Disabled by default - requires CodeQL CLI setup
+
+# Analysis settings
+query_suite: "security-and-quality"  # Built-in query suite to run
+# Options: security-and-quality, security-experimental, quality, maintenance
+
+# Custom queries (optional)
+custom_queries_path: null            # Path to custom CodeQL queries
+query_filters: []                    # Additional query filters
+
+# Database creation settings
+threads: 4                           # Number of threads for database creation
+ram: "4096"                          # RAM limit in MB (0 = no limit)
+temp_dir: null                       # Temporary directory for database creation
+
+# Language-specific settings
+language_overrides: {}               # Override language detection
+# Example: { "cpp": "cpp", "c": "cpp" }
+
+# Analysis scope
+include_paths: []                    # Additional paths to include
+exclude_paths:                       # Paths to exclude from analysis
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/node_modules/**"
+  - "**/vendor/**"
+  - "**/.git/**"
+  - "**/__pycache__/**"
+
+# Output settings
+output_format: "json"                # Analysis output format (json, sarif, csv)
+output_file: "codeql-results.json"   # Output filename
+
+# Security settings
+enable_security_queries: true        # Enable security-related queries
+enable_quality_queries: true         # Enable code quality queries
+enable_maintenance_queries: false    # Enable maintenance queries
+
+# Severity thresholds
+min_severity: "low"                  # Minimum severity to report (low, medium, high)
+confidence_threshold: "low"          # Minimum confidence level (low, medium, high)
+
+# Performance settings
+analysis_threads: 4                  # Number of analysis threads
+timeout: 3600                        # Analysis timeout in seconds
+cache_dir: null                      # Directory for caching CodeQL data
+
+# Advanced options
+debug: false                         # Enable debug logging
+verbose: false                       # Enable verbose output
+save_database: false                 # Save CodeQL database after analysis
+
+# Integration settings
+github_token: null                   # GitHub token for API access (optional)
+upload_results: false                # Upload results to GitHub (requires token)
+repository: null                     # GitHub repository (owner/repo format)

@@ -113,7 +113,14 @@ class SemgrepTool(BaseTool):
         errors = []
 
         if error_output.strip():
-            errors.append(error_output.strip())
+            # Filter out SSL warnings and other non-critical messages
+            filtered_errors = []
+            for line in error_output.split('\n'):
+                line = line.strip()
+                if line and not any(keyword in line.upper() for keyword in ['WARNING', 'IGNORED', 'NEGATIVE SERIAL']):
+                    filtered_errors.append(line)
+            if filtered_errors:
+                errors.extend(filtered_errors)
 
         try:
             # Semgrep outputs JSON at the end, extract it

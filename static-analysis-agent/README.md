@@ -4,14 +4,14 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tools](https://img.shields.io/badge/Tools-7+-orange.svg)]()
+[![Tools](https://img.shields.io/badge/Tools-9+-orange.svg)]()
 
 The Static Analysis Agent is a comprehensive, AI-powered platform that performs **enterprise-grade static analysis** across multiple programming languages. It autonomously analyzes codebases for security vulnerabilities, code quality issues, bugs, and best practices violations using industry-standard tools.
 
 ## ✨ Key Features
 
 ### 🔍 **Comprehensive Analysis**
-- **7+ Specialized Tools**: Bandit, Flake8, Pylint, Semgrep, ESLint, Golint, Cppcheck
+- **9+ Specialized Tools**: Bandit, Flake8, Pylint, Semgrep, Golint, SonarQube, CodeQL, ESLint, Cppcheck
 - **6 Programming Languages**: Python, JavaScript/TypeScript, Go, C/C++, Java, Ruby
 - **Parallel Execution**: Runs tools simultaneously for maximum speed
 - **Intelligent Detection**: Auto-detects languages and selects appropriate tools
@@ -84,7 +84,9 @@ Codebase → Language Detection → Tool Selection → Parallel Analysis → Res
 
 ### Available for Installation
 
-#### Additional Code Quality
+#### Advanced Code Quality & Security
+- **📦 SonarQube**: Enterprise code quality platform (CLI integration ready)
+- **📦 CodeQL**: Semantic code analysis for security vulnerabilities (CLI integration ready)
 - **📦 Cppcheck**: C/C++ static analysis (Config ready, manual install required on Windows)
 - **📦 RuboCop**: Ruby static code analyzer (Config ready, Ruby required)
 
@@ -93,7 +95,7 @@ Codebase → Language Detection → Tool Selection → Parallel Analysis → Res
 - **Trivy**: Comprehensive security scanner for vulnerabilities, secrets, and misconfigurations
 
 #### Other Tools
-- **SonarQube/SonarLint**: Multi-language code quality and security
+- **SonarLint**: IDE integration for real-time code quality
 - **Prettier**: Code formatting consistency checks
 
 #### Dependency Analysis
@@ -102,7 +104,7 @@ Codebase → Language Detection → Tool Selection → Parallel Analysis → Res
 
 ### Tool Status
 - **✅ Active**: 6 tools currently installed and working
-- **📦 Available**: 2 tools with configs ready (cppcheck, rubocop)
+- **📦 Available**: 4 tools with configs ready (sonar, codeql, cppcheck, rubocop)
 - **🔧 Configurable**: All tools support custom configuration via YAML files
 
 ## 🚀 Quick Start

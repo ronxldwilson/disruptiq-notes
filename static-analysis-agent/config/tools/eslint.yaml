@@ -1,7 +1,7 @@
 # ESLint Configuration
 # JavaScript and TypeScript linting
 
-enabled: true
+enabled: false
 
 # Configuration file path (if using custom config)
 config_file: null
@@ -26,25 +26,10 @@ globals:
   process: true
   Buffer: true
 
-# Rules to enable/disable
-rules:
-  # Possible Errors
-  'no-console': 'off'
-  'no-debugger': 'error'
-  'no-unused-vars': 'error'
-
-  # Best Practices
-  'eqeqeq': 'error'
-  'no-eval': 'error'
-  'no-implied-eval': 'error'
-
-  # Variables
-  'no-undef': 'error'
-
-  # Stylistic Issues
-  'indent': ['error', 2]
-  'quotes': ['error', 'single']
-  'semi': ['error', 'always']
+# Rules to enable/disable (commented out to use default rules)
+# rules:
+#   'no-console': 'off'
+#   'no-unused-vars': 'error'
 
 # Plugins to load
 plugins: []

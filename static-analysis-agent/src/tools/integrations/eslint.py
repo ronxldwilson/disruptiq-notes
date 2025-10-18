@@ -70,6 +70,7 @@ class EslintTool(BaseTool):
         custom_config = config.get('custom_config_path')
         if custom_config:
             cmd.extend(['--config', str(custom_config)])
+        # For ESLint v9, if no config, it will use default or fail
 
         # Add extensions for TypeScript
         extensions = config.get('extensions', ['.js', '.jsx', '.ts', '.tsx'])

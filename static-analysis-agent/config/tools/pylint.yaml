@@ -40,9 +40,8 @@ confidence:
   - INFERENCE_FAILURE
   - UNDEFINED
 
-# Enable these checks
-enable:
-  - all
+# Enable these checks (leave empty to use defaults)
+enable: []
 
 # Disable these checks
 disable:

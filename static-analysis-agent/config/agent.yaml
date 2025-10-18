@@ -13,14 +13,16 @@ auto_archive: true                          # Automatically archive old reports
 
 # Tool settings
 enabled_tools:                              # Tools to enable by default
-  - bandit        # Python security
-  - flake8        # Python style/quality
-  - pylint        # Python code quality
-  - semgrep       # Multi-language security
-  - eslint        # JavaScript/TypeScript
-  - golint        # Go code linting
-  # - cppcheck    # C/C++ (not installed on Windows)
-  # - rubocop     # Ruby (not installed)
+- bandit        # Python security
+- flake8        # Python style/quality
+- pylint        # Python code quality
+- semgrep       # Multi-language security
+# - eslint        # JavaScript/TypeScript (disabled due to config issues)
+- golint        # Go code linting
+# - cppcheck    # C/C++ (not installed on Windows)
+# - rubocop     # Ruby (not installed)
+# - sonar        # SonarQube (requires server setup)
+# - codeql       # CodeQL (requires CLI installation)
 
 # Language settings
 default_languages: []                       # Auto-detect if empty

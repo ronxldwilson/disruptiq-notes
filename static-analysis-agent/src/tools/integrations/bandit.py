@@ -73,14 +73,19 @@ class BanditTool(BaseTool):
         # Add severity levels from config
         severity_levels = config.get('severity', ['high', 'medium', 'low'])
         if severity_levels:
-            for level in severity_levels:
-                cmd.extend(['--severity', level])
+            if len(severity_levels) == 3 and all(l in ['high', 'medium', 'low'] for l in severity_levels):
+                cmd.extend(['--severity-level', 'all'])
+            else:
+                # Use the first level or join if needed, but bandit takes single
+                cmd.extend(['--severity-level', severity_levels[0]])
 
         # Add confidence levels from config
         confidence_levels = config.get('confidence', ['high', 'medium', 'low'])
         if confidence_levels:
-            for level in confidence_levels:
-                cmd.extend(['--confidence', level])
+            if len(confidence_levels) == 3 and all(l in ['high', 'medium', 'low'] for l in confidence_levels):
+                cmd.extend(['--confidence-level', 'all'])
+            else:
+                cmd.extend(['--confidence-level', confidence_levels[0]])
 
         # Add excluded paths from config
         excluded_paths = config.get('excluded_paths', [])
@@ -143,7 +148,14 @@ class BanditTool(BaseTool):
         errors = []
 
         if error_output.strip():
-            errors.append(error_output.strip())
+            # Filter out INFO messages that are not errors
+            filtered_errors = []
+            for line in error_output.split('\n'):
+                line = line.strip()
+                if line and not line.upper().startswith('[MAIN]\tINFO'):
+                    filtered_errors.append(line)
+            if filtered_errors:
+                errors.extend(filtered_errors)
 
         try:
             if output.strip():

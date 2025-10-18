@@ -79,16 +79,16 @@ class PylintTool(BaseTool):
         if py_version:
             cmd.extend(['--py-version', py_version])
 
-        # Add include options
-        if config.get('include_ids', True):
-            cmd.append('--include-ids=y')
-        else:
-            cmd.append('--include-ids=n')
+        # Add include options (commented out as not supported in all versions)
+        # if config.get('include_ids', True):
+        #     cmd.append('--include-ids=y')
+        # else:
+        #     cmd.append('--include-ids=n')
 
-        if config.get('include_symbolic_names', True):
-            cmd.append('--include-symbolic-names=y')
-        else:
-            cmd.append('--include-symbolic-names=n')
+        # if config.get('include_symbolic_names', True):
+        #     cmd.append('--include-symbolic-names=y')
+        # else:
+        #     cmd.append('--include-symbolic-names=n')
 
         # Add ignore patterns
         ignore_patterns = config.get('ignore_patterns', [])
@@ -124,8 +124,8 @@ class PylintTool(BaseTool):
             'max_branches': config.get('max_branches'),
             'max_statements': config.get('max_statements'),
             'max_attributes': config.get('max_attributes'),
-            'min_public_methods': config.get('min_public_methods'),
-            'max_complexity': config.get('max_complexity')
+            'min_public_methods': config.get('min_public_methods')
+            # 'max_complexity': config.get('max_complexity')  # Commented out as not supported in all versions
         }
 
         for limit_name, limit_value in limits.items():

@@ -36,12 +36,15 @@ class ToolSelector:
                     selected.append(tool)
             return selected
 
-        # Auto-select ALL available tools by default (comprehensive analysis)
+        # Auto-select enabled tools from config
+        enabled_tools = config.get('enabled_tools', []) if config else []
         selected_tools = set()
 
-        # Get all available tools that are installed
+        # Get all available tools that are installed and enabled
         available_tools = registry.get_available_tools()
-        selected_tools.update(available_tools)
+        for tool in available_tools:
+            if tool.name in enabled_tools:
+                selected_tools.add(tool)
 
         return list(selected_tools)
 
