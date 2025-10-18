@@ -1,0 +1,7 @@
+enabled: true
+rules:
+  - security
+  - performance
+  - correctness
+custom_config_path: null
+severity_filter: ['high', 'medium', 'low']

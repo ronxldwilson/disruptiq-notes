@@ -1,0 +1,8 @@
+parallel_execution: true
+max_concurrent_tools: 4
+report_formats: ['json', 'html', 'markdown']
+default_languages: []
+enabled_tools:
+  - semgrep
+timeout_seconds: 300
+verbose: false
