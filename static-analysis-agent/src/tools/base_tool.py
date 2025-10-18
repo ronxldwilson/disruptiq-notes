@@ -38,7 +38,7 @@ class BaseTool(ABC):
         pass
 
     @abstractmethod
-    async def is_installed(self) -> bool:
+    def is_installed(self) -> bool:
         """Check if the tool is installed and available."""
         pass
 

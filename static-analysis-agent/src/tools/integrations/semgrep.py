@@ -49,17 +49,17 @@ class SemgrepTool(BaseTool):
         except Exception:
             return False
 
-    async def is_installed(self) -> bool:
+    def is_installed(self) -> bool:
         """Check if Semgrep is installed."""
         try:
-            result = await asyncio.create_subprocess_exec(
-                'semgrep', '--version',
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+            result = subprocess.run(
+                ['semgrep', '--version'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=10
             )
-            await result.wait()
             return result.returncode == 0
-        except FileNotFoundError:
+        except (FileNotFoundError, subprocess.TimeoutExpired):
             return False
 
     async def run(self, codebase_path: Path, config: Optional[Dict[str, Any]] = None) -> AnalysisResult:

@@ -80,8 +80,9 @@ class ReportGenerator:
         else:
             raise ValueError(f"Unsupported format: {format}")
 
-    def _generate_html_report(self, report: Dict[str, Any]) -> str:
+    def _generate_html_report(self, result: Dict[str, Any]) -> str:
         """Generate HTML report."""
+        report = result['report']
         html = f"""
         <!DOCTYPE html>
         <html>

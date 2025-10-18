@@ -105,7 +105,13 @@ python -m src analyze /path/to/codebase --languages python,javascript
 python -m src analyze /path/to/codebase --tools semgrep
 
 # Generate HTML report
-python -m src analyze /path/to/codebase --output-format html --output-file report.html
+python -m src analyze /path/to/codebase --output-format html
+
+# Save to custom directory
+python -m src analyze /path/to/codebase --output-dir reports
+
+# Quiet mode (no console output, only file)
+python -m src analyze /path/to/codebase --quiet
 ```
 
 ### List Available Tools
@@ -136,19 +142,31 @@ asyncio.run(analyze())
 ```
 
 ### Example Output
+After running the analysis, you'll see:
+```
+Analysis complete. Report saved to: output/analysis_myproject_20251019_123456.json
+
+Analysis Summary:
+  Languages detected: python, javascript
+  Tools used: semgrep
+  Total findings: 0
+  Total errors: 1
+```
+
+The full JSON report contains:
 ```json
 {
   "success": true,
-  "detected_languages": ["python"],
+  "detected_languages": ["python", "javascript"],
   "tools_used": ["semgrep"],
   "results": [...],
   "report": {
-    "timestamp": "2025-10-19T00:08:06.215085",
-    "languages_analyzed": ["python"],
+    "timestamp": "2025-10-19T12:34:56.789012",
+    "languages_analyzed": ["python", "javascript"],
     "tools_used": ["semgrep"],
     "summary": {
       "total_findings": 0,
-      "total_errors": 0,
+      "total_errors": 1,
       "severity_breakdown": {
         "critical": 0,
         "high": 0,

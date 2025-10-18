@@ -54,12 +54,12 @@ class ToolRegistry:
         return [tool for tool in self._instances.values()
                 if language.lower() in [lang.lower() for lang in tool.supported_languages]]
 
-    async def get_available_tools(self) -> List[BaseTool]:
+    def get_available_tools(self) -> List[BaseTool]:
         """Get tools that are currently installed."""
         available = []
         for tool in self._instances.values():
             try:
-                if await tool.is_installed():
+                if tool.is_installed():
                     available.append(tool)
             except Exception:
                 # If check fails, assume not installed

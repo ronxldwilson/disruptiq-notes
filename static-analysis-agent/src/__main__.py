@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Optional, List
 import json
 import sys
+import os
+from datetime import datetime
 
 from .agent.core import StaticAnalysisAgent
 
@@ -25,9 +27,11 @@ def cli():
 @click.option('--tools', '-t', multiple=True, help='Specify tools to use')
 @click.option('--output-format', '-f', type=click.Choice(['json', 'html']), default='json',
               help='Output format for the report')
-@click.option('--output-file', '-o', type=click.Path(), help='Output file path for the report')
+@click.option('--output-dir', '-d', type=click.Path(), default='output',
+              help='Output directory for the report (default: output)')
+@click.option('--quiet', '-q', is_flag=True, help='Suppress console output, only save to file')
 def analyze(codebase_path: str, languages: List[str], tools: List[str],
-           output_format: str, output_file: Optional[str]):
+           output_format: str, output_dir: str, quiet: bool):
     """Analyze a codebase using static analysis tools."""
 
     # Convert empty lists to None
@@ -43,28 +47,42 @@ def analyze(codebase_path: str, languages: List[str], tools: List[str],
                 click.echo(f"Analysis failed: {result.get('error', 'Unknown error')}", err=True)
                 return
 
-            # Output to console
+            # Generate output filename based on codebase path
+            codebase_name = os.path.basename(os.path.abspath(codebase_path))
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"analysis_{codebase_name}_{timestamp}.{output_format}"
+            output_file = os.path.join(output_dir, filename)
+
+            # Create output directory if it doesn't exist
+            os.makedirs(output_dir, exist_ok=True)
+
+            # Save to file
             if output_format == 'json':
-                click.echo(json.dumps(result, indent=2))
+                with open(output_file, 'w') as f:
+                    json.dump(result, f, indent=2)
             else:
-                # For HTML, we need to generate it
                 from .agent.report_generator import ReportGenerator
                 generator = ReportGenerator()
                 html_content = generator._generate_html_report(result)
-                click.echo(html_content)
+                with open(output_file, 'w') as f:
+                    f.write(html_content)
 
-            # Save to file if specified
-            if output_file:
-                if output_format == 'json':
-                    with open(output_file, 'w') as f:
-                        json.dump(result, f, indent=2)
-                else:
-                    from .agent.report_generator import ReportGenerator
-                    generator = ReportGenerator()
-                    html_content = generator._generate_html_report(result)
-                    with open(output_file, 'w') as f:
-                        f.write(html_content)
-                click.echo(f"Report saved to {output_file}")
+            click.echo(f"Analysis complete. Report saved to: {output_file}")
+
+            # Show summary on console unless quiet mode
+            if not quiet:
+                click.echo("\nAnalysis Summary:")
+                click.echo(f"  Languages detected: {', '.join(result['detected_languages'])}")
+                click.echo(f"  Tools used: {', '.join(result['tools_used'])}")
+                click.echo(f"  Total findings: {result['report']['summary']['total_findings']}")
+                click.echo(f"  Total errors: {result['report']['summary']['total_errors']}")
+
+                severity_breakdown = result['report']['summary']['severity_breakdown']
+                if any(count > 0 for count in severity_breakdown.values()):
+                    click.echo("  Severity breakdown:")
+                    for severity, count in severity_breakdown.items():
+                        if count > 0:
+                            click.echo(f"    {severity.capitalize()}: {count}")
 
         except Exception as e:
             click.echo(f"Error during analysis: {e}", err=True)
@@ -101,17 +119,14 @@ def install_tools(tool: List[str]):
 def list_tools():
     """List available static analysis tools."""
 
-    async def run_list():
-        agent = StaticAnalysisAgent()
-        tools = await agent.get_available_tools()
+    agent = StaticAnalysisAgent()
+    tools = agent.get_available_tools()
 
-        for tool in tools:
-            status = "[INSTALLED]" if tool['installed'] else "[NOT INSTALLED]"
-            click.echo(f"{status} {tool['name']}: {tool['description']}")
-            click.echo(f"    Supports: {', '.join(tool['supported_languages'])}")
-            click.echo()
-
-    asyncio.run(run_list())
+    for tool in tools:
+        status = "[INSTALLED]" if tool['installed'] else "[NOT INSTALLED]"
+        click.echo(f"{status} {tool['name']}: {tool['description']}")
+        click.echo(f"    Supports: {', '.join(tool['supported_languages'])}")
+        click.echo()
 
 
 if __name__ == '__main__':

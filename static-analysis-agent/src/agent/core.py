@@ -140,10 +140,10 @@ class StaticAnalysisAgent:
 
         return results
 
-    async def get_available_tools(self) -> List[Dict[str, Any]]:
+    def get_available_tools(self) -> List[Dict[str, Any]]:
         """Get information about available tools."""
         tools_info = []
-        available_tools = await registry.get_available_tools()
+        available_tools = registry.get_available_tools()
         available_names = {tool.name for tool in available_tools}
 
         for tool in registry.get_all_tools():
