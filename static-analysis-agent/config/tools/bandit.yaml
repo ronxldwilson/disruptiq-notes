@@ -1,0 +1,43 @@
+# Bandit Configuration
+# Python security linter configuration
+
+enabled: true
+
+# Severity levels to check (high, medium, low)
+severity:
+  - high
+  - medium
+  - low
+
+# Confidence levels to check (high, medium, low)
+confidence:
+  - high
+  - medium
+  - low
+
+# Specific tests to run (empty = all)
+tests: []
+
+# Tests to skip
+skips: []
+
+# Paths to exclude from scanning
+excluded_paths:
+  - '*/test_*'
+  - '*/tests/*'
+  - '*/venv/*'
+  - '*/.venv/*'
+  - '*/__pycache__/*'
+
+# Custom baseline file (for existing issues to ignore)
+baseline: null
+
+# Output format (json, yaml, txt, xml, html)
+output_format: json
+
+# Additional bandit options
+options:
+  # Recursively scan directories
+  recursive: true
+  # Number of processes to use
+  processes: 1

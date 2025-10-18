@@ -1,0 +1,26 @@
+# CI/CD configuration - optimized for automated environments
+parallel_execution: true
+max_concurrent_tools: 6  # Use more cores in CI
+timeout_seconds: 300     # Reasonable timeout for CI
+
+enabled_tools:
+  - bandit
+  - flake8
+  - pylint
+  - semgrep
+
+# CI-friendly settings
+fail_on_high_severity: true
+minimum_severity_threshold: medium  # Only report medium+ issues in CI
+
+verbose: false  # Less verbose for CI logs
+log_level: WARNING
+
+# CI output settings
+report_formats: ['json', 'summary']  # Machine-readable formats
+output_dir: 'ci-reports'
+auto_archive: false  # Don't archive in CI
+
+# Performance optimizations for CI
+cache_results: true
+skip_unchanged_files: true

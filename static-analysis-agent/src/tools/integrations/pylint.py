@@ -68,38 +68,80 @@ class PylintTool(BaseTool):
         config = config or {}
         self.logger.debug(f"Running Pylint on {codebase_path}")
 
-        cmd = ['pylint', '--output-format=json']
+        cmd = ['pylint']
 
-        # Add custom config if specified
-        custom_config = config.get('custom_config_path')
-        if custom_config:
-            cmd.extend(['--rcfile', str(custom_config)])
+        # Set output format
+        output_format = config.get('output_format', 'json')
+        cmd.extend(['--output-format', output_format])
 
-        # Add disable rules if specified
-        disable = config.get('disable')
-        if disable:
-            if isinstance(disable, list):
-                disable = ','.join(disable)
-            cmd.extend(['--disable', disable])
+        # Add Python version if specified
+        py_version = config.get('py_version')
+        if py_version:
+            cmd.extend(['--py-version', py_version])
 
-        # Add enable rules if specified
-        enable = config.get('enable')
-        if enable:
-            if isinstance(enable, list):
-                enable = ','.join(enable)
-            cmd.extend(['--enable', enable])
-
-        # Add reports level
-        reports = config.get('reports', False)
-        if reports:
-            cmd.append('--reports=y')
+        # Add include options
+        if config.get('include_ids', True):
+            cmd.append('--include-ids=y')
         else:
-            cmd.append('--reports=n')
+            cmd.append('--include-ids=n')
+
+        if config.get('include_symbolic_names', True):
+            cmd.append('--include-symbolic-names=y')
+        else:
+            cmd.append('--include-symbolic-names=n')
+
+        # Add ignore patterns
+        ignore_patterns = config.get('ignore_patterns', [])
+        for pattern in ignore_patterns:
+            cmd.extend(['--ignore-patterns', pattern])
+
+        # Add disable rules
+        disable_rules = config.get('disable', [])
+        if disable_rules:
+            if isinstance(disable_rules, list):
+                disable_rules = ','.join(disable_rules)
+            cmd.extend(['--disable', disable_rules])
+
+        # Add enable rules
+        enable_rules = config.get('enable', [])
+        if enable_rules:
+            if isinstance(enable_rules, list):
+                enable_rules = ','.join(enable_rules)
+            cmd.extend(['--enable', enable_rules])
+
+        # Add confidence levels
+        confidence_levels = config.get('confidence', [])
+        if confidence_levels:
+            if isinstance(confidence_levels, list):
+                confidence_levels = ','.join(confidence_levels)
+            cmd.extend(['--confidence', confidence_levels])
+
+        # Add various limits from config
+        limits = {
+            'max_line_length': config.get('max_line_length'),
+            'max_args': config.get('max_args'),
+            'max_locals': config.get('max_locals'),
+            'max_branches': config.get('max_branches'),
+            'max_statements': config.get('max_statements'),
+            'max_attributes': config.get('max_attributes'),
+            'min_public_methods': config.get('min_public_methods'),
+            'max_complexity': config.get('max_complexity')
+        }
+
+        for limit_name, limit_value in limits.items():
+            if limit_value is not None:
+                cmd.extend([f'--{limit_name.replace("_", "-")}', str(limit_value)])
 
         # Find Python files and add them
         python_files = []
-        for file_path in codebase_path.rglob('*.py'):
-            python_files.append(str(file_path))
+        py_files_pattern = config.get('py_files', ['*.py'])
+        for pattern in py_files_pattern:
+            for file_path in codebase_path.rglob(pattern):
+                # Check ignore patterns
+                ignore_list = config.get('ignore', [])
+                should_ignore = any(ignored in str(file_path) for ignored in ignore_list)
+                if not should_ignore:
+                    python_files.append(str(file_path))
 
         if not python_files:
             return AnalysisResult(

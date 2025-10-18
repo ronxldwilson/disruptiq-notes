@@ -1,0 +1,20 @@
+# Strict configuration - fail on any high-severity issues
+parallel_execution: true
+max_concurrent_tools: 2  # Slower but more stable
+timeout_seconds: 600     # Longer timeout for thorough analysis
+
+enabled_tools:
+  - bandit
+  - flake8
+  - pylint
+  - semgrep
+
+fail_on_high_severity: true
+minimum_severity_threshold: low
+
+verbose: true
+log_level: INFO
+
+# Strict output settings
+report_formats: ['json', 'html', 'markdown']
+auto_archive: true

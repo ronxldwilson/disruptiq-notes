@@ -1,0 +1,82 @@
+# RuboCop Configuration
+# Ruby static code analyzer
+
+enabled: false  # Not installed by default
+
+# Ruby version
+ruby_version: '2.7'
+
+# Require additional files
+require: []
+
+# Load additional cops
+require_relative: []
+
+# All cops enabled by default
+all_cops:
+  enabled: true
+
+# Include files
+include:
+  - '**/*.rb'
+  - '**/*.rake'
+  - '**/*.ru'
+  - '**/Gemfile'
+  - '**/Rakefile'
+
+# Exclude files
+exclude:
+  - 'vendor/**/*'
+  - '.bundle/**/*'
+  - 'node_modules/**/*'
+  - 'db/schema.rb'
+  - 'bin/*'
+
+# Style settings
+style:
+  # Indentation
+  indent:
+    width: 2
+
+  # String literals
+  string_literals:
+    enforced_style: single_quotes
+
+# Metrics settings
+metrics:
+  # Method length
+  method_length:
+    max: 20
+
+  # Class length
+  class_length:
+    max: 100
+
+  # Module length
+  module_length:
+    max: 100
+
+  # Parameter lists
+  parameter_lists:
+    max: 5
+
+# Lint settings
+lint:
+  # Unused variables
+  unused_block_argument: error
+  unused_method_argument: error
+
+# Output format
+output_format: json
+
+# Display style guide URLs
+display_style_guide: false
+
+# Display cop names
+display_cop_names: true
+
+# Fail level
+fail_level: convention
+
+# Auto-correct
+auto_correct: false

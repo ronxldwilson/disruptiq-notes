@@ -1,103 +1,286 @@
-# Static Analysis Agent
+# Static Analysis Agent 🚀
 
-## Overview
+**Enterprise-Grade Multi-Language Code Analysis Platform**
 
-The Static Analysis Agent is an AI-powered tool designed to perform comprehensive static analysis on codebases. Leveraging advanced AI agents and a suite of cybersecurity and code quality tools, it autonomously analyzes code for vulnerabilities, bugs, code smells, and best practices violations. The agent makes intelligent decisions on which tools to apply based on the codebase's language, structure, and specific requirements.
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Tools](https://img.shields.io/badge/Tools-7+-orange.svg)]()
 
-## Key Features
+The Static Analysis Agent is a comprehensive, AI-powered platform that performs **enterprise-grade static analysis** across multiple programming languages. It autonomously analyzes codebases for security vulnerabilities, code quality issues, bugs, and best practices violations using industry-standard tools.
 
-- **Autonomous Analysis**: Uses AI agents to determine appropriate analysis tools and strategies
-- **Multi-language Support**: Supports analysis for various programming languages
-- **Comprehensive Tool Integration**: Integrates with industry-standard static analysis tools
-- **Intelligent Reporting**: Generates detailed reports with prioritized findings
-- **Customizable Rules**: Allows for custom rule sets and configurations
-- **CI/CD Integration**: Can be integrated into build pipelines for automated analysis
+## ✨ Key Features
 
-## Architecture
+### 🔍 **Comprehensive Analysis**
+- **7+ Specialized Tools**: Bandit, Flake8, Pylint, Semgrep, ESLint, Golint, Cppcheck
+- **6 Programming Languages**: Python, JavaScript/TypeScript, Go, C/C++, Java, Ruby
+- **Parallel Execution**: Runs tools simultaneously for maximum speed
+- **Intelligent Detection**: Auto-detects languages and selects appropriate tools
+
+### 🎯 **Security-First Approach**
+- **Vulnerability Detection**: SQL injection, XSS, buffer overflows, command injection
+- **Cryptography Validation**: Weak algorithms, insecure random usage
+- **Access Control**: Path traversal, privilege escalation detection
+- **OWASP Top 10**: Comprehensive coverage of web security issues
+
+### 📊 **Rich Reporting**
+- **Multiple Formats**: JSON (CI/CD), Markdown (docs), HTML (web), Summary (quick)
+- **Severity Classification**: High/Medium/Low priority findings
+- **Tool Integration**: Aggregated results from all tools
+- **Historical Tracking**: Automatic report archiving
+
+### ⚙️ **Enterprise Configuration**
+- **YAML-Based Config**: Fully customizable tool settings
+- **Environment-Specific**: Different configs for dev/staging/prod
+- **CI/CD Ready**: JSON output perfect for automated pipelines
+- **Hot Reloading**: Configuration changes without restart
+
+### 🚀 **Performance Optimized**
+- **Caching**: Results cached between runs
+- **Selective Scanning**: Skip unchanged files
+- **Resource Management**: Configurable concurrency limits
+- **Timeout Protection**: Prevents hanging on large codebases
+
+## 🏗️ Architecture
 
 ### Core Components
 
-1. **Agent Core**
-   - Central decision-making engine
-   - Tool selection and orchestration
-   - Report generation and aggregation
+```
+Static Analysis Agent
+├── Agent Core          # Orchestration & decision making
+├── Tool Registry       # Tool management & discovery
+├── Analysis Engine     # Parallel execution & result processing
+├── Report Generator    # Multi-format report creation
+└── Configuration System # YAML-based settings management
+```
 
-2. **Tool Registry**
-   - Manages available static analysis tools
-   - Handles tool installation and updates
-   - Provides tool configuration templates
+### Analysis Workflow
 
-3. **Analysis Engine**
-   - Executes analysis workflows
-   - Manages parallel tool execution
-   - Handles tool output parsing and normalization
+1. **🔍 Codebase Discovery**: Auto-detect languages and project structure
+2. **🎯 Tool Selection**: Intelligent tool selection based on languages
+3. **⚡ Parallel Execution**: Run all tools simultaneously
+4. **📊 Result Aggregation**: Normalize and prioritize findings
+5. **📋 Report Generation**: Create comprehensive reports
+6. **💾 Archive Management**: Automatic report versioning
 
-4. **Report Generator**
-   - Aggregates findings from multiple tools
-   - Prioritizes and categorizes issues
-   - Generates human-readable and machine-readable reports
+### Data Flow
 
-### Workflow
-
-1. **Input Reception**: Receives codebase path and analysis parameters
-2. **Codebase Assessment**: Analyzes codebase structure, languages, and size
-3. **Tool Selection**: AI agent selects appropriate tools based on assessment
-4. **Analysis Execution**: Runs selected tools in parallel where possible
-5. **Result Aggregation**: Collects and normalizes outputs from all tools
-6. **Report Generation**: Creates comprehensive analysis report
-7. **Recommendations**: Provides actionable suggestions for code improvements
+```
+Codebase → Language Detection → Tool Selection → Parallel Analysis → Result Aggregation → Multi-Format Reports
+```
 
 ## Supported Tools
 
-### Security Analysis
-- **Semgrep**: Customizable semantic code analysis for security vulnerabilities
-- **Bandit**: Security linter for Python code
+### Currently Installed & Active
+
+#### Security Analysis
+- **✅ Bandit**: Security linter for Python code (Active)
+- **✅ Semgrep**: Multi-language semantic code analysis for security vulnerabilities (Active)
+
+#### Code Quality & Style
+- **✅ Flake8**: Python style guide enforcement and error detection (Active)
+- **✅ Pylint**: Python code analysis for bugs and quality (Active)
+- **✅ ESLint**: JavaScript/TypeScript linting (Active)
+- **✅ Golint**: Go code linting (Active)
+
+### Available for Installation
+
+#### Additional Code Quality
+- **📦 Cppcheck**: C/C++ static analysis (Config ready, manual install required on Windows)
+- **📦 RuboCop**: Ruby static code analyzer (Config ready, Ruby required)
+
+#### Additional Security
 - **Safety**: Checks Python dependencies for known security vulnerabilities
 - **Trivy**: Comprehensive security scanner for vulnerabilities, secrets, and misconfigurations
 
-### Code Quality
-- **ESLint**: JavaScript/TypeScript linting
-- **Pylint**: Python code analysis
+#### Other Tools
 - **SonarQube/SonarLint**: Multi-language code quality and security
 - **Prettier**: Code formatting consistency checks
 
-### Dependency Analysis
+#### Dependency Analysis
 - **OWASP Dependency-Check**: Identifies vulnerable dependencies
 - **Snyk**: Security and license compliance for open-source dependencies
 
-### Other Tools
-- **Cloc**: Code metrics and statistics
-- **License Scanning Tools**: For open-source license compliance
+### Tool Status
+- **✅ Active**: 6 tools currently installed and working
+- **📦 Available**: 2 tools with configs ready (cppcheck, rubocop)
+- **🔧 Configurable**: All tools support custom configuration via YAML files
 
-## Installation
+## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- Node.js 14+ (for JavaScript/TypeScript analysis)
-- Docker (for containerized tool execution)
+- **Python 3.8+**: Core runtime
+- **Node.js 14+**: Required for ESLint (JavaScript/TypeScript)
+- **Go 1.16+**: Required for Golint (Go analysis)
+- **Git**: Required for some tools
 
-### Setup
+### Installation
+
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd static-analysis-agent
 
-# Install dependencies
+# Install Python dependencies
 pip install -r requirements.txt
 
-# Install tools (the agent can handle this automatically)
-python -m static_analysis_agent install-tools
+# Install analysis tools (recommended)
+python -m src install-tools
 ```
 
-## Usage
+### Basic Usage
 
-### Basic Analysis
 ```bash
-python -m src analyze /path/to/codebase
+# Analyze entire codebase (auto-detects languages & tools)
+python -m src analyze /path/to/your/project
+
+# Analyze specific directory
+python -m src analyze src/
+
+# Analyze with custom report name
+python -m src analyze my-app --report-name sprint-123-audit
+
+# Get quick summary
+python -m src analyze my-app --output-format summary
 ```
 
-### Advanced Options
+## 📖 Usage Guide
+
+### Command Line Options
+
 ```bash
+python -m src analyze [OPTIONS] CODEBASE_PATH
+
+Options:
+  -l, --languages TEXT            Specify programming languages to analyze
+  -t, --tools TEXT                Specify tools to use (space-separated)
+  -f, --output-format [json|html|markdown|summary]
+                                  Output format (default: json)
+  -d, --output-dir PATH           Output directory (default: output)
+  -n, --report-name TEXT          Report filename (default: latest)
+  -q, --quiet                     Suppress console output
+  --help                          Show help message
+```
+
+### Advanced Examples
+
+#### Development Workflow
+```bash
+# Quick security check during development
+python -m src analyze . --tools bandit semgrep --output-format summary
+
+# Full analysis before commit
+python -m src analyze . --report-name pre-commit-check
+
+# CI/CD integration
+python -m src analyze . --output-format json --quiet
+```
+
+#### Language-Specific Analysis
+```bash
+# Python project analysis
+python -m src analyze python-app --tools bandit flake8 pylint
+
+# JavaScript/React analysis
+python -m src analyze frontend --tools eslint semgrep
+
+# Go microservice analysis
+python -m src analyze backend --tools golint semgrep
+
+# Multi-language monorepo
+python -m src analyze .  # Auto-detects all languages
+```
+
+#### Report Management
+```bash
+# Custom report naming
+python -m src analyze . --report-name security-audit-week-42
+
+# Different output formats
+python -m src analyze . --output-format markdown  # GitHub-friendly
+python -m src analyze . --output-format html      # Web viewing
+python -m src analyze . --output-format json      # CI/CD integration
+
+# View previous reports
+ls output/reports/    # Current reports
+ls output/archives/   # Historical reports
+```
+
+#### Tool Management
+```bash
+# List all available tools
+python -m src list-tools
+
+# Install specific tools
+python -m src install-tools --tool eslint
+python -m src install-tools --tool golint
+
+# Clean old archived reports
+python -m src clean-reports --days 30
+```
+
+### Configuration Examples
+
+#### CI/CD Pipeline Integration
+```yaml
+# .github/workflows/security.yml
+name: Security Analysis
+on: [push, pull_request]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Static Analysis
+        run: |
+          pip install -r requirements.txt
+          python -m src analyze . --output-format json --quiet
+      - name: Upload Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: output/reports/latest.json
+```
+
+#### Pre-commit Hook
+```bash
+#!/bin/bash
+# .git/hooks/pre-commit
+
+echo "Running static analysis..."
+python -m src analyze . --output-format summary --quiet
+
+if [ $? -ne 0 ]; then
+    echo "Static analysis failed. Please fix issues before committing."
+    exit 1
+fi
+
+echo "Static analysis passed!"
+exit 0
+```
+
+#### Docker Integration
+```dockerfile
+FROM python:3.9-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    nodejs npm golang-go \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install analysis tools
+RUN npm install -g eslint && \
+    go install golang.org/x/lint/golint@latest
+
+# Copy and setup application
+COPY . /app
+WORKDIR /app
+
+RUN pip install -r requirements.txt
+
+# Run analysis
+CMD ["python", "-m", "src", "analyze", ".", "--output-format", "json"]
+```
 # Specify languages to focus on
 python -m src analyze /path/to/codebase --languages python,javascript
 
@@ -114,74 +297,180 @@ python -m src analyze /path/to/codebase --output-dir reports
 python -m src analyze /path/to/codebase --quiet
 ```
 
-### List Available Tools
-```bash
-python -m src list-tools
-```
+## 📊 Report Formats
 
-### Install Tools
-```bash
-# Install all tools
-python -m src install-tools
-
-# Install specific tools
-python -m src install-tools --tool semgrep --tool bandit
-```
-
-### API Usage
-```python
-import asyncio
-from src.agent.core import StaticAnalysisAgent
-
-async def analyze():
-    agent = StaticAnalysisAgent()
-    results = await agent.analyze_codebase('/path/to/codebase')
-    print(f"Analysis complete: {results['success']}")
-
-asyncio.run(analyze())
-```
-
-### Example Output
-After running the analysis, you'll see:
-```
-Analysis complete. Report saved to: output/analysis_myproject_20251019_123456.json
-
-Analysis Summary:
-  Languages detected: python, javascript
-  Tools used: semgrep
-  Total findings: 0
-  Total errors: 1
-```
-
-The full JSON report contains:
+### JSON Format (CI/CD)
 ```json
 {
   "success": true,
   "detected_languages": ["python", "javascript"],
-  "tools_used": ["semgrep"],
+  "tools_used": ["bandit", "flake8", "eslint"],
   "results": [...],
   "report": {
-    "timestamp": "2025-10-19T12:34:56.789012",
-    "languages_analyzed": ["python", "javascript"],
-    "tools_used": ["semgrep"],
     "summary": {
-      "total_findings": 0,
-      "total_errors": 1,
-      "severity_breakdown": {
-        "critical": 0,
-        "high": 0,
-        "medium": 0,
-        "low": 0,
-        "info": 0
-      }
+      "total_findings": 25,
+      "severity_breakdown": {"high": 3, "medium": 12, "low": 10}
     }
   }
 }
 ```
 
-## Configuration
+### Markdown Format (Documentation)
+```markdown
+# Static Analysis Report
 
-### Tool Configuration
+**Generated:** 2025-10-19T14:30:00
+
+## Summary
+- **Languages Analyzed:** python, javascript
+- **Tools Used:** bandit, flake8, eslint
+- **Total Findings:** 25
+
+### Severity Breakdown
+- **High:** 3
+- **Medium:** 12
+- **Low:** 10
+
+## Tool Results
+### bandit
+- Findings: 8
+- Errors: 0
+
+### flake8
+- Findings: 12
+- Errors: 0
+```
+
+### Summary Format (Quick Review)
+```
+STATIC ANALYSIS SUMMARY REPORT
+========================================
+Generated: 2025-10-19T14:30:00
+
+Languages: python, javascript
+Tools: bandit, flake8, eslint
+Total Findings: 25
+Total Errors: 0
+
+SEVERITY BREAKDOWN:
+  HIGH: 3
+  MEDIUM: 12
+  LOW: 10
+
+For detailed results, see the full JSON report.
+```
+
+## 🤝 Contributing
+
+### Development Setup
+
+```bash
+# Clone repository
+git clone <repository-url>
+cd static-analysis-agent
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# or
+venv\Scripts\activate     # Windows
+
+# Install development dependencies
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+
+# Install pre-commit hooks
+pre-commit install
+```
+
+### Adding New Tools
+
+1. **Create tool class** in `src/tools/integrations/`
+```python
+# src/tools/integrations/newtool.py
+from ..base_tool import BaseTool, AnalysisResult
+
+class NewTool(BaseTool):
+    def __init__(self):
+        super().__init__(
+            name="newtool",
+            description="Description of new tool",
+            supported_languages=["python"]
+        )
+
+    async def install(self) -> bool:
+        # Installation logic
+        pass
+
+    def is_installed(self) -> bool:
+        # Check installation
+        pass
+
+    async def run(self, codebase_path, config) -> AnalysisResult:
+        # Run analysis
+        pass
+```
+
+2. **Add configuration** in `config/tools/newtool.yaml`
+```yaml
+enabled: false  # Initially disabled
+# Tool-specific configuration options
+```
+
+3. **Update agent config** in `config/agent.yaml`
+```yaml
+enabled_tools:
+  - newtool  # Add to list
+```
+
+4. **Update documentation** in `README.md` and `config/README.md`
+
+### Testing
+
+```bash
+# Run all tests
+pytest
+
+# Run specific test
+pytest tests/test_tool_integration.py
+
+# Run with coverage
+pytest --cov=src --cov-report=html
+```
+
+### Code Quality
+
+```bash
+# Run static analysis on the agent itself
+python -m src analyze src/ --tools flake8 pylint bandit
+
+# Format code
+black src/
+isort src/
+
+# Type checking
+mypy src/
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Tool Authors**: Thanks to all the open-source tool maintainers
+- **Contributors**: Community contributions welcome
+- **Security Community**: For ongoing vulnerability research
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-repo/discussions)
+- **Documentation**: [Full Docs](https://your-docs-site.com)
+
+---
+
+**Happy Analyzing! 🔍✨**
 Tools can be configured via YAML files in the `config/tools/` directory.
 
 Example `config/tools/semgrep.yaml`:

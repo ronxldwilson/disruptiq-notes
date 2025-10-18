@@ -45,10 +45,11 @@ class GolintTool(BaseTool):
                 ['golint', '-h'],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                timeout=10
+                timeout=10,
+                encoding='utf-8'
             )
             return result.returncode == 0
-        except (FileNotFoundError, subprocess.TimeoutExpired):
+        except (FileNotFoundError, subprocess.TimeoutExpired, UnicodeDecodeError):
             return False
 
     async def run(self, codebase_path: Path, config: Optional[Dict[str, Any]] = None) -> AnalysisResult:

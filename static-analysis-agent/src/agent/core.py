@@ -34,11 +34,18 @@ class StaticAnalysisAgent:
         default_config = {
             'parallel_execution': True,
             'max_concurrent_tools': 4,
-            'report_formats': ['json', 'html', 'markdown'],
+            'report_formats': ['json', 'html', 'markdown', 'summary'],
             'default_languages': [],
-            'enabled_tools': ['semgrep', 'flake8', 'eslint', 'pylint', 'bandit', 'cppcheck', 'golint', 'rubocop'],
+            'enabled_tools': ['bandit', 'flake8', 'pylint', 'semgrep'],  # Only currently installed tools
             'timeout_seconds': 300,
-            'verbose': False
+            'verbose': False,
+            'log_level': 'INFO',
+            'output_dir': 'output',
+            'auto_archive': True,
+            'fail_on_high_severity': False,
+            'minimum_severity_threshold': 'low',
+            'cache_results': True,
+            'skip_unchanged_files': False
         }
 
         if agent_config_file.exists():
@@ -134,7 +141,9 @@ class StaticAnalysisAgent:
             async with semaphore:
                 self.logger.info(f"Starting analysis with tool: {tool.name}")
                 try:
-                    result = await tool.run(codebase_path, self.config.get(tool.name, {}))
+                    # Load tool-specific configuration
+                    tool_config = self._load_tool_config(tool.name)
+                    result = await tool.run(codebase_path, tool_config)
                     self.logger.info(f"Completed analysis with tool: {tool.name} - {len(result.findings)} findings, {len(result.errors)} errors")
                     results.append(result)
                 except Exception as e:
@@ -152,6 +161,28 @@ class StaticAnalysisAgent:
         await asyncio.gather(*tasks, return_exceptions=True)
 
         return results
+
+    def _load_tool_config(self, tool_name: str) -> Dict[str, Any]:
+        """Load configuration for a specific tool."""
+        config_dir = Path(__file__).parent.parent.parent / 'config' / 'tools'
+        config_file = config_dir / f"{tool_name}.yaml"
+
+        tool_config = {}
+        if config_file.exists():
+            try:
+                with open(config_file, 'r') as f:
+                    loaded_config = yaml.safe_load(f)
+                    if loaded_config and loaded_config.get('enabled', True):
+                        # Remove the 'enabled' key as it's not needed by tools
+                        tool_config = {k: v for k, v in loaded_config.items() if k != 'enabled'}
+            except Exception as e:
+                self.logger.warning(f"Failed to load config for {tool_name}: {e}")
+
+        # Merge with any global tool config
+        global_tool_config = self.config.get(tool_name, {})
+        tool_config.update(global_tool_config)
+
+        return tool_config
 
     def get_available_tools(self) -> List[Dict[str, Any]]:
         """Get information about available tools."""

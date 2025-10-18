@@ -25,6 +25,10 @@ class EslintTool(BaseTool):
 
     async def install(self) -> bool:
         """Install ESLint using npm."""
+        # Check if already installed
+        if self.is_installed():
+            return True
+
         try:
             # Try installing via npm
             result = await asyncio.create_subprocess_exec(
@@ -42,14 +46,17 @@ class EslintTool(BaseTool):
     def is_installed(self) -> bool:
         """Check if ESLint is installed."""
         try:
+            # Try to run eslint --version using shell
             result = subprocess.run(
-                ['npx', 'eslint', '--version'],
+                'eslint --version',
+                shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                timeout=10
+                timeout=10,
+                encoding='utf-8'
             )
             return result.returncode == 0
-        except (FileNotFoundError, subprocess.TimeoutExpired):
+        except (FileNotFoundError, subprocess.TimeoutExpired, UnicodeDecodeError, OSError):
             return False
 
     async def run(self, codebase_path: Path, config: Optional[Dict[str, Any]] = None) -> AnalysisResult:
@@ -57,7 +64,7 @@ class EslintTool(BaseTool):
         config = config or {}
         self.logger.debug(f"Running ESLint on {codebase_path}")
 
-        cmd = ['npx', 'eslint', '--format=json']
+        cmd = ['eslint', '--format=json']
 
         # Add custom config if specified
         custom_config = config.get('custom_config_path')
@@ -89,8 +96,9 @@ class EslintTool(BaseTool):
         cmd.append(str(codebase_path))
 
         try:
-            process = await asyncio.create_subprocess_exec(
-                *cmd,
+            # Use shell=True to ensure proper PATH
+            process = await asyncio.create_subprocess_shell(
+                ' '.join(cmd),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )

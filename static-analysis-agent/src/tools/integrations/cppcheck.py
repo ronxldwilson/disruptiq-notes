@@ -25,6 +25,10 @@ class CppcheckTool(BaseTool):
 
     async def install(self) -> bool:
         """Install Cppcheck using package manager or from source."""
+        # Check if already installed
+        if self.is_installed():
+            return True
+
         try:
             # Try installing via apt (Linux)
             result = await asyncio.create_subprocess_exec(
@@ -57,15 +61,36 @@ class CppcheckTool(BaseTool):
 
             # Try installing via choco (Windows)
             result = await asyncio.create_subprocess_exec(
-                'choco', 'install', 'cppcheck',
+                'choco', 'install', 'cppcheck', '-y',
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
             await result.wait()
 
-            return result.returncode == 0
+            if result.returncode == 0:
+                return True
 
-        except Exception:
+            # Try winget (Windows)
+            result = await asyncio.create_subprocess_exec(
+                'winget', 'install', 'Cppcheck.Cppcheck',
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            await result.wait()
+
+            if result.returncode == 0:
+                return True
+
+            # Manual installation instructions
+            print("Cppcheck could not be installed automatically.")
+            print("Please install manually:")
+            print("- Windows: Download from https://cppcheck.sourceforge.net/")
+            print("- Linux: sudo apt install cppcheck")
+            print("- macOS: brew install cppcheck")
+            return False
+
+        except Exception as e:
+            print(f"Installation failed: {e}")
             return False
 
     def is_installed(self) -> bool:
@@ -75,10 +100,11 @@ class CppcheckTool(BaseTool):
                 ['cppcheck', '--version'],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                timeout=10
+                timeout=10,
+                encoding='utf-8'
             )
             return result.returncode == 0
-        except (FileNotFoundError, subprocess.TimeoutExpired):
+        except (FileNotFoundError, subprocess.TimeoutExpired, UnicodeDecodeError):
             return False
 
     async def run(self, codebase_path: Path, config: Optional[Dict[str, Any]] = None) -> AnalysisResult:

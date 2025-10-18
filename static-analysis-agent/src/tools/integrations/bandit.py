@@ -70,42 +70,54 @@ class BanditTool(BaseTool):
 
         cmd = ['bandit', '-f', 'json']
 
-        # Add custom config if specified
-        custom_config = config.get('custom_config_path')
-        if custom_config:
-            cmd.extend(['-c', str(custom_config)])
+        # Add severity levels from config
+        severity_levels = config.get('severity', ['high', 'medium', 'low'])
+        if severity_levels:
+            for level in severity_levels:
+                cmd.extend(['--severity', level])
 
-        # Add severity level if specified
-        severity = config.get('severity')
-        if severity:
-            cmd.extend(['--severity', severity])
+        # Add confidence levels from config
+        confidence_levels = config.get('confidence', ['high', 'medium', 'low'])
+        if confidence_levels:
+            for level in confidence_levels:
+                cmd.extend(['--confidence', level])
 
-        # Add confidence level if specified
-        confidence = config.get('confidence')
-        if confidence:
-            cmd.extend(['--confidence', confidence])
-
-        # Add excluded paths if specified
+        # Add excluded paths from config
         excluded_paths = config.get('excluded_paths', [])
         for path in excluded_paths:
             cmd.extend(['--exclude', path])
 
-        # Add included tests if specified
-        tests = config.get('tests')
+        # Add specific tests from config
+        tests = config.get('tests', [])
         if tests:
             if isinstance(tests, list):
                 tests = ','.join(tests)
             cmd.extend(['--tests', tests])
 
-        # Add skipped tests if specified
-        skips = config.get('skips')
+        # Add skipped tests from config
+        skips = config.get('skips', [])
         if skips:
             if isinstance(skips, list):
                 skips = ','.join(skips)
             cmd.extend(['--skips', skips])
 
+        # Add baseline file if specified
+        baseline = config.get('baseline')
+        if baseline:
+            cmd.extend(['--baseline', str(baseline)])
+
+        # Add processes if specified
+        processes = config.get('options', {}).get('processes', 1)
+        if processes > 1:
+            cmd.extend(['--processes', str(processes)])
+
+        # Add recursive flag
+        recursive = config.get('options', {}).get('recursive', True)
+        if recursive:
+            cmd.append('-r')
+
         # Add codebase path
-        cmd.extend(['-r', str(codebase_path)])
+        cmd.append(str(codebase_path))
 
         try:
             process = await asyncio.create_subprocess_exec(

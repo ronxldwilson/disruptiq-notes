@@ -1,0 +1,22 @@
+# Quick scan configuration - fast analysis with essential checks
+parallel_execution: true
+max_concurrent_tools: 4
+timeout_seconds: 120  # Shorter timeout
+
+enabled_tools:
+  - bandit     # Security only
+  - semgrep    # Multi-language security
+
+fail_on_high_severity: false
+minimum_severity_threshold: high  # Only high-severity issues
+
+verbose: false
+log_level: ERROR  # Only show errors
+
+# Minimal output
+report_formats: ['summary']
+auto_archive: false
+
+# Performance focused
+cache_results: false  # Don't cache for one-off scans
+skip_unchanged_files: false

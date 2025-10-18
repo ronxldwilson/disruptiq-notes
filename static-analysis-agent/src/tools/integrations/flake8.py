@@ -70,29 +70,57 @@ class Flake8Tool(BaseTool):
 
         cmd = ['flake8']
 
-        # Add custom config if specified
-        custom_config = config.get('custom_config_path')
-        if custom_config:
-            cmd.extend(['--config', str(custom_config)])
+        # Add max line length from config
+        max_line_length = config.get('max_line_length', 88)
+        cmd.extend(['--max-line-length', str(max_line_length)])
 
-        # Add max line length if specified
-        max_line_length = config.get('max_line_length')
-        if max_line_length:
-            cmd.extend(['--max-line-length', str(max_line_length)])
+        # Add select rules from config
+        select_rules = config.get('select', [])
+        if select_rules:
+            if isinstance(select_rules, list):
+                select_rules = ','.join(select_rules)
+            cmd.extend(['--select', select_rules])
 
-        # Add select rules if specified
-        select = config.get('select')
-        if select:
-            if isinstance(select, list):
-                select = ','.join(select)
-            cmd.extend(['--select', select])
+        # Add ignore rules from config
+        ignore_rules = config.get('ignore', [])
+        if ignore_rules:
+            if isinstance(ignore_rules, list):
+                ignore_rules = ','.join(ignore_rules)
+            cmd.extend(['--ignore', ignore_rules])
 
-        # Add ignore rules if specified
-        ignore = config.get('ignore')
-        if ignore:
-            if isinstance(ignore, list):
-                ignore = ','.join(ignore)
-            cmd.extend(['--ignore', ignore])
+        # Add max complexity from config
+        max_complexity = config.get('max_complexity')
+        if max_complexity:
+            cmd.extend(['--max-complexity', str(max_complexity)])
+
+        # Add exclude patterns from config
+        exclude_patterns = config.get('exclude', [])
+        if exclude_patterns:
+            if isinstance(exclude_patterns, list):
+                exclude_patterns = ','.join(exclude_patterns)
+            cmd.extend(['--exclude', exclude_patterns])
+
+        # Add filename patterns from config
+        filename_patterns = config.get('filename', [])
+        if filename_patterns:
+            for pattern in filename_patterns:
+                cmd.extend(['--filename', pattern])
+
+        # Add per-file ignores from config
+        per_file_ignores = config.get('per_file_ignores', {})
+        if per_file_ignores:
+            for pattern, ignores in per_file_ignores.items():
+                if isinstance(ignores, list):
+                    ignores = ','.join(ignores)
+                cmd.extend(['--per-file-ignores', f"{pattern}:{ignores}"])
+
+        # Add other options from config
+        if config.get('count'):
+            cmd.append('--count')
+        if config.get('show_source'):
+            cmd.append('--show-source')
+        if config.get('show_pep8'):
+            cmd.append('--show-pep8')
 
         # Add codebase path
         cmd.append(str(codebase_path))

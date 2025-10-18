@@ -57,6 +57,22 @@ This directory contains realistic test projects designed to thoroughly test stat
 - **Code Quality**: Poor naming, unused functions, predictable random numbers
 - **Tools Tested**: semgrep
 
+### C/C++ Projects (`c_cpp/`)
+
+#### `basic/`
+- **Fundamental C/C++ security and quality issues**
+- **C Issues**: Buffer overflows, null pointer dereference, memory leaks
+- **C++ Issues**: STL misuse, exception safety, RAII violations
+- **Tools Tested**: cppcheck (when installed)
+
+#### `advanced/`
+- **Complex C++ patterns and advanced issues**
+- **Multi-threading**: Race conditions, synchronization issues
+- **Templates**: Template misuse, SFINAE issues
+- **Inheritance**: Virtual function issues, slicing problems
+- **Smart Pointers**: RAII violations, ownership issues
+- **Tools Tested**: cppcheck (when installed)
+
 ### Mixed Projects (`mixed/`)
 
 #### `fullstack/`
@@ -91,12 +107,16 @@ python -m src analyze tests --output-format summary
 
 ## Tool Coverage
 
-| Tool | Python | JavaScript | Go | Security | Quality |
-|------|--------|------------|---|----------|---------|
-| **bandit** | ✅ | ❌ | ❌ | ✅ | ❌ |
-| **flake8** | ✅ | ❌ | ❌ | ❌ | ✅ |
-| **pylint** | ✅ | ❌ | ❌ | ⚠️ | ✅ |
-| **semgrep** | ✅ | ✅ | ✅ | ✅ | ⚠️ |
+| Tool | Python | JavaScript | Go | C/C++ | Security | Quality | Status |
+|------|--------|------------|---|-------|----------|---------|--------|
+| **bandit** | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ Installed |
+| **flake8** | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ Installed |
+| **pylint** | ✅ | ❌ | ❌ | ❌ | ⚠️ | ✅ | ✅ Installed |
+| **semgrep** | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ | ✅ Installed |
+| **eslint** | ❌ | ✅ | ❌ | ❌ | ⚠️ | ✅ | ✅ Installed |
+| **golint** | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ Installed |
+| **cppcheck** | ❌ | ❌ | ❌ | ✅ | ⚠️ | ✅ | 📦 Config ready |
+| **rubocop** | ❌ | ❌ | ❌ | ❌ | ⚠️ | ✅ | 📦 Config ready |
 
 ## Maintenance
 

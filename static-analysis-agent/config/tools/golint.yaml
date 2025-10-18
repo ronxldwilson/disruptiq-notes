@@ -1,0 +1,44 @@
+# Golint Configuration
+# Go code linting
+
+enabled: true
+
+# Minimum confidence level (0.0 to 1.0)
+min_confidence: 0.8
+
+# Set exit status based on lint findings
+set_exit_status: false
+
+# File patterns to check
+patterns:
+  - '*.go'
+
+# Exclude patterns
+exclude_patterns:
+  - 'vendor/'
+  - 'Godeps/'
+  - '*_test.go'
+  - 'testdata/'
+
+# Custom lint checks to enable
+enable_checks: []
+
+# Custom lint checks to disable
+disable_checks: []
+
+# Output format
+output_format: text
+
+# Additional options
+options:
+  # Check package comments
+  package_comments: true
+
+  # Check function comments
+  function_comments: true
+
+  # Check variable naming
+  naming: true
+
+  # Check exported elements
+  exported: true

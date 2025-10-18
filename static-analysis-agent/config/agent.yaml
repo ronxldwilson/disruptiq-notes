@@ -1,8 +1,38 @@
-parallel_execution: true
-max_concurrent_tools: 4
-report_formats: ['json', 'html', 'markdown']
-default_languages: []
-enabled_tools:
-  - semgrep
-timeout_seconds: 300
-verbose: false
+# Static Analysis Agent Configuration
+# This file controls the global behavior of the analysis agent
+
+# Execution settings
+parallel_execution: true                    # Run tools in parallel
+max_concurrent_tools: 4                     # Maximum tools to run simultaneously
+timeout_seconds: 300                        # Timeout for individual tool runs
+
+# Output settings
+report_formats: ['json', 'html', 'markdown', 'summary']  # Supported output formats
+output_dir: 'output'                        # Base output directory
+auto_archive: true                          # Automatically archive old reports
+
+# Tool settings
+enabled_tools:                              # Tools to enable by default
+  - bandit        # Python security
+  - flake8        # Python style/quality
+  - pylint        # Python code quality
+  - semgrep       # Multi-language security
+  - eslint        # JavaScript/TypeScript
+  - golint        # Go code linting
+  # - cppcheck    # C/C++ (not installed on Windows)
+  # - rubocop     # Ruby (not installed)
+
+# Language settings
+default_languages: []                       # Auto-detect if empty
+
+# Logging settings
+verbose: false                              # Enable verbose logging
+log_level: 'INFO'                          # Logging level (DEBUG, INFO, WARNING, ERROR)
+
+# Security settings
+fail_on_high_severity: false               # Fail analysis if high-severity issues found
+minimum_severity_threshold: 'low'          # Minimum severity to report (low, medium, high)
+
+# Performance settings
+cache_results: true                        # Cache tool results between runs
+skip_unchanged_files: false                # Skip analysis of unmodified files
