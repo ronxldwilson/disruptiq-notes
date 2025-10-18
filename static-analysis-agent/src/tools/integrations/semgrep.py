@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 import shutil
+import logging
 
 from ..base_tool import BaseTool, AnalysisResult
 
@@ -21,6 +22,7 @@ class SemgrepTool(BaseTool):
             description="Semantic code analysis for security vulnerabilities and code quality",
             supported_languages=["python", "javascript", "typescript", "java", "cpp", "c", "go", "rust", "php", "ruby", "csharp"]
         )
+        self.logger = logging.getLogger(__name__)
 
     async def install(self) -> bool:
         """Install Semgrep using pip or system package manager."""
@@ -65,6 +67,7 @@ class SemgrepTool(BaseTool):
     async def run(self, codebase_path: Path, config: Optional[Dict[str, Any]] = None) -> AnalysisResult:
         """Run Semgrep on the codebase."""
         config = config or {}
+        self.logger.debug(f"Running Semgrep on {codebase_path}")
 
         cmd = ['semgrep', '--json']
 
@@ -82,8 +85,8 @@ class SemgrepTool(BaseTool):
         if custom_config:
             cmd.extend(['--config', str(custom_config)])
 
-        # Add codebase path
-        cmd.append(str(codebase_path))
+        # Add codebase path - use "." since we're setting cwd to the codebase directory
+        cmd.append(".")
 
         try:
             process = await asyncio.create_subprocess_exec(
@@ -113,21 +116,34 @@ class SemgrepTool(BaseTool):
             errors.append(error_output.strip())
 
         try:
-            data = json.loads(output)
+            # Semgrep outputs JSON at the end, extract it
+            if isinstance(output, bytes):
+                output_str = output.decode()
+            else:
+                output_str = output
+
+            # Find the JSON part (starts with '{')
+            json_start = output_str.find('{')
+            if json_start == -1:
+                raise json.JSONDecodeError("No JSON found in output", output_str, 0)
+
+            json_part = output_str[json_start:]
+            data = json.loads(json_part)
             results = data.get('results', [])
 
             for result in results:
+                extra = result.get('extra', {})
                 finding = {
                     'tool': 'semgrep',
                     'rule': result.get('check_id', ''),
                     'file': result.get('path', ''),
                     'line': result.get('start', {}).get('line', 0),
                     'column': result.get('start', {}).get('col', 0),
-                    'severity': self._map_severity(result.get('severity', 'medium')),
-                    'message': result.get('message', ''),
+                    'severity': self._map_severity(extra.get('severity', 'medium')),
+                    'message': extra.get('message', ''),
                     'code': result.get('lines', ''),
-                    'cwe': result.get('metadata', {}).get('cwe', ''),
-                    'category': result.get('metadata', {}).get('category', '')
+                    'cwe': extra.get('metadata', {}).get('cwe', ''),
+                    'category': extra.get('metadata', {}).get('category', '')
                 }
                 findings.append(finding)
 

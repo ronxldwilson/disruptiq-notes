@@ -8,6 +8,7 @@ from typing import Dict, List, Any, Optional, Set
 from concurrent.futures import ThreadPoolExecutor
 import os
 import yaml
+import logging
 
 from ..tools.registry import registry
 from ..tools.base_tool import AnalysisResult
@@ -19,6 +20,7 @@ class StaticAnalysisAgent:
     """Main static analysis agent."""
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.logger = logging.getLogger(__name__)
         self.config = config or self._load_default_config()
         self.tool_selector = ToolSelector()
         self.report_generator = ReportGenerator()
@@ -34,7 +36,7 @@ class StaticAnalysisAgent:
             'max_concurrent_tools': 4,
             'report_formats': ['json', 'html', 'markdown'],
             'default_languages': [],
-            'enabled_tools': ['semgrep'],
+            'enabled_tools': ['semgrep', 'flake8', 'eslint', 'pylint', 'bandit', 'cppcheck', 'golint', 'rubocop'],
             'timeout_seconds': 300,
             'verbose': False
         }
@@ -55,18 +57,23 @@ class StaticAnalysisAgent:
         """Analyze a codebase using appropriate tools."""
 
         path = Path(codebase_path)
+        self.logger.info(f"Starting analysis of codebase: {codebase_path}")
+
         if not path.exists():
             raise ValueError(f"Codebase path does not exist: {codebase_path}")
 
         # Detect languages if not specified
         detected_languages = languages or self._detect_languages(path)
+        self.logger.info(f"Detected languages: {detected_languages}")
 
         # Select tools based on languages and configuration
         selected_tools = self.tool_selector.select_tools(
             detected_languages, tools, self.config
         )
+        self.logger.info(f"Selected tools: {[tool.name for tool in selected_tools]}")
 
         if not selected_tools:
+            self.logger.warning("No suitable tools found for the detected languages")
             return {
                 'success': False,
                 'error': 'No suitable tools found for the detected languages',
@@ -74,11 +81,14 @@ class StaticAnalysisAgent:
             }
 
         # Run analysis
+        self.logger.info("Running analysis with selected tools...")
         results = await self._run_analysis_parallel(path, selected_tools)
 
         # Generate report
+        self.logger.info("Generating analysis report...")
         report = self.report_generator.generate_report(results, detected_languages)
 
+        self.logger.info("Analysis completed successfully")
         return {
             'success': True,
             'detected_languages': detected_languages,
@@ -122,10 +132,13 @@ class StaticAnalysisAgent:
 
         async def run_tool(tool):
             async with semaphore:
+                self.logger.info(f"Starting analysis with tool: {tool.name}")
                 try:
                     result = await tool.run(codebase_path, self.config.get(tool.name, {}))
+                    self.logger.info(f"Completed analysis with tool: {tool.name} - {len(result.findings)} findings, {len(result.errors)} errors")
                     results.append(result)
                 except Exception as e:
+                    self.logger.error(f"Error running tool {tool.name}: {str(e)}")
                     # Create error result
                     error_result = AnalysisResult(
                         tool_name=tool.name,
@@ -157,17 +170,26 @@ class StaticAnalysisAgent:
 
     async def install_tools(self, tool_names: Optional[List[str]] = None) -> Dict[str, Any]:
         """Install specified tools or all tools."""
+        self.logger.info("Starting tool installation...")
         if tool_names:
+            self.logger.info(f"Installing specific tools: {tool_names}")
             results = []
             for name in tool_names:
+                self.logger.info(f"Installing tool: {name}")
                 success = await registry.install_tool(name)
+                if success:
+                    self.logger.info(f"Successfully installed tool: {name}")
+                else:
+                    self.logger.warning(f"Failed to install tool: {name}")
                 results.append({
                     'tool': name,
                     'success': success
                 })
         else:
+            self.logger.info("Installing all available tools...")
             results = registry.install_all_tools()
 
+        self.logger.info("Tool installation completed")
         return {
             'results': results
         }

@@ -11,13 +11,13 @@ class ToolSelector:
 
     def __init__(self):
         self.language_tool_mapping = {
-            'python': ['bandit', 'pylint', 'safety', 'semgrep'],
+            'python': ['flake8', 'bandit', 'pylint', 'safety', 'semgrep'],
             'javascript': ['eslint', 'semgrep'],
             'typescript': ['eslint', 'semgrep'],
             'java': ['semgrep', 'spotbugs'],
             'cpp': ['semgrep', 'cppcheck'],
             'c': ['semgrep', 'cppcheck'],
-            'go': ['semgrep', 'gosec'],
+            'go': ['semgrep', 'golint', 'gosec'],
             'rust': ['semgrep', 'clippy'],
             'php': ['semgrep', 'phpstan'],
             'ruby': ['semgrep', 'rubocop']
@@ -36,21 +36,12 @@ class ToolSelector:
                     selected.append(tool)
             return selected
 
-        # Auto-select tools based on languages
+        # Auto-select ALL available tools by default (comprehensive analysis)
         selected_tools = set()
 
-        for language in languages:
-            lang_lower = language.lower()
-            if lang_lower in self.language_tool_mapping:
-                for tool_name in self.language_tool_mapping[lang_lower]:
-                    tool = registry.get_tool(tool_name)
-                    if tool and tool.is_installed():
-                        selected_tools.add(tool)
-
-        # Add general-purpose tools like semgrep if available
-        semgrep = registry.get_tool('semgrep')
-        if semgrep and semgrep.is_installed():
-            selected_tools.add(semgrep)
+        # Get all available tools that are installed
+        available_tools = registry.get_available_tools()
+        selected_tools.update(available_tools)
 
         return list(selected_tools)
 
