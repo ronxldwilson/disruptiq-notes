@@ -1,8 +1,8 @@
-# Supply Chain Risk Mapper
+# Supply Chain Mapper
 
 ## Overview
 
-The **Supply Chain Risk Mapper** is a static analysis tool that scans entire repositories to identify all **dependencies**, **manifests**, and **potential supply chain attack surfaces**. This tool focuses entirely on the **Mapper layer**, providing a **highly modular, extensible base system** that can be integrated with tools like `socket.dev`, `Snyk`, `Trivy`, or custom scanners.
+The **Supply Chain Mapper** is a static analysis tool that scans entire repositories to identify all **dependencies**, **manifests**, and **potential supply chain attack surfaces**. This tool focuses entirely on the **Mapper layer**, providing a **highly modular, extensible base system** that can be integrated with tools like `socket.dev`, `Snyk`, `Trivy`, or custom scanners.
 
 The mapper performs comprehensive **cross-language dependency and metadata mapping** by:
 - Recursively scanning code repositories
@@ -10,8 +10,6 @@ The mapper performs comprehensive **cross-language dependency and metadata mappi
 - Extracting, normalizing, and outputting structured JSON data
 - Computing lightweight **risk signals** (static heuristics) for each dependency
 - Producing a consolidated JSON output file for downstream consumption
-
----
 
 ## 🚀 Features
 
