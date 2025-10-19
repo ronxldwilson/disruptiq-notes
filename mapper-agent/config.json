@@ -1,0 +1,34 @@
+{
+  "agents": [
+    {
+      "name": "openapi_mapper",
+      "path": "../openapi-mapper",
+      "script": "python map.py"
+    },
+    {
+      "name": "code_mapper",
+      "path": "../code-mapper",
+      "script": "python map.py"
+    },
+    {
+      "name": "db_mapper",
+      "path": "../db-mapper",
+      "script": "python map.py"
+    },
+    {
+      "name": "network_mapper",
+      "path": "../network-mapper",
+      "script": "python map.py"
+    },
+    {
+      "name": "supply_chain_mapper",
+      "path": "../supply-chain-mapper",
+      "script": "python map.py"
+    },
+    {
+      "name": "obfuscation_detector",
+      "path": "../obfuscation-detector",
+      "script": "python main.py ../test-application"
+    }
+  ]
+}
