@@ -9,6 +9,7 @@ __pycache__
 node_modules
 temp.txt
 test-application
+test-results
 
 # Allow
 !supply-chain-mapper-agent/repo-to-scan/node_modules/*
