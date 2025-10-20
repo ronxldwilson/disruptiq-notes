@@ -12,18 +12,25 @@ fi
 # get absolute path to script location
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# create central repo_dump folder next to script
-DUMP_DIR="$SCRIPT_DIR/repo_dump"
-mkdir -p "$DUMP_DIR"
+# create archive folder if needed
+ARCHIVE_DIR="$SCRIPT_DIR/archive"
+mkdir -p "$ARCHIVE_DIR"
 
-# timestamped output file
+# timestamped for archiving
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-OUTPUT="$DUMP_DIR/repo_dump_$TIMESTAMP.txt"
+
+# if output.txt exists, archive it
+if [ -f "$SCRIPT_DIR/output.txt" ]; then
+    mv "$SCRIPT_DIR/output.txt" "$ARCHIVE_DIR/output_$TIMESTAMP.txt"
+fi
+
+# output file
+OUTPUT="$SCRIPT_DIR/output.txt"
 
 echo "[INFO] Creating repo dump: $OUTPUT"
 
-# gather file list (respecting .gitignore, skip repo_dump)
-FILES=$(cd "$REPO_DIR" && git ls-files --cached --others --exclude-standard | grep -v '^repo_dump/')
+# gather file list (respecting .gitignore, skip archive)
+FILES=$(cd "$REPO_DIR" && git ls-files --cached --others --exclude-standard | grep -v '^archive/')
 TOTAL=$(echo "$FILES" | wc -l)
 
 echo "[INFO] Processing $TOTAL files..."

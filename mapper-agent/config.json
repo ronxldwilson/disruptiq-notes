@@ -1,6 +1,11 @@
 {
   "agents": [
     {
+      "name": "raw single file agent",
+      "path": "../raw-one-file-script",
+      "script": "python raw_script.py"
+    },
+    {
       "name": "openapi_mapper",
       "path": "../openapi-mapper",
       "script": "python map.py"
