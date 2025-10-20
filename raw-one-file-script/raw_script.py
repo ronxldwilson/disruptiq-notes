@@ -3,7 +3,7 @@
 Equivalent Python script of raw_script.sh
 Creates a consolidated dump of all text files in a Git repository into output.txt
 Respects .gitignore, archives previous output.txt, skips binary files by extension, and provides progress/stats.
-Optimized with parallel file reading (64 workers), chunked processing (1000 files per chunk) for massive projects,
+Optimized with parallel chunk processing using multiple processes, chunked reading (1000 files per chunk) for massive projects,
 and large output buffering (1MB) for high performance.
 Suitable for projects with millions of lines of code.
 """
@@ -14,7 +14,7 @@ import shutil
 import subprocess
 import time
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 # Known binary file extensions to skip
 BINARY_EXTENSIONS = {
@@ -36,6 +36,24 @@ def read_file(file_path):
             return f.read()
     except IOError:
         return ""
+
+def process_chunk(chunk_files, chunk_paths):
+    """Process a chunk: read files in parallel, return combined text and stats."""
+    with ThreadPoolExecutor(max_workers=16) as executor:  # Smaller pool per process
+        contents = list(executor.map(read_file, chunk_paths))
+    
+    text_parts = []
+    file_count = 0
+    char_count = 0
+    line_count = 0
+    for file, content in zip(chunk_files, contents):
+        text_parts.append(f"##### {file} #####\n{content}\n\n")
+        file_count += 1
+        char_count += len(content)
+        line_count += content.count('\n')
+    
+    combined_text = ''.join(text_parts)
+    return combined_text, file_count, char_count, line_count
 
 def main():
     script_start = time.time()
@@ -112,50 +130,43 @@ def main():
     chunk_size = 1000  # Process in chunks to limit memory usage for massive projects
     total_chunks = (len(files) + chunk_size - 1) // chunk_size  # Ceiling division
 
-    print(f"[INFO] Starting parallel file reading in {total_chunks} chunks...", file=sys.stderr)
+    print(f"[INFO] Starting parallel chunk processing with {min(total_chunks, 8)} processes...", file=sys.stderr)
     read_start = time.time()
 
-    with open(output_file, 'w', encoding='utf-8', buffering=1048576) as outfile:  # 1MB buffering for faster writes
-        for chunk_idx in range(total_chunks):
-            i = chunk_idx * chunk_size
-            chunk_files = files[i:i + chunk_size]
-            chunk_paths = file_paths[i:i + chunk_size]
+    # Prepare chunk data
+    chunks_data = []
+    for i in range(0, len(files), chunk_size):
+        chunk_files = files[i:i + chunk_size]
+        chunk_paths = file_paths[i:i + chunk_size]
+        chunks_data.append((chunk_files, chunk_paths))
 
-            chunk_start = time.time()
-            # Read chunk contents in parallel
-            with ThreadPoolExecutor(max_workers=64) as executor:
-                chunk_contents = list(executor.map(read_file, chunk_paths))
-            chunk_read_time = time.time() - chunk_start
-
-            # Calculate ETA
-            elapsed = time.time() - read_start
-            chunks_done = chunk_idx + 1
-            if chunks_done > 0:
-                rate = chunks_done / elapsed
-                remaining_chunks = total_chunks - chunks_done
-                eta_seconds = remaining_chunks / rate if rate > 0 else 0
-                eta_str = f"{eta_seconds / 60:.1f} minutes" if eta_seconds > 60 else f"{eta_seconds:.1f} seconds"
-            else:
-                eta_str = "calculating..."
-
-            print(f"[INFO] Processed chunk {chunks_done}/{total_chunks} in {chunk_read_time:.2f}s. ETA: {eta_str}", file=sys.stderr)
-
-            for file, content in zip(chunk_files, chunk_contents):
-                count += 1
-                outfile.write(f"##### {file} #####\n")
-                outfile.write(content)
-                outfile.write("\n\n")
-                total_chars += len(content)
-                total_lines += content.count('\n')
-
-                # Log progress only at checkpoints
-                percent = count * 100 // total
-                if percent >= next_checkpoint:
-                    print(f"[INFO] {next_checkpoint}% completed ({count}/{total} files)", file=sys.stderr)
-                    next_checkpoint += 10
+    # Process chunks in parallel using processes
+    max_workers = min(total_chunks, 8)  # Limit to 8 processes
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(process_chunk, cf, cp) for cf, cp in chunks_data]
+        chunk_results = [future.result() for future in futures]
 
     read_end = time.time()
-    print(f"[INFO] File reading and writing completed in {read_end - read_start:.2f} seconds.", file=sys.stderr)
+    print(f"[INFO] Chunk processing completed in {read_end - read_start:.2f} seconds.", file=sys.stderr)
+
+    # Now write sequentially to output file
+    print(f"[INFO] Writing combined output...", file=sys.stderr)
+    write_start = time.time()
+    with open(output_file, 'w', encoding='utf-8', buffering=1048576) as outfile:  # 1MB buffering for faster writes
+        for combined_text, file_count, char_count, line_count in chunk_results:
+            outfile.write(combined_text)
+            count += file_count
+            total_chars += char_count
+            total_lines += line_count
+
+            # Log progress only at checkpoints
+            percent = count * 100 // total
+            if percent >= next_checkpoint:
+                print(f"[INFO] {next_checkpoint}% completed ({count}/{total} files)", file=sys.stderr)
+                next_checkpoint += 10
+
+    write_end = time.time()
+    print(f"[INFO] Output writing completed in {write_end - write_start:.2f} seconds.", file=sys.stderr)
 
     # Stats
     file_size = os.path.getsize(output_file)
@@ -170,7 +181,7 @@ def main():
     print(f"[INFO] Total lines in dump: {total_lines}")
     print(f"[INFO] Total size of dump: {size_str}")
     print(f"[INFO] Approx token count (chars/4): {tokens}")
-    print(f"[INFO] Phase times: Listing {list_end - list_start:.2f}s, Filtering {filter_end - filter_start:.2f}s, Read/Write {read_end - read_start:.2f}s")
+    print(f"[INFO] Phase times: Listing {list_end - list_start:.2f}s, Filtering {filter_end - filter_start:.2f}s, Processing {read_end - read_start:.2f}s, Writing {write_end - write_start:.2f}s")
     print(f"[INFO] Total time taken: {total_duration:.2f} seconds")
     print(f"[INFO] Script finished at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
