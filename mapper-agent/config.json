@@ -16,6 +16,11 @@
       "script": "python map.py"
     },
     {
+      "name": "supply_chain_mapper_agent",
+      "path": "../supply-chain-mapper-agent",
+      "script": "python main.py"
+    },
+    {
       "name": "openapi_mapper",
       "path": "../openapi-mapper",
       "script": "python map.py"
@@ -23,11 +28,6 @@
     {
       "name": "code_mapper",
       "path": "../code-mapper",
-      "script": "python map.py"
-    },
-    {
-      "name": "supply_chain_mapper",
-      "path": "../supply-chain-mapper",
       "script": "python map.py"
     },
     {
