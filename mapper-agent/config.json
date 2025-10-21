@@ -26,14 +26,14 @@
       "script": "python main.py"
     },
     {
-      "name": "code_mapper",
-      "path": "../code-mapper",
-      "script": "python map.py"
-    },
-    {
       "name": "obfuscation_checker_agent",
       "path": "../obfuscation-checker-agent",
       "script": "python main.py"
+    },
+    {
+      "name": "code_mapper",
+      "path": "../code-mapper",
+      "script": "python map.py"
     }
   ]
 }
