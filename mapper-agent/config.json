@@ -22,8 +22,8 @@
     },
     {
       "name": "openapi_mapper",
-      "path": "../openapi-mapper",
-      "script": "python map.py"
+      "path": "../openapi-mapper-agent",
+      "script": "python main.py"
     },
     {
       "name": "code_mapper",
