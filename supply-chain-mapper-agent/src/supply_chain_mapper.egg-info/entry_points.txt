@@ -1,2 +1,0 @@
-[console_scripts]
-mapper = src.cli:main

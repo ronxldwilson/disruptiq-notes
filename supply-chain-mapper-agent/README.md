@@ -134,9 +134,26 @@ Install required dependencies:
 pip install -r requirements.txt
 ```
 
+### Quick Start
+```bash
+# Scan a directory
+python main.py <directory-to-scan>
+
+# Scan with different output formats
+python main.py repo-to-scan --output report.json    # JSON (default)
+python main.py repo-to-scan --output report.csv --format csv  # CSV format
+python main.py repo-to-scan --output report.xml --format xml  # XML format
+
+# Advanced options
+python main.py repo-to-scan --verbose --log scan.log  # Verbose logging with file
+python main.py repo-to-scan --quiet                    # Suppress progress output
+python main.py repo-to-scan --no-color                 # Disable colored output
+```
+
 ### Project Structure
 ```
 supply-chain-mapper-agent/
+├── main.py                       # Main entry point script
 ├── config.yaml                   # Configuration file
 ├── README.md                     # This documentation
 ├── requirements.txt             # Python dependencies
@@ -174,30 +191,50 @@ supply-chain-mapper-agent/
 
 ### Basic Usage
 ```bash
-python -m src.cli --path <repo-path> --output <output-file>
+python main.py <directory-to-scan>
 ```
 
 ### Examples
 ```bash
 # Scan current directory
-python -m src.cli --path . --output report.json
+python main.py .
 
 # Scan specific directory
-python -m src.cli --path repo-to-scan --output scan_report.json
+python main.py repo-to-scan
 
-# Use custom configuration
-python -m src.cli --path repo-to-scan --config config.yaml --output report.json
+# Use custom configuration and output
+python main.py repo-to-scan --config config.yaml --output scan_report.json
 ```
 
 ### Command Line Options
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--path PATH` | Path to the repository to scan | `.` |
-| `--output OUTPUT` | Output file for the scan report | `mapper_report.json` |
-| `--config CONFIG` | Path to config file | None |
-| `--no-color` | Disable colored output | False |
-| `--include-binaries` | Include binary detection in scan | False |
-| `--help` | Show help message | - |
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `path` | - | Path to the repository to scan (positional) | Required |
+| `--output OUTPUT` | `-o` | Output file for the scan report | `mapper_report.json` |
+| `--format FORMAT` | `-f` | Output format (json, csv, xml) | `json` |
+| `--config CONFIG` | `-c` | Path to config file | None |
+| `--verbose` | `-v` | Enable verbose logging | False |
+| `--log FILE` | - | Log file path | None |
+| `--quiet` | `-q` | Suppress progress output | False |
+| `--no-color` | - | Disable colored output | False |
+| `--include-binaries` | - | Include binary detection in scan | False |
+| `--help` | - | Show help message | - |
+
+### Output Formats
+
+The mapper supports multiple output formats for different use cases:
+
+- **JSON** (default): Comprehensive structured data for programmatic consumption
+- **CSV**: Tabular format suitable for spreadsheets and data analysis
+- **XML**: Structured markup format for enterprise systems
+
+### Enhanced Features
+
+- **Progress Indicators**: Real-time progress bars and status updates during scanning
+- **Colored Output**: Color-coded terminal output for better readability
+- **Comprehensive Logging**: Verbose logging with file output option
+- **Error Handling**: Robust error handling with detailed error messages
+- **Cross-Platform**: Compatible with Windows, macOS, and Linux
 
 ---
 
@@ -258,7 +295,7 @@ risk_heuristics:
 The mapper can be tested by scanning the included `repo-to-scan` directory:
 
 ```bash
-python -m src.cli --path repo-to-scan --output test_results.json
+python main.py repo-to-scan --output test_results.json
 ```
 
 ### Test Results Example
@@ -331,7 +368,7 @@ To add support for new ecosystems:
 1. Create a new parser in `/src/parsers/` (e.g. `new_parser.py`)
 2. Follow the same interface pattern as existing parsers
 3. Add the new parser to `/src/parsers/__init__.py`
-4. Update `/src/cli.py` to import and use the new parser
+4. Update `main.py` to import and use the new parser
 5. Update `/src/walker.py` with new manifest patterns if needed
 
 ### Adding New Heuristics
