@@ -12,8 +12,8 @@
     },
     {
       "name": "db_mapper",
-      "path": "../db-mapper",
-      "script": "python map.py"
+      "path": "../db-mapper-agent",
+      "script": "python main.py"
     },
     {
       "name": "supply_chain_mapper_agent",

@@ -22,15 +22,24 @@ def run_agent(agent, param=None):
 
     # Change to the agent directory
     cwd = os.path.abspath(path)
+    # print(f"Running {name} in directory: {cwd}")
+    # print(f"Command: {script_cmd}")
+
+    if not os.path.isdir(cwd):
+        print(f"Error: Directory {cwd} does not exist for {name}", file=sys.stderr)
+        return None
 
     try:
         # Run the script in the agent's directory
         result = subprocess.run(script_cmd, shell=True, cwd=cwd, capture_output=True, text=True, timeout=120)
         if result.returncode != 0:
-            print(f"Error running {name}: {result.stderr}", file=sys.stderr)
+            print(f"Error running {name}: Return code {result.returncode}", file=sys.stderr)
+            print(f"Stderr: {result.stderr}", file=sys.stderr)
+            print(f"Stdout: {result.stdout}", file=sys.stderr)
             return None
 
         output_str = result.stdout.strip()
+        print(f"{name} completed successfully. Output length: {len(output_str)}")
         try:
             # Try to parse as JSON
             output = json.loads(output_str)
