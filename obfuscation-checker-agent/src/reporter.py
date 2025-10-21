@@ -1,3 +1,4 @@
+import aiofiles
 import json
 from datetime import datetime
 from typing import List, Dict, Any
@@ -7,65 +8,62 @@ class Reporter:
     def __init__(self, config):
         self.config = config
         self.findings = []
+        # Pre-computed aggregates for efficiency
+        self.severity_counts = Counter()
+        self.category_counts = Counter()
+        self.confidence_scores = []
+        self.total_risk_score = 0.0
+        self.total_findings_count = 0
+        self.next_id = 1
 
     def add_findings(self, findings: List):
         """Add findings to the report."""
+        # Assign auto-incrementing IDs
+        for finding in findings:
+            finding.id = self.next_id
+            self.next_id += 1
         self.findings.extend(findings)
+        # Update aggregates incrementally
+        severity_weights = {"high": 3, "medium": 2, "low": 1}
+        for finding in findings:
+            self.severity_counts[finding.severity] += 1
+            self.category_counts[finding.category] += 1
+            self.confidence_scores.append(finding.confidence)
+            weight = severity_weights.get(finding.severity, 1)
+            self.total_risk_score += weight * finding.confidence
+            self.total_findings_count += 1
 
-    def generate_report(self, scan_path: str) -> Dict[str, Any]:
+    def generate_report(self, scan_path: str, elapsed_time: float = None, total_files_scanned: int = None) -> Dict[str, Any]:
         """Generate the full report dictionary."""
         now = datetime.utcnow().isoformat() + "Z"
-        total_files = len(set(f.file_path for f in self.findings)) if self.findings else 0
+        total_files = total_files_scanned if total_files_scanned is not None else (len(set(f.file_path for f in self.findings)) if self.findings else 0)
 
-        severity_counts = Counter(f.severity for f in self.findings)
-        category_counts = Counter()
-        confidence_scores = []
-
-        # Store analyzer reference for pattern lookup
-        analyzer = None
-        try:
-            from analyzer import Analyzer
-            analyzer = Analyzer(self.config)
-        except ImportError:
-            pass
-
-        # Analyze findings
-        for finding in self.findings:
-            # Count categories
-            if analyzer and hasattr(analyzer, 'patterns'):
-                pattern_info = analyzer.patterns.get(finding.obfuscation_type, {})
-                category = pattern_info.get('category', 'unknown')
-            else:
-                category = 'unknown'
-            category_counts[category] += 1
-
-            # Collect confidence scores
-            confidence_scores.append(finding.confidence)
+        # Use pre-computed aggregates
+        severity_counts = self.severity_counts
+        category_counts = self.category_counts
+        confidence_scores = self.confidence_scores
 
         # Calculate average confidence
         avg_confidence = sum(confidence_scores) / len(confidence_scores) if confidence_scores else 0
 
-        # Calculate risk score (weighted by severity and confidence)
-        risk_score = 0
-        severity_weights = {"high": 3, "medium": 2, "low": 1}
-        for finding in self.findings:
-            weight = severity_weights.get(finding.severity, 1)
-            risk_score += weight * finding.confidence
+        # Use pre-computed risk score
+        risk_score = self.total_risk_score
 
+        summary = {
+            "high_severity": severity_counts.get("high", 0),
+            "medium_severity": severity_counts.get("medium", 0),
+            "low_severity": severity_counts.get("low", 0),
+            "total_findings": self.total_findings_count,
+            "average_confidence": round(avg_confidence, 3),
+            "risk_score": round(risk_score, 2),
+            "categories": dict(category_counts)
+        }
         report = {
             "scan_timestamp": now,
             "scan_path": scan_path,
             "total_files_scanned": total_files,
-            "findings": [f.to_dict() for f in self.findings],
-            "summary": {
-                "high_severity": severity_counts.get("high", 0),
-                "medium_severity": severity_counts.get("medium", 0),
-                "low_severity": severity_counts.get("low", 0),
-                "total_findings": len(self.findings),
-                "average_confidence": round(avg_confidence, 3),
-                "risk_score": round(risk_score, 2),
-                "categories": dict(category_counts)
-            },
+            "summary": summary,
+            "scan_duration_seconds": round(elapsed_time, 2) if elapsed_time is not None else None,
             "risk_assessment": self._assess_risk(severity_counts, category_counts, risk_score, total_files)
         }
         return report
@@ -87,12 +85,47 @@ class Reporter:
         else:
             return "CLEAN: No significant obfuscation detected"
 
-    def write_report(self, report: Dict[str, Any]):
-        """Write the report to a JSON file."""
+    async def write_report(self, report: Dict[str, Any], is_final: bool = False, quiet: bool = False):
+        """Write the report to a JSON file asynchronously, streaming to minimize memory usage."""
         output_file = self.config.get("output_file", "report.json")
-        with open(output_file, 'w') as f:
-            json.dump(report, f, indent=2)
-        print(f"Report written to {output_file}")
+        async with aiofiles.open(output_file, 'w') as f:
+            # Write the report structure, streaming findings to avoid loading all into memory
+            await f.write('{\n')
+            await f.write(f'  "scan_timestamp": {json.dumps(report["scan_timestamp"])},\n')
+            await f.write(f'  "scan_path": {json.dumps(report["scan_path"])},\n')
+            await f.write(f'  "total_files_scanned": {report["total_files_scanned"]},\n')
+            await f.write('  "findings": [\n')
+            # Stream findings directly from self.findings
+            total_findings = len(self.findings)
+            for i, finding in enumerate(self.findings):
+                comma = ',' if i < len(self.findings) - 1 else ''
+                finding_dict = finding.to_dict()
+                # Write each finding as properly indented JSON
+                finding_json = json.dumps(finding_dict, indent=4)
+                # Indent it properly in the array
+                indented = '\n'.join('    ' + line for line in finding_json.split('\n'))
+                await f.write(f'{indented}{comma}\n')
+                # Show progress for large final reports
+                if is_final and total_findings > 100 and (i + 1) % 100 == 0:
+                    progress = (i + 1) / total_findings * 100
+                    print(f"Report writing progress: {i + 1}/{total_findings} findings ({progress:.1f}%)")
+            await f.write('  ],\n')
+            await f.write('  "summary": {\n')
+            summary = report["summary"]
+            await f.write(f'    "high_severity": {summary["high_severity"]},\n')
+            await f.write(f'    "medium_severity": {summary["medium_severity"]},\n')
+            await f.write(f'    "low_severity": {summary["low_severity"]},\n')
+            await f.write(f'    "total_findings": {summary["total_findings"]},\n')
+            await f.write(f'    "average_confidence": {summary["average_confidence"]},\n')
+            await f.write(f'    "risk_score": {summary["risk_score"]},\n')
+            await f.write(f'    "categories": {json.dumps(summary["categories"])}\n')
+            await f.write('  },\n')  # Added comma here
+            if report.get("scan_duration_seconds") is not None:
+                await f.write(f'  "scan_duration_seconds": {report["scan_duration_seconds"]},\n')
+            await f.write(f'  "risk_assessment": {json.dumps(report["risk_assessment"])}\n')
+            await f.write('}\n')
+        if not quiet:
+            print(f"Report written to {output_file}")
 
     def print_summary(self, report: Dict[str, Any]):
         """Print a summary to console."""
@@ -103,6 +136,8 @@ class Reporter:
         print(f"Scan Path: {report['scan_path']}")
         print(f"Timestamp: {report['scan_timestamp']}")
         print(f"Files Scanned: {report['total_files_scanned']}")
+        if report.get('scan_duration_seconds') is not None:
+            print(f"Scan Duration: {report['scan_duration_seconds']} seconds")
         print(f"Total Findings: {summary['total_findings']}")
         print()
         print("SEVERITY BREAKDOWN:")

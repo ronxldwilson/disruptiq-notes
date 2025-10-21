@@ -1,9 +1,14 @@
 {
   "agents": [
     {
-      "name": "raw single file agent",
+      "name": "raw_single_file_agent",
       "path": "../raw-one-file-script",
       "script": "python raw_script.py"
+    },
+    {
+      "name": "obfuscation_checker_agent",
+      "path": "../obfuscation-checker-agent",
+      "script": "python main.py"
     },
     {
       "name": "openapi_mapper",
@@ -29,11 +34,6 @@
       "name": "supply_chain_mapper",
       "path": "../supply-chain-mapper",
       "script": "python map.py"
-    },
-    {
-      "name": "obfuscation_detector",
-      "path": "../obfuscation-detector",
-      "script": "python main.py ../test-application"
     }
   ]
 }

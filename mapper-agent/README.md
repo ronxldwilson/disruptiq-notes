@@ -12,6 +12,7 @@ The mapper agent is triggered after an event and collects data from multiple map
 - **Network mapper agent** - Created network architecture map for a given codebase
 - **Supply Chain mapper agent** - Created supply chain map for a given codebase
 - **Obfuscation detector agent** - Detects obfuscation techniques used in the codebase to weed out threats
+- **Raw one file script** - Creates a single file will all of the contents of all files of a repo
 
 ![alt text](image.png)
 
