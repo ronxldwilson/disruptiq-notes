@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import concurrent.futures
 import json
 import os
 import subprocess
@@ -46,7 +47,7 @@ def run_agent(agent, param=None):
 
 def main():
     parser = argparse.ArgumentParser(description="Run mapper agents")
-    parser.add_argument("--param", type=str, help="Parameter to pass to all agents")
+    parser.add_argument("param", help="Directory to pass to all agents")
     args = parser.parse_args()
     param = args.param
 
@@ -58,11 +59,17 @@ def main():
     config = load_config(config_path)
     unified_map = {}
 
-    for agent in config['agents']:
-        print(f"Running {agent['name']}...")
-        output = run_agent(agent, param)
-        if output is not None:
-            unified_map[agent['name']] = output
+    with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+        futures = {}
+        for agent in config['agents']:
+            print(f"Running {agent['name']}...")
+            futures[agent['name']] = executor.submit(run_agent, agent, param)
+
+        for agent in config['agents']:
+            name = agent['name']
+            output = futures[name].result()
+            if output is not None:
+                unified_map[name] = output
 
     # Save the unified map to report.json
     with open('report.json', 'w') as f:

@@ -11,6 +11,11 @@
       "script": "python main.py"
     },
     {
+      "name": "db_mapper",
+      "path": "../db-mapper",
+      "script": "python map.py"
+    },
+    {
       "name": "openapi_mapper",
       "path": "../openapi-mapper",
       "script": "python map.py"
@@ -18,11 +23,6 @@
     {
       "name": "code_mapper",
       "path": "../code-mapper",
-      "script": "python map.py"
-    },
-    {
-      "name": "db_mapper",
-      "path": "../db-mapper",
       "script": "python map.py"
     },
     {
