@@ -1,425 +1,170 @@
-# Network Mapper — Code-Level Network Activity Scanner
+# Network Mapper Agent
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://python.org)
-[![Status](https://img.shields.io/badge/status-stable-green.svg)](https://github.com/)
 
-## Table of Contents
+## Overview
 
-1. [Project Summary](#project-summary)
-2. [Installation & Quick Start](#installation--quick-start)
-3. [Design Goals & Non-Goals](#design-goals--non-goals)
-4. [Key Concepts & Terminology](#key-concepts--terminology)
-5. [High-Level Architecture](#high-level-architecture)
-6. [Core Features & Detector Catalog](#core-features--detector-catalog)
-7. [Signal & JSON Report Schema (detailed)](#signal--json-report-schema-detailed)
-8. [Sample Output (expanded)]#sample-output-expanded)
-9. [Plugin / Detector API (spec)](#plugin--detector-api-spec)
-10. [Language Parsers & Heuristics](#language-parsers--heuristics)
-11. [Ruleset Format & Examples (YAML/JSON)](#ruleset-format--examples-yamljson)
-12. [CLI Specification & Usage](#cli-specification--usage)
-13. [CI/CD Integration & Automation](#cicd-integration--automation)
-14. [Testing Strategy & Test Cases](#testing-strategy--test-cases)
-15. [Performance & Scalability Considerations](#performance--scalability-considerations)
-16. [Security & Privacy Considerations](#security--privacy-considerations)
-17. [Extensibility & Roadmap](#extensibility--roadmap)
-18. [Developer Guide: Adding a Detector](#developer-guide-adding-a-detector)
+Network Mapper Agent is a static analysis tool that scans code repositories to detect network-related activities and potential security issues. It analyzes source code to identify hardcoded URLs, exposed ports, insecure configurations, and other network patterns that may indicate security concerns or architectural issues.
 
-## Project Summary
+## Features
 
-**Network Mapper** is a static-analysis scanning tool focused on **network-related code artifacts** inside a repository. It examines source files, configuration, deployment manifests and scripts to detect:
+### Current Capabilities
 
-* Outbound network calls (HTTP(S), WebSockets, gRPC, GraphQL, raw sockets, etc.)
-* Inbound bindings and exposed ports (server.listen, socket.bind, container ports)
-* CORS configurations and potential misconfigurations
-* Hardcoded URLs, IPs, secrets or credentials used for network calls
-* Environment variables, config files and templates that define endpoints
-* Patterns in third-party libraries (e.g., axios, requests, fetch) and generated code
+- **Multi-language Support**: Currently supports JavaScript, Python, Go, Java, Rust, and YAML/JSON files
+- **AST-based Analysis**: Uses Python AST parsing for accurate detection (regex fallback for other languages)
+- **11 Built-in Detectors**:
+  - Hardcoded URL detection
+  - HTTP call detection (fetch, axios, requests)
+  - Port exposure detection
+  - WebSocket usage detection
+  - CORS policy analysis
+  - Raw socket usage detection
+  - gRPC detection
+  - Environment variable endpoint detection
+  - Certificate verification bypass detection
+  - Local/private IP detection
+  - Third-party SDK usage detection
 
-Output is a comprehensive JSON report with structured `signals`, metadata and summary statistics. The system is modular — detectors are pluggable, language parsers are separable, and rulesets are user-extensible.
+- **Flexible Output**: JSON reports with detailed metadata and context
+- **Parallel Processing**: Multi-threaded scanning for performance
+- **Git Integration**: Automatic commit hash and branch detection, respects .gitignore patterns
+- **Configurable Rulesets**: YAML-based detector configuration
+- **CI/CD Integration**: Exit codes based on severity thresholds
+- **Gitignore Support**: Automatically excludes files matching .gitignore patterns
 
-**Primary consumers:** security teams, devops, SREs, compliance auditors, and developers who want to detect network exposure or unexpected external communications.
-
-## Installation & Quick Start
+## Installation
 
 ### Prerequisites
 - Python 3.7+
-- Git (for repo metadata gathering)
+- Git (optional, for metadata gathering)
 
-### Installation
+### Install
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/network-mapper.git
-cd network-mapper
+git clone <repository-url>
+cd network-mapper-agent
 
 # Install dependencies
+pip install -r requirements.txt
+
+# Or install in development mode
 pip install -e .
 
-# Or install directly from repository
-pip install .
+# Or run directly (no installation needed)
+python main.py /path/to/repo
 ```
 
-### Quick Start
-```bash
-# Basic scan
-network-mapper scan --repo /path/to/your/repo
+## Quick Start
 
-# Save output to file
-network-mapper scan --repo /path/to/your/repo --output report.json
+### Basic Usage
+```bash
+# Simple scan (recommended)
+python main.py /path/to/your/repo
+
+# Advanced scan with options
+python main.py scan --repo /path/to/your/repo --verbose --output my-report.json
 
 # Scan with custom ruleset
-network-mapper scan --repo /path/to/your/repo --ruleset custom-rules.yaml --output report.json
+python main.py /path/to/your/repo --ruleset custom_ruleset.yaml
 
-# Scan specific languages only
-network-mapper scan --repo /path/to/your/repo --languages javascript,python --output report.json
+# Filter by languages
+python main.py /path/to/your/repo --languages javascript,python
 
-# Enable verbose output
-network-mapper scan --repo /path/to/your/repo --verbose --output report.json
-
-# Set failure threshold for CI/CD
-network-mapper scan --repo /path/to/your/repo --fail-on high
+# Enable verbose logging
+python main.py /path/to/your/repo --verbose
 ```
 
----
-
-# Design Goals & Non-Goals
-
-## Goals
-
-* **Accuracy-first:** use AST or parse-aware detection where possible; fall back to regex heuristics with context.
-* **Extensible detectors:** drop-in detector modules with minimal bootstrapping.
-* **Multi-language support:** initial support for JavaScript/TypeScript, Python, Go, Java, Rust, and basic YAML/JSON parsing for configs.
-* **CI-friendly:** easily run as part of pre-merge checks and pipeline gates.
-* **Actionable output:** precise file/line references, context snippets, severity, and remediation hints.
-* **Offline-friendly:** local scanning with no telemetry by default.
-* **Parallel processing:** multi-threaded scanning for performance on large codebases.
-
-## Non-Goals (for v1)
-
-* Dynamic runtime instrumentation or live network capture (not a runtime monitor).
-* Complete coverage of every language or obscure framework (expandable later).
-* Automated remediation / code modification (only detection & reporting).
-* Ship large, language-specific parsers for every runtime in the initial release.
-
----
-
-# Key Concepts & Terminology
-
-* **Signal**: A single detection event (e.g., hardcoded URL, port listen, insecure CORS). Each signal includes type, severity, file, line, snippet and metadata.
-* **Detector**: A modular component that analyzes file content (or AST) and emits `Signal` objects when it finds matches.
-* **Scanner**: Orchestrates file traversal, language detection, parsing and detector execution.
-* **Ruleset**: YAML/JSON file describing patterns, severities and meta for detectors. Enables user-defined detectors without code changes.
-* **Reporter**: Aggregates signals, computes metadata (repo path, commit hash, scan time), and writes final JSON (or SARIF/other).
-* **Heuristic**: A non-AST pattern (regex + context) used to detect network activity where AST is unavailable.
-
----
-
-# High-Level Architecture
-
-```
-+-----------------+     +----------------+     +------------------+
-|  File Walker    | --> | Language Parsers| --> | Detector Manager |
-+-----------------+     +----------------+     +------------------+
-        |                       |                      |
-        v                       v                      v
-   repo files             AST / tokens           Detectors (plugins)
-        |                       |                      |
-        +-----------------------+----------------------+
-                                |
-                            Scanner Core
-                                |
-                          Reporter / Writer
-                                |
-                      JSON / SARIF / Human Table
-```
-
-Components:
-
-* **File Walker**: Walks repo, filters by patterns, respects `.gitignore`, optional `--include`/`--exclude`.
-* **Language Parsers**: Returns AST or tokens for supported language; for unsupported languages provides raw text to heuristics.
-* **Detector Manager**: Loads detectors dynamically, manages rulesets, runs detectors in parallel safely.
-* **Reporter**: Aggregates and serializes outputs into canonical JSON.
-
----
-
-# Core Features & Detector Catalog
-
-## Core Features
-
-* Multi-language scanning (AST-based where possible)
-* Detector plugin system (auto-discovery)
-* Configurable rulesets (default + user overrides)
-* Severity tagging and remediation hints
-* Output formats: JSON (canonical), SARIF (optional), and pretty CLI table
-* Git metadata extraction (commit hash, branch)
-* CI hooks: fail build on threshold or on specific severities
-* Parallel processing with configurable thread count
-* File filtering with include/exclude glob patterns
-* Language-specific filtering
-* Schema validation for all signals
-* Comprehensive error handling and logging
-* Progress tracking and verbose output
-
-## Detector Catalog (starter)
-
-* **HardcodedUrlDetector**: Finds direct `http(s)://` strings in code and config.
-* **HttpCallDetector**: Detects `fetch`, `axios`, `requests.get`, `http.client`, `net/http` client usage and records endpoint expressions.
-* **WebSocketDetector**: Finds `new WebSocket`, `ws.connect`, or `socket.io` client usage.
-* **PortExposureDetector**: Detects `listen(port)`, `app.listen`, `server.bind`, docker-compose `ports`, Kubernetes `containerPort`.
-* **CorsPolicyDetector**: Looks for `cors({origin: '*'})`, permissive CORS middlewares or wildcard configs.
-* **RawSocketDetector**: Detects direct socket usage (Python `socket`, Node `net.Socket`).
-* **GrpcDetector**: Detects gRPC client/server patterns in supported languages.
-* **EnvEndpointDetector**: Finds env vars typically used for endpoints (e.g., `API_URL`, `SERVICE_ENDPOINT`) and whether defaults are insecure.
-* **CertificateCheckDetector**: Detects disabling of certificate verification (`verify=False`, `rejectUnauthorized: false`).
-* **LocalIpDetector**: Detects hardcoded local or private IPs (10.x.x.x, 192.168.x.x, 172.16-31).
-* **ThirdPartySdkDetector**: Heuristics to spot usage of analytics/telemetry libs (e.g., `segment`, `mixpanel`) and suggest privacy implications.
-
-Each detector includes rich metadata: `id`, `name`, `description`, `supported_languages`, `severity`, `default_enabled`, `tags`, `remediation`, `evidence`, and contextual information including pre/post snippets.
-
----
-
-# Signal & JSON Report Schema (detailed)
-
-Below is the canonical JSON structure the tool will output. **Make sure to validate against this schema** in the reporter.
+### Example Output
+When run on the included examples, the tool produces a JSON report like this:
 
 ```json
 {
   "repo": {
-    "path": "<absolute or supplied path>",
-    "commit_hash": "<git commit sha>",
-    "branch": "<git branch>",
-    "scan_date": "YYYY-MM-DDTHH:MM:SSZ"
+    "path": "/path/to/repo",
+    "commit_hash": "abc123...",
+    "branch": "main",
+    "scan_date": "2025-10-21T09:07:08Z"
   },
   "network_activity_summary": {
-    "total_network_calls": 0,
-    "external_endpoints_detected": 0,
-    "local_ports_exposed": 0,
+    "total_network_calls": 13,
+    "external_endpoints_detected": 8,
+    "local_ports_exposed": 1,
     "signals_by_severity": {
       "critical": 0,
-      "high": 0,
-      "medium": 0,
-      "low": 0,
+      "high": 3,
+      "medium": 11,
+      "low": 4,
       "info": 0
     }
   },
   "signals": [
     {
-      "id": "UUID or deterministic id",
+      "id": "hardurl-src/app.js-1-https://api.example.com",
       "type": "hardcoded_url",
       "detector_id": "hardcoded_url_v1",
       "file": "src/app.js",
-      "line": 42,
+      "line": 1,
       "column": 12,
       "severity": "medium",
-      "confidence": 0.86,
-      "detail": "Detected hardcoded external URL: https://analytics.badtracker.com",
+      "confidence": 0.9,
+      "detail": "Detected hardcoded external URL: https://api.example.com",
       "context": {
-        "snippet": "fetch('https://analytics.badtracker.com/event')",
-        "pre": "  const req = getRequest();",
-        "post": "  send(req);",
-        "ast_path": ["CallExpression", "Argument[0]"]
+        "snippet": "axios.get('https://api.example.com/data')",
+        "pre": "const axios = require('axios');",
+        "post": ".then(response => {"
       },
-      "tags": ["external", "analytics"],
-      "remediation": "Replace with env var process.env.ANALYTICS_URL or use internal proxy",
+      "tags": ["external", "url", "hardcoded"],
+      "remediation": "Replace with env var process.env.API_URL or use internal proxy",
       "evidence": {
-        "match": "https://analytics.badtracker.com/event",
-        "regex": "https?://[\\w.-/:]+",
-        "ast_node": { "type": "Literal", "value": "https://analytics.badtracker.com/event" }
-      },
-      "related_signals": ["signal-uuid-12", "signal-uuid-13"]
+        "match": "https://api.example.com",
+        "regex": "https?://[\\w\\.-/:?=&%+#]+"
+      }
     }
-    /* more signals... */
   ],
   "metadata": {
     "scanner_version": "0.1.0",
-    "detectors_loaded": ["hardcoded_url_v1", "socket_usage_v1", "cors_v1"],
+    "detectors_loaded": ["hardcoded_url_v1", "http_call_v1", "port_exposure_v1", ...],
     "ruleset": "rulesets/default.yaml"
   }
 }
 ```
 
-### Field notes
+## Architecture
 
-* `confidence`: float 0–1; detectors should estimate confidence when using heuristics.
-* `severity`: one of `critical`, `high`, `medium`, `low`, `info`.
-* `ast_path`: optional path to AST location, helpers for later tooling to highlight code.
-* `related_signals`: link signals that belong to the same service/flow (optional; generated by post-processing).
-* `evidence.ast_node`: include the serialized AST node if AST-based detection used (trim to reasonable size).
+### Core Components
 
----
+- **Scanner Core** (`main.py`): Orchestrates file traversal (respects .gitignore), detector loading, and parallel processing
+- **Detector System** (`detectors/`): Pluggable modules for different types of network activity detection
+- **Ruleset System** (`rulesets/`): YAML configuration for detector behavior
+- **Reporter**: Aggregates signals into structured JSON output
 
-# Sample Output (expanded)
+### Detector Interface
 
-Expanded example with multiple signals and metadata:
-
-```json
-{
-  "repo": {
-    "path": "/home/dev/projects/api-server",
-    "commit_hash": "adf39c1",
-    "branch": "feature/network-map",
-    "scan_date": "2025-10-14T19:05:00Z"
-  },
-  "network_activity_summary": {
-    "total_network_calls": 12,
-    "external_endpoints_detected": 6,
-    "local_ports_exposed": 2,
-    "signals_by_severity": {
-      "critical": 1,
-      "high": 3,
-      "medium": 5,
-      "low": 2,
-      "info": 1
-    }
-  },
-  "signals": [
-    {
-      "id": "sig-0001",
-      "type": "port_exposure",
-      "detector_id": "port_exposure_v1",
-      "file": "server.js",
-      "line": 10,
-      "column": 5,
-      "severity": "high",
-      "confidence": 0.95,
-      "detail": "Server binds to port 8080 without TLS",
-      "context": {
-        "snippet": "app.listen(8080)",
-        "pre": "const app = express();",
-        "post": "console.log('Listening...');"
-      },
-      "tags": ["exposed", "http", "server"],
-      "remediation": "Enable TLS or proxy behind reverse-proxy with TLS. Avoid binding insecure port in production.",
-      "evidence": {
-        "match": "listen\\((\\d+)\\)",
-        "match_groups": { "1": "8080" }
-      }
-    },
-    {
-      "id": "sig-0002",
-      "type": "hardcoded_url",
-      "detector_id": "hardcoded_url_v1",
-      "file": "src/app.js",
-      "line": 42,
-      "column": 18,
-      "severity": "medium",
-      "confidence": 0.88,
-      "detail": "Detected hardcoded external URL: https://analytics.badtracker.com",
-      "context": {
-        "snippet": "fetch('https://analytics.badtracker.com/event')",
-        "pre": "function track() {",
-        "post": "}"
-      },
-      "tags": ["external", "analytics"],
-      "remediation": "Use a configurable env var or internal tracking proxy.",
-      "evidence": {
-        "match": "https://analytics.badtracker.com/event"
-      },
-      "related_signals": ["sig-0005"]
-    },
-    {
-      "id": "sig-0003",
-      "type": "socket_usage",
-      "detector_id": "raw_socket_v1",
-      "file": "sockets/socket_client.py",
-      "line": 12,
-      "column": 3,
-      "severity": "medium",
-      "confidence": 0.9,
-      "detail": "Detected raw socket connection to 10.0.0.12:9000",
-      "context": {
-        "snippet": "s.connect(('10.0.0.12', 9000))",
-        "pre": "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)",
-        "post": "s.send(data)"
-      },
-      "tags": ["internal", "raw-socket"],
-      "remediation": "Avoid raw ip connections; use service discovery or env-based endpoints."
-    }
-    /* ...more signals... */
-  ],
-  "metadata": {
-    "scanner_version": "0.2.0",
-    "detectors_loaded": ["hardcoded_url_v1", "port_exposure_v1", "raw_socket_v1", "cors_v1"],
-    "ruleset": "rulesets/default.yaml"
-  }
-}
-```
-
----
-
-# Plugin / Detector API (spec)
-
-Detectors must be small, testable modules. The scanner will dynamically load them (via plugin discovery or registration). Below is an illustrative Python interface; adapt to your language of choice.
+Each detector implements a simple interface:
 
 ```python
-# detectors/base.py
-from typing import List, Dict, Any, Iterable
-class Signal(Dict):
-    pass
+class MyDetector(Detector):
+    id = "my_detector_v1"
+    name = "My Custom Detector"
+    description = "Detects specific network patterns"
+    supported_languages = ["javascript", "python"]
 
-class Detector:
-    id: str  # e.g., "hardcoded_url_v1"
-    name: str
-    description: str
-    supported_languages: List[str] = []
-    default_severity: str = "medium"
-
-    def __init__(self, config: Dict[str, Any]):
-        """Load config (ruleset overrides, thresholds, enabled flag)"""
-        self.config = config
-
-    def match(self, file_path: str, file_content: str, ast: Any = None) -> Iterable[Signal]:
-        """
-        Analyze file (and AST if provided) and yield Signal dicts.
-        Each Signal must follow the canonical schema (file, line, severity, detail, etc.)
-        """
-        raise NotImplementedError()
+    def match(self, file_path, file_content, ast=None):
+        # Analyze file and yield Signal dictionaries
+        yield {
+            "type": "custom_signal",
+            "severity": "medium",
+            "detail": "Found something interesting",
+            # ... other signal fields
+        }
 ```
 
-## Plugin discovery
+## Configuration
 
-* Place detectors in `detectors/` folder.
-* Use entry points or a simple file-based manifest `detectors/__init__.py` that lists available detectors.
-* The scanner loads detectors and calls `match()` per file (for performance, call only detectors that support file language).
+### Default Ruleset
 
-## Best practices for detectors
-
-* Keep side-effects out of detectors (pure functions).
-* Return multiple signals where necessary.
-* Provide deterministic IDs (hash of file+line+match) so signals can be de-duped across runs.
-* Include `confidence` and `evidence` in outputs.
-
----
-
-# Language Parsers & Heuristics
-
-## Recommended parsing approach
-
-* **AST-first**: Use language-native ASTs for JavaScript (Esprima / @babel/parser), Python (`ast`), Go (`go/ast`), Java (javaparser), Rust (syn or tree-sitter). AST detection reduces false positives vs regex.
-* **Fallback heuristics**: For templates, Dockerfiles, or unsupported languages, use regex heuristics plus contextual checks.
-* **Tree-sitter**: Consider using tree-sitter for multi-language parsing with a common interface.
-* **Currently implemented**: Python AST parsing with the built-in `ast` module. JavaScript parsing through regex with context-awareness.
-
-## Example AST heuristics
-
-* JavaScript: `CallExpression` where `callee.name` in (`fetch`, `axios`, `http.get`) and argument is a `Literal` or `TemplateLiteral` containing `http`.
-* Python: `ast.Call` where `func.attr` in (`get`, `post`) and module name is `requests` or `http`.
-* Ports: find `CallExpression` or `Call` nodes where function name contains `listen`, `bind`, `serve` with a numeric literal parameter.
-
-## Heuristic patterns (starter)
-
-* URL regex: `https?://[\w\.-/:?=&%+#]+`
-* IP regex: `\b(?:\d{1,3}\.){3}\d{1,3}\b`
-* Port listen: `(listen|serve|bind)\s*\(\s*(\d{2,5})\s*\)`
-* CORS permissive: `cors\(\s*{[^}]*origin\s*:\s*['"]\*\s*['"]\s*}\s*\)`
-
----
-
-# Ruleset Format & Examples (YAML/JSON)
-
-Rulesets let users tune detection thresholds, severities and add custom regex-based detectors.
-
-## rulesets/default.yaml (example)
+The `rulesets/default.yaml` file controls detector behavior:
 
 ```yaml
 detectors:
@@ -429,228 +174,180 @@ detectors:
     languages: ["javascript", "python", "go"]
     regex: "https?://[\\w\\.-/:?=&%+#]+"
     explanation: "Detects hardcoded endpoint strings."
-
-  - id: port_exposure_v1
-    enabled: true
-    severity: high
-    languages: ["javascript", "python", "go"]
-    regex: "(listen|bind|serve)\\s*\\(\\s*(\\d{2,5})\\s*\\)"
-    conditions:
-      - ensure_not_dev_only: true
-    explanation: "Server appears to bind to a port"
 ```
 
-## User overrides
+### Custom Rulesets
 
-* Support `--ruleset path/to/custom.yaml` to load/merge rules.
-* Merge strategy: user-specified overrides default keys; unknown detectors may be added.
-
----
-
-# CLI Specification & Usage
-
-## Install & run (example)
+Create custom rulesets to override defaults:
 
 ```bash
-# install (example)
-pip install -e .
-
-# basic scan
-network-mapper scan --repo ./my-app --output ./reports/network-map.json
-
-# scan with custom ruleset and verbosity
-network-mapper scan --repo ./my-app --ruleset ./rulesets/security.yaml --output ./reports/out.json --verbose
+# Use custom ruleset
+python main.py scan --repo . --ruleset my_rules.yaml
 ```
 
-## CLI flags
-
-* `scan` (command): scan the repo
-
-  * `--repo` (required): path to repository root
-  * `--output` (optional): output path (defaults to stdout)
-  * `--format` (json|sarif|table): output format
-  * `--ruleset` (path): custom ruleset file
-  * `--languages` (list): limit scanning to languages (comma-separated)
-  * `--threads` (int): concurrency level (default: 4)
-  * `--include` / `--exclude` globs
-  * `--git` (bool): gather git metadata (true by default if git available)
-  * `--fail-on` (severity): exit with non-zero if found severity >= value (e.g., high)
-  * `--max-files` (int): early stop threshold for large repos
-  * `--cache` (path): cache ASTs between runs for faster repeated scans
-  * `--profile` (bool): enable run profiling for performance tuning
-  * `--verbose`, `-v` (bool): enable verbose output with detailed logging
-
-## Output examples
-
-* JSON (canonical)
-* SARIF (for developer tools)
-* Pretty CLI table (for local dev)
-
----
-
-# CI/CD Integration & Automation
-
-## GitHub Actions example (check step)
-
-`.github/workflows/network-map.yml`:
-
+Example custom ruleset (`custom_ruleset.yaml`):
 ```yaml
-name: Network Map Scan
+detectors:
+  - id: hardcoded_url_v1
+    enabled: false  # Disable this detector
+  - id: port_exposure_v1
+    severity: critical  # Increase severity
+```
+
+## Command Line Options
+
+```
+usage: main.py [-h] [--output OUTPUT] [--format {json,sarif,table}]
+               [--ruleset RULESET] [--languages LANGUAGES] [--threads THREADS]
+               [--include INCLUDE] [--exclude EXCLUDE] [--git] [--no-git]
+               [--fail-on {critical,high,medium,low,info}]
+               [--max-files MAX_FILES] [--cache CACHE] [--profile] [--verbose]
+               repo_or_command [repo]
+
+Network Mapper - Scan repositories for network activity
+
+positional arguments:
+  repo_or_command       path to repository root, or "scan" command
+  repo                  path to repository root (if using scan command)
+
+options:
+  -h, --help            show this help message and exit
+  --repo REPO           path to repository root (alternative to positional)
+  --output OUTPUT       output path (defaults to report.json)
+  --format {json,sarif,table}
+                        output format (sarif/table not implemented)
+  --ruleset RULESET     custom ruleset file
+  --languages LANGUAGES comma-separated list of languages to scan
+  --threads THREADS     concurrency level (default: 4)
+  --include INCLUDE     include glob patterns
+  --exclude EXCLUDE     exclude glob patterns
+  --git                 gather git metadata (default: true)
+  --no-git              disable git metadata gathering
+  --fail-on {critical,high,medium,low,info}
+                        exit with non-zero if found severity >= value
+  --max-files MAX_FILES early stop threshold for large repos
+  --cache CACHE         cache ASTs between runs (not implemented)
+  --profile             enable run profiling (not implemented)
+  --verbose, -v         enable verbose output
+
+Examples:
+  python main.py /path/to/repo                    # Scan with automatic .gitignore support
+  python main.py scan --repo /path/to/repo --verbose
+```
+
+## Detectors
+
+### Available Detectors
+
+| Detector | Description | Severity | Languages |
+|----------|-------------|----------|-----------|
+| hardcoded_url_v1 | Detects hardcoded URLs in strings | medium | js, py, go, rust |
+| http_call_v1 | Detects HTTP library usage | medium | js, py |
+| port_exposure_v1 | Detects server port binding | high | js, py, go |
+| websocket_v1 | Detects WebSocket usage | medium | js |
+| cors_policy_v1 | Detects permissive CORS settings | high | js |
+| raw_socket_v1 | Detects raw socket usage | medium | py, js |
+| grpc_v1 | Detects gRPC usage | medium | all |
+| env_endpoint_v1 | Detects environment-based endpoints | low | js, py |
+| certificate_check_v1 | Detects certificate verification bypass | high | py, js |
+| local_ip_v1 | Detects hardcoded private IPs | low | all |
+| third_party_sdk_v1 | Detects telemetry/analytics SDKs | medium | js, py |
+
+## Development
+
+### Running Tests
+```bash
+# Run all tests
+python -m pytest tests/
+
+# Run specific test file
+python -m pytest tests/detectors/test_hardcoded_url.py
+```
+
+### Adding a Detector
+
+1. Create `detectors/new_detector.py`
+2. Implement the `Detector` interface
+3. Add unit tests in `tests/detectors/test_new_detector.py`
+4. Update `rulesets/default.yaml` if needed
+
+### Project Structure
+```
+network-mapper-agent/
+├── main.py                 # Main scanner application
+├── detectors/              # Detector implementations
+│   ├── base.py            # Base detector class
+│   ├── hardcoded_url.py   # URL detection
+│   └── ...                # Other detectors
+├── rulesets/              # Configuration files
+│   └── default.yaml       # Default detector config
+├── tests/                 # Unit tests
+├── examples/              # Example code for testing
+├── requirements.txt       # Python dependencies
+└── README.md             # This file
+```
+
+## CI/CD Integration
+
+### GitHub Actions Example
+```yaml
+name: Network Security Scan
 on: [pull_request]
+
 jobs:
-  network-map:
+  network-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
       - name: Run network mapper
-        run: |
-          pip install -e .
-          network-mapper scan --repo . --output ./reports/network-map.json --ruleset ./rulesets/security.yaml
+        run: python main.py . --output network-report.json
       - name: Upload report
         uses: actions/upload-artifact@v4
         with:
-          name: network-map-report
-          path: ./reports/network-map.json
+          name: network-scan-report
+          path: network-report.json
       - name: Fail on high severity
         run: |
-          if jq '.network_activity_summary.signals_by_severity.high > 0' ./reports/network-map.json | grep true; then
-            echo "High severity signals found. Failing build."
-            exit 1
-          fi
+          python -c "
+          import json
+          with open('network-report.json') as f:
+              report = json.load(f)
+          if report['network_activity_summary']['signals_by_severity']['high'] > 0:
+              print('High severity issues found')
+              exit(1)
+          "
 ```
 
-## Suggested checks
+## Limitations
 
-* Fail pipeline when `critical` or `high` signals count > 0
-* Post the report as a PR comment (summarize top 5 signals)
-* Add a badge showing last scan status (pass/fail)
+### Current Limitations
+- AST parsing only implemented for Python (regex-based detection for other languages)
+- No SARIF or table output formats (JSON only)
+- No caching mechanism implemented
+- Limited language support for advanced features
+- No advanced remediation suggestions
 
----
+### Future Enhancements
+- Full AST support for JavaScript, Go, Java, Rust
+- Additional output formats (SARIF, HTML reports)
+- Performance optimizations and caching
+- Advanced ruleset features
+- Integration with IDEs and code editors
 
-# Testing Strategy & Test Cases
+## Contributing
 
-## Unit tests (detectors)
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
 
-* Each detector has unit tests with:
+## License
 
-  * Positive cases (should detect)
-  * Negative cases (should not)
-  * Confidence score sanity checks
-  * AST-based tests with small snippets
-* Use pytest (or chosen framework) and include fixtures for AST nodes.
-
-## Integration tests
-
-* A sample `examples/` repo per language that contains known signals; run full scan and compare output to golden JSON.
-* Regression tests for ruleset merging.
-
-## Fuzz tests
-
-* Random code snippets to measure false positive rate on heuristics.
-
-## Test scenarios (starter list)
-
-* JS: `fetch('https://bad.example')` → hardcoded_url
-* Node: `app.listen(process.env.PORT || 8080)` → port_exposure (but lower severity if env var used)
-* Python: `requests.get(API_URL)` with default `API_URL='http://localhost'` → env endpoint detection
-* Docker-compose: `ports: - "8080:80"` → container port exposure
-* CORS: `app.use(cors({ origin: '*' }))` → cors_policy high severity
-
----
-
-# Performance & Scalability Considerations
-
-* **Parallel file scanning**: process files concurrently with a thread/process pool; parsers may be CPU-bound. Implemented with ThreadPoolExecutor for configurable concurrency.
-* **AST caching**: cache parsed ASTs between runs (localized cache keyed by file hash).
-* **Selective detectors**: only run detectors that declare support for the file language; skip binary and large files.
-* **Memory usage**: stream reporter output when signals run into millions (unlikely, but prepare).
-* **Batching detectors**: detectors that share parsing results should be run in a single pass over AST to reduce repeated traversal cost.
-* **Progress tracking**: log progress every 100 files to monitor scan progress on large repositories.
-
----
-
-# Security & Privacy Considerations
-
-* **Local-first by default**: do not send any repository code or findings to external servers.
-* **Telemetry**: disabled by default; opt-in only, and fully documented.
-* **Sensitive data**: detectors may find secrets — treat output reports with care. Consider redaction options or selective output (e.g., redact values but show evidence match patterns).
-* **Execution safety**: never execute repository code. Scanning must be purely static.
-
----
-
-# Extensibility & Roadmap
-
-## Short-term
-
-* Add deeper language AST integrations (Java, C#).
-* SARIF output for IDE integrations.
-* Add graph-building to visualize service endpoint relationships.
-
-## Mid-term
-
-* LLM-based summarization of top risks per scan (optional, offline).
-* Correlation with dependency graph (SBOM) to attribute external calls to packages or code.
-* Plugin marketplace for community detectors.
-
-## Long-term
-
-* Runtime companion that validates static detections at runtime (opt-in).
-* UI for browsing reports and interaction (filtering, triage, and assign).
-
----
-
-## Developer Guide: Adding a Detector (step-by-step)
-
-1. Create a new detector file under `detectors/`, e.g., `detectors/my_detector.py`.
-2. Implement a `Detector` subclass that defines `id`, `name`, `supported_languages`, and `match()` method.
-3. Add unit tests in `tests/detectors/test_my_detector.py`.
-4. Add entry to `rulesets/default.yaml` (optional).
-5. Run `python main.py scan --repo .` and ensure new detector appears in `metadata.detectors_loaded`.
-
-## Example detector skeleton (Python)
-
-```python
-# detectors/hardcoded_url.py
-from detectors.base import Detector, Signal
-import re
-
-URL_RE = re.compile(r"https?://[\w\.-/:?=&%+#]+", re.IGNORECASE)
-
-class HardcodedUrlDetector(Detector):
-    id = "hardcoded_url_v1"
-    name = "Hardcoded URL Detector"
-    description = "Detects hardcoded URLs in string literals"
-    supported_languages = ["javascript", "python", "go", "rust"]
-
-    def match(self, file_path, file_content, ast=None):
-        for m in URL_RE.finditer(file_content):
-            # compute line/column
-            start = m.start()
-            line = file_content.count("\n", 0, start) + 1
-            col = start - file_content.rfind("\n", 0, start)
-            yield {
-                "id": f"hardurl-{file_path}-{line}-{m.group(0)}",
-                "type": "hardcoded_url",
-                "detector_id": self.id,
-                "file": file_path,
-                "line": line,
-                "column": col,
-                "severity": self.config.get("severity", "medium"),
-                "confidence": 0.9,
-                "detail": f"Detected hardcoded external URL: {m.group(0)}",
-                "context": {"snippet": file_content[max(0,start-40):start+40]}
-            }
-```
-
----
-
-# Final Notes & Quickstart Checklist
-
-* [ ] Choose initial languages to support (JS, Python, Go recommended)
-* [ ] Implement scanner + file walker
-* [ ] Implement 4–6 core detectors (Hardcoded URL, HTTP calls, Port exposure, CORS, Raw socket)
-* [ ] Implement reporter with canonical JSON schema
-* [ ] Add CLI and Git integration
-* [ ] Add CI job to run scans on PRs
-* [ ] Write unit + integration tests (examples folder)
-* [ ] Document rulesets and plugin API
+MIT License - see LICENSE file for details.

@@ -11,6 +11,8 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import yaml
+from pathspec import PathSpec
+from pathspec.patterns import GitWildMatchPattern
 
 from detectors.base import Detector
 
@@ -79,6 +81,42 @@ def get_file_language(file_path):
     }
     return lang_map.get(ext, 'unknown')
 
+def get_git_tracked_files(repo_path):
+    """Get list of files tracked by git, which automatically respects .gitignore"""
+    try:
+        # Check if this is a git repository
+        subprocess.check_output(['git', 'rev-parse', '--git-dir'], cwd=repo_path, stderr=subprocess.DEVNULL)
+
+        # Get all tracked files using git ls-files
+        result = subprocess.check_output(['git', 'ls-files'], cwd=repo_path, stderr=subprocess.DEVNULL)
+        files = result.decode('utf-8').strip().split('')
+
+    # Convert relative paths to absolute paths
+        return [os.path.join(repo_path, f) for f in files if f.strip()]
+
+    except (subprocess.CalledProcessError, FileNotFoundError):
+    # Not a git repository or git not available, return None to fallback to os.walk()
+        return None
+
+def load_gitignore_patterns(repo_path):
+    """Load gitignore patterns from .gitignore file if it exists (fallback for non-git repos)"""
+    gitignore_path = os.path.join(repo_path, '.gitignore')
+    if os.path.isfile(gitignore_path):
+        try:
+            with open(gitignore_path, 'r', encoding='utf-8', errors='ignore') as f:
+                patterns = []
+                for line in f:
+                    line = line.strip()
+                    # Skip empty lines and comments
+                    if line and not line.startswith('#'):
+                        patterns.append(line)
+                return PathSpec.from_lines('gitwildmatch', patterns)
+        except Exception as e:
+            # If we can't read .gitignore, just continue without it
+            print(f"Warning: Could not read .gitignore: {e}")
+            pass
+    return None
+
 def load_detectors(ruleset):
     detectors = []
     default_ruleset = load_ruleset("rulesets/default.yaml")
@@ -121,9 +159,15 @@ def setup_logging(verbose):
     )
 
 def main():
-    parser = argparse.ArgumentParser(description='Network Mapper')
-    parser.add_argument('command', choices=['scan'], help='command to execute')
-    parser.add_argument('--repo', required=True, help='path to repository root')
+    parser = argparse.ArgumentParser(
+        description='Network Mapper - Scan repositories for network activity',
+        epilog='Examples:\n'
+               '  python main.py /path/to/repo\n'
+               '  python main.py scan --repo /path/to/repo --verbose'
+    )
+    parser.add_argument('repo_or_command', help='path to repository root, or "scan" command')
+    parser.add_argument('repo', nargs='?', help='path to repository root (if using scan command)')
+    parser.add_argument('--repo', dest='repo_flag', help='path to repository root (alternative to positional)')
     parser.add_argument('--output', default='report.json', help='output path (defaults to report.json)')
     parser.add_argument('--format', choices=['json', 'sarif', 'table'], default='json', help='output format')
     parser.add_argument('--ruleset', help='custom ruleset file')
@@ -138,7 +182,31 @@ def main():
     parser.add_argument('--cache', help='cache ASTs between runs for faster repeated scans')
     parser.add_argument('--profile', action='store_true', help='enable run profiling for performance tuning')
     parser.add_argument('--verbose', '-v', action='store_true', help='enable verbose output')
+
+    # Custom argument parsing to handle both simple and advanced usage
     args = parser.parse_args()
+
+    # Handle --repo flag (takes precedence)
+    if args.repo_flag:
+        args.repo = args.repo_flag
+        args.command = 'scan'
+    else:
+        # Handle simple usage: python main.py repo_path
+        if args.repo_or_command != 'scan' and not args.repo_or_command.startswith('--'):
+            # Simple usage: first argument is repo path
+            if args.repo is None:
+                args.repo = args.repo_or_command
+                args.command = 'scan'
+            else:
+                parser.error("too many positional arguments")
+        else:
+            # Advanced usage: python main.py scan repo_path
+            args.command = args.repo_or_command if args.repo_or_command == 'scan' else 'scan'
+            # args.repo should be set by positional argument
+
+    # Validate that we have a repo
+    if not args.repo:
+        parser.error("repository path is required")
     
     # Setup logging
     setup_logging(args.verbose)
@@ -215,6 +283,9 @@ def main():
             logger.error(f"Error filtering detectors by language: {e}")
             sys.exit(1)
 
+    # Load gitignore patterns
+    gitignore_spec = load_gitignore_patterns(args.repo)
+
     # Collect all files to process
     all_files = []
     try:
@@ -222,15 +293,20 @@ def main():
             for file in files:
                 file_path = os.path.join(root, file)
                 rel_path = os.path.relpath(file_path, args.repo)
-                
-                # Check exclude patterns
+
+                # Check if file matches gitignore patterns
                 should_exclude = False
+                if gitignore_spec and gitignore_spec.match_file(rel_path):
+                    should_exclude = True
+                    continue
+
+                # Check exclude patterns
                 if args.exclude:
                     for pattern in args.exclude:
                         if pattern in rel_path:
                             should_exclude = True
                             break
-                
+
                 # Check include patterns
                 if args.include:
                     should_include = False
@@ -240,7 +316,7 @@ def main():
                             break
                     if not should_include:
                         should_exclude = True
-                
+
                 if not should_exclude:
                     all_files.append(file_path)
         

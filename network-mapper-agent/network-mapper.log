@@ -1,6 +1,0 @@
-2025-10-16 07:19:36,208 - INFO - Starting network mapper scan of examples
-2025-10-16 07:19:36,209 - INFO - Using 4 threads for parallel processing
-2025-10-16 07:19:36,352 - INFO - Loaded 11 detectors: ['certificate_check_v1', 'cors_policy_v1', 'env_endpoint_v1', 'grpc_v1', 'hardcoded_url_v1', 'http_call_v1', 'local_ip_v1', 'port_exposure_v1', 'raw_socket_v1', 'third_party_sdk_v1', 'websocket_v1']
-2025-10-16 07:19:36,354 - INFO - Found 7 files to scan
-2025-10-16 07:19:36,365 - INFO - Scan completed. Found 18 signals across 7 files.
-2025-10-16 07:19:36,369 - INFO - Report written to report.json
