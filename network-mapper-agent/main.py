@@ -77,7 +77,9 @@ def get_file_language(file_path):
         '.rs': 'rust',
         '.json': 'json',
         '.yaml': 'yaml',
-        '.yml': 'yaml'
+        '.yml': 'yaml',
+        '.html': 'html',
+        '.htm': 'html'
     }
     return lang_map.get(ext, 'unknown')
 
@@ -429,7 +431,27 @@ def main():
             report["network_activity_summary"]["total_network_calls"] += 1
         elif signal["type"] == "third_party_sdk_usage":
             pass # Handled by severity
-        
+        elif signal["type"] == "asset_load":
+            report["network_activity_summary"]["total_network_calls"] += 1
+        elif signal["type"] == "database_connection":
+            report["network_activity_summary"]["total_network_calls"] += 1
+        elif signal["type"] == "cloud_sdk_usage":
+            report["network_activity_summary"]["total_network_calls"] += 1
+        elif signal["type"] == "email_connection":
+            report["network_activity_summary"]["total_network_calls"] += 1
+        elif signal["type"] == "dns_lookup":
+            report["network_activity_summary"]["total_network_calls"] += 1
+        elif signal["type"] == "graphql_call":
+            report["network_activity_summary"]["total_network_calls"] += 1
+        elif signal["type"] == "ftp_connection":
+            report["network_activity_summary"]["total_network_calls"] += 1
+        elif signal["type"] == "web_scraping":
+            report["network_activity_summary"]["total_network_calls"] += 1
+        elif signal["type"] == "oauth_flow":
+            report["network_activity_summary"]["total_network_calls"] += 1
+        elif signal["type"] == "realtime_connection":
+            report["network_activity_summary"]["total_network_calls"] += 1
+
         report["network_activity_summary"]["signals_by_severity"][signal["severity"]] += 1
 
     # Handle different output formats

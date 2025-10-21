@@ -14,3 +14,63 @@ detectors:
     conditions:
       - ensure_not_dev_only: true
     explanation: "Server appears to bind to a port"
+
+  - id: external_asset_v1
+    enabled: true
+    severity: medium
+    languages: ["html"]
+    explanation: "Detects external assets loaded in HTML files"
+
+  - id: database_connection_v1
+    enabled: true
+    severity: medium
+    languages: ["python", "javascript", "java", "go", "rust"]
+    explanation: "Detects network connections to remote databases"
+
+  - id: cloud_sdk_usage_v1
+    enabled: true
+    severity: medium
+    languages: ["python", "javascript", "java", "go", "rust"]
+    explanation: "Detects usage of cloud service SDKs that make network calls"
+
+  - id: email_connection_v1
+    enabled: true
+    severity: low
+    languages: ["python", "javascript", "java", "go"]
+    explanation: "Detects SMTP and email service connections"
+
+  - id: dns_lookup_v1
+    enabled: true
+    severity: low
+    languages: ["python", "javascript", "java", "go", "rust"]
+    explanation: "Detects DNS resolution calls"
+
+  - id: graphql_call_v1
+    enabled: true
+    severity: medium
+    languages: ["javascript", "typescript", "python"]
+    explanation: "Detects GraphQL client usage and queries"
+
+  - id: ftp_connection_v1
+    enabled: true
+    severity: medium
+    languages: ["python", "javascript", "java", "go"]
+    explanation: "Detects FTP and SFTP connections"
+
+  - id: web_scraping_v1
+    enabled: true
+    severity: high
+    languages: ["python", "javascript"]
+    explanation: "Detects web scraping libraries and automated browsing"
+
+  - id: oauth_flow_v1
+    enabled: true
+    severity: low
+    languages: ["python", "javascript", "java", "go"]
+    explanation: "Detects OAuth authentication flows and token handling"
+
+  - id: realtime_connection_v1
+    enabled: true
+    severity: low
+    languages: ["python", "javascript", "java", "go"]
+    explanation: "Detects MQTT, WebRTC, SSE, and WebSocket connections"
