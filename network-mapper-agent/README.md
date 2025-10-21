@@ -1,8 +1,5 @@
 # Network Mapper Agent
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://python.org)
-
 ## Overview
 
 Network Mapper Agent is a static analysis tool that scans code repositories to detect network-related activities and potential security issues. It analyzes source code to identify hardcoded URLs, exposed ports, insecure configurations, and other network patterns that may indicate security concerns or architectural issues.
@@ -11,9 +8,9 @@ Network Mapper Agent is a static analysis tool that scans code repositories to d
 
 ### Current Capabilities
 
-- **Multi-language Support**: Currently supports JavaScript, Python, Go, Java, Rust, and YAML/JSON files
+- **Multi-language Support**: Supports JavaScript, TypeScript, Python, Go, Java, Rust, HTML, and YAML/JSON files
 - **AST-based Analysis**: Uses Python AST parsing for accurate detection (regex fallback for other languages)
-- **11 Built-in Detectors**:
+- **21 Built-in Detectors**:
   - Hardcoded URL detection
   - HTTP call detection (fetch, axios, requests)
   - Port exposure detection
@@ -25,6 +22,16 @@ Network Mapper Agent is a static analysis tool that scans code repositories to d
   - Certificate verification bypass detection
   - Local/private IP detection
   - Third-party SDK usage detection
+  - **NEW**: Database connection detection
+  - **NEW**: Cloud SDK usage detection
+  - **NEW**: Email/SMTP connection detection
+  - **NEW**: DNS lookup detection
+  - **NEW**: GraphQL client detection
+  - **NEW**: FTP/SFTP connection detection
+  - **NEW**: Web scraping library detection
+  - **NEW**: OAuth flow detection
+  - **NEW**: Real-time connection detection (MQTT/WebRTC/SSE)
+  - **NEW**: External asset detection in HTML
 
 - **Flexible Output**: JSON reports with detailed metadata and context
 - **Parallel Processing**: Multi-threaded scanning for performance
@@ -87,16 +94,16 @@ When run on the included examples, the tool produces a JSON report like this:
     "scan_date": "2025-10-21T09:07:08Z"
   },
   "network_activity_summary": {
-    "total_network_calls": 13,
-    "external_endpoints_detected": 8,
-    "local_ports_exposed": 1,
-    "signals_by_severity": {
-      "critical": 0,
-      "high": 3,
-      "medium": 11,
-      "low": 4,
-      "info": 0
-    }
+  "total_network_calls": 122,
+  "external_endpoints_detected": 15,
+  "local_ports_exposed": 2,
+  "signals_by_severity": {
+  "critical": 0,
+  "high": 5,
+  "medium": 89,
+  "low": 28,
+  "info": 0
+  }
   },
   "signals": [
     {
@@ -252,6 +259,16 @@ Examples:
 | certificate_check_v1 | Detects certificate verification bypass | high | py, js |
 | local_ip_v1 | Detects hardcoded private IPs | low | all |
 | third_party_sdk_v1 | Detects telemetry/analytics SDKs | medium | js, py |
+| **database_connection_v1** | **Detects database network connections** | **medium** | **py, js, java, go, rust** |
+| **cloud_sdk_usage_v1** | **Detects cloud service SDK usage** | **medium** | **py, js, java, go, rust** |
+| **email_connection_v1** | **Detects SMTP/email connections** | **low** | **py, js, java, go** |
+| **dns_lookup_v1** | **Detects DNS resolution calls** | **low** | **py, js, java, go, rust** |
+| **graphql_call_v1** | **Detects GraphQL client usage** | **medium** | **js, ts, py** |
+| **ftp_connection_v1** | **Detects FTP/SFTP connections** | **medium** | **py, js, java, go** |
+| **web_scraping_v1** | **Detects web scraping libraries** | **high** | **py, js** |
+| **oauth_flow_v1** | **Detects OAuth authentication flows** | **low** | **py, js, java, go** |
+| **realtime_connection_v1** | **Detects MQTT/WebRTC/SSE connections** | **low** | **py, js, java, go** |
+| **external_asset_v1** | **Detects external assets in HTML** | **medium** | **html** |
 
 ## Development
 
@@ -275,14 +292,27 @@ python -m pytest tests/detectors/test_hardcoded_url.py
 ```
 network-mapper-agent/
 ├── main.py                 # Main scanner application
-├── detectors/              # Detector implementations
+├── detectors/              # Detector implementations (21 detectors)
 │   ├── base.py            # Base detector class
 │   ├── hardcoded_url.py   # URL detection
-│   └── ...                # Other detectors
+│   ├── database_connection.py  # NEW: Database connections
+│   ├── cloud_sdk.py       # NEW: Cloud SDK usage
+│   └── ...                # All detector implementations
 ├── rulesets/              # Configuration files
-│   └── default.yaml       # Default detector config
+│   └── default.yaml       # Default detector config (all 21 detectors)
 ├── tests/                 # Unit tests
-├── examples/              # Example code for testing
+├── examples/              # Example code for testing all detectors
+│   ├── database_example.py    # Database connection examples
+│   ├── cloud_sdk_example.py   # Cloud SDK examples
+│   ├── email_example.py       # Email/SMTP examples
+│   ├── dns_example.py         # DNS lookup examples
+│   ├── graphql_example.js     # GraphQL examples
+│   ├── ftp_example.py         # FTP/SFTP examples
+│   ├── scraping_example.py    # Web scraping examples
+│   ├── oauth_example.py       # OAuth examples
+│   ├── realtime_example.py    # MQTT/WebRTC examples
+│   ├── external_assets_example.html  # HTML external assets
+│   └── ...                # Additional test examples
 ├── requirements.txt       # Python dependencies
 └── README.md             # This file
 ```
@@ -332,13 +362,17 @@ jobs:
 - No caching mechanism implemented
 - Limited language support for advanced features
 - No advanced remediation suggestions
+- Some detectors may have false positives due to regex-based pattern matching
 
 ### Future Enhancements
-- Full AST support for JavaScript, Go, Java, Rust
-- Additional output formats (SARIF, HTML reports)
+- Full AST support for JavaScript, Go, Java, Rust, and TypeScript
+- Additional output formats (SARIF, HTML reports, CSV)
 - Performance optimizations and caching
-- Advanced ruleset features
-- Integration with IDEs and code editors
+- Advanced ruleset features and custom detector support
+- Integration with IDEs, code editors, and CI/CD platforms
+- Machine learning-based false positive reduction
+- Support for additional languages (C#, PHP, Ruby)
+- Container and Kubernetes manifest scanning
 
 ## Contributing
 
