@@ -1,23 +1,21 @@
-import yaml
-import re
 import argparse
 import os
 from dotenv import load_dotenv
+from src.scanner import scan_project
+from src.parser import parse_file
+from src.ai_model import enhance_spec_with_ai
 try:
     import psutil
 except ImportError:
     psutil = None
 
 load_dotenv()
-from .scanner import scan_project
-from .parser import parse_file
-from .ai_model import enhance_spec_with_ai
 
 def get_active_clients():
     clients = []
     # Check Ollama first (instant check)
     if psutil and any(proc.info['name'] == 'ollama' for proc in psutil.process_iter(['name'])):
-        clients.append(('ollama', 'llama3.2'))
+        clients.append(('ollama', 'gpt-oss:120b-cloud'))
     
     # Check API keys and add clients with larger context models
     key_env = {
@@ -36,7 +34,7 @@ def get_active_clients():
     
     # Fallback to Ollama if nothing else
     if not clients:
-        clients.append(('ollama', 'llama3.2'))
+        clients.append(('ollama', 'gpt-oss:120b-cloud'))
     
     return clients
 
@@ -64,14 +62,8 @@ def main(clients, path, batch_size=1):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenAPI Spec Agent")
-    parser.add_argument("--client", type=str, help="The AI client to use (e.g., ollama, openai, claude, cerebras, gemini, openrouter). If not specified, uses hierarchy mode.")
-    parser.add_argument("--model", type=str, default="llama3.2", help="The model to use for the AI client")
-    parser.add_argument("--path", type=str, default="tmp", help="The path to the project to scan")
-    parser.add_argument("--batch-size", type=int, default=1, help="Number of endpoints per AI batch")
+    parser.add_argument("path", type=str, help="The path to the project to scan")
     args = parser.parse_args()
-    if not args.client:
-        clients = get_active_clients()
-        print(f"Using clients in hierarchy: {[c[0] for c in clients]}")
-    else:
-        clients = [(args.client, args.model)]
-    main(clients, args.path, args.batch_size)
+    clients = get_active_clients()
+    print(f"Using clients in hierarchy: {[c[0] for c in clients]}")
+    main(clients, args.path)

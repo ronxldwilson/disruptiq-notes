@@ -6,8 +6,8 @@ This agent's purpose is to take a project of any kind, review it and then build 
 
 The project is structured as follows:
 
+- `main.py`: The main entry point for the agent.
 - `src/`: Contains the source code for the agent.
-  - `main.py`: The main entry point for the agent.
   - `scanner.py`: Contains the logic for scanning the project directory.
   - `parser.py`: Contains the logic for parsing the source code and extracting API information.
   - `parsers/`: Contains language-specific parsers.
@@ -22,20 +22,19 @@ To see the agent's capabilities, you can run it on the sample applications provi
 
 1. **Install the dependencies:**
 
-   ```bash
-   pip install requests
-   ```
+```bash
+pip install requests python-dotenv
+```
 
 2. **Run the agent:**
 
-   ```bash
-   python -m src.main --client <client_name> --model <model_name> --path <path_to_project>
-   ```
+```bash
+python main.py <path_to_project>
+```
 
-   - `--client`: The AI client to use (e.g., `ollama`, `openai`, `claude`, `cerebras`, `openrouter`). Defaults to `ollama`.
-   - `--model`: The model to use for the AI client. Defaults to `llama3.2`.
+This will scan the specified directory for applications, parse the code to extract the API endpoints, and then use available AI models to generate an OpenAPI spec. The generated spec will be saved to the `output.yaml` file.
 
-   This will scan the `tmp` directory for sample applications, parse the code to extract the API endpoints, and then use the selected AI model to generate an OpenAPI spec. The generated spec will be saved to the `output.yaml` file.
+    The agent automatically selects the best available AI client (Ollama, OpenAI, Claude, Cerebras, Gemini, OpenRouter) based on API keys and running processes.
 
 ## Supported AI Clients
 
