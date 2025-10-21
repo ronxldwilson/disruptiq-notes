@@ -3,6 +3,7 @@
 
 import argparse
 import sys
+import os
 from pathlib import Path
 
 from .runner import run_scan
@@ -24,7 +25,7 @@ def main():
         "--output",
         "-o",
         type=Path,
-        default=Path("findings.json"),
+        default=Path("output.json"),
         help="Output file path",
     )
 
@@ -76,10 +77,10 @@ def main():
     )
 
     parser.add_argument(
-        "--threads",
-        type=int,
-        default=4,
-        help="Number of parallel worker threads",
+    "--threads",
+    type=int,
+    default=min(os.cpu_count() or 4, 16),
+    help="Number of parallel worker threads (default: min(CPU count, 16))",
     )
 
     args = parser.parse_args()

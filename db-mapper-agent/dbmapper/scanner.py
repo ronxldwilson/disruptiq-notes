@@ -2,6 +2,7 @@
 """File discovery module for scanning repositories."""
 
 import fnmatch
+import subprocess
 from pathlib import Path
 from typing import List, Optional
 
@@ -26,6 +27,42 @@ LANGUAGE_EXTENSIONS = {
 }
 
 
+def _is_git_repo(repo_path: Path) -> bool:
+    """Check if the given path is a git repository."""
+    try:
+        result = subprocess.run(
+            ['git', 'rev-parse', '--git-dir'],
+            cwd=repo_path,
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        return result.returncode == 0
+    except (subprocess.SubprocessError, FileNotFoundError):
+        return False
+
+
+def _get_git_files(repo_path: Path) -> List[Path]:
+    """Get all files tracked by git in the repository."""
+    try:
+        result = subprocess.run(
+            ['git', 'ls-files'],
+            cwd=repo_path,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        if result.returncode == 0:
+            files = []
+            for line in result.stdout.strip().split('\n'):
+                if line.strip():
+                    files.append(repo_path / line.strip())
+            return files
+    except (subprocess.SubprocessError, FileNotFoundError):
+        pass
+    return []
+
+
 def discover_files(
     repo_path: Path,
     include_patterns: List[str],
@@ -33,6 +70,8 @@ def discover_files(
     languages: Optional[List[str]] = None,
 ) -> List[Path]:
     """Discover files in the repository matching the criteria.
+
+    Uses git ls-files for faster discovery and automatic .gitignore respect.
 
     Args:
         repo_path: Root path of the repository
@@ -65,21 +104,40 @@ def discover_files(
     allowed_extensions.update(LANGUAGE_EXTENSIONS["docker"])
     allowed_extensions.update(LANGUAGE_EXTENSIONS["terraform"])
 
+    # Try git-based discovery first (faster and respects .gitignore)
+    if _is_git_repo(repo_path):
+        all_files = _get_git_files(repo_path)
+    else:
+        # Fall back to filesystem traversal
+        all_files = []
+        for pattern in include_patterns:
+            for path in repo_path.rglob(pattern):
+                if path.is_file():
+                    all_files.append(path)
+
+    # Filter files
     files = []
-    for pattern in include_patterns:
-        # Use rglob for glob patterns
-        for path in repo_path.rglob(pattern):
-            if path.is_file():
-                # Check exclude patterns
-                if any(fnmatch.fnmatch(str(path), excl) for excl in exclude_patterns):
-                    continue
+    for path in all_files:
+        # Check if file actually exists (git ls-files might include deleted files)
+        if not path.exists():
+            continue
 
-                # Check extension
-                if allowed_extensions and path.suffix not in allowed_extensions:
-                    # Check for exact filename matches (like Dockerfile)
-                    if path.name not in allowed_extensions:
-                        continue
+        # Check exclude patterns
+        relative_path = str(path.relative_to(repo_path))
+        if any(fnmatch.fnmatch(relative_path, excl) for excl in exclude_patterns):
+            continue
 
-                files.append(path)
+        # Check include patterns
+        if include_patterns != ["**/*"]:  # Only filter if not including everything
+            if not any(fnmatch.fnmatch(relative_path, incl) for incl in include_patterns):
+                continue
+
+        # Check extension
+        if allowed_extensions and path.suffix not in allowed_extensions:
+            # Check for exact filename matches (like Dockerfile)
+            if path.name not in allowed_extensions:
+                continue
+
+        files.append(path)
 
     return files

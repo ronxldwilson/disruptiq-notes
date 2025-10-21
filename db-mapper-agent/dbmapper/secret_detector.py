@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 
-# Common secret patterns
+# Pre-compiled secret patterns for performance
 SECRET_PATTERNS = [
     # API Keys and Tokens
     (r'(?i)(api[_-]?key|apikey)\s*[=:]\s*["\']?([a-zA-Z0-9_-]{20,})["\']?', "api_key", 0.8),

@@ -14,7 +14,7 @@ from .description_generator import generate_finding_description
 import concurrent.futures
 
 
-# Regex patterns from README
+# Pre-compiled regex patterns for performance
 DSN_PATTERN = re.compile(r'(?i)(postgres(?:ql)?|mysql|mariadb|mongodb|sqlite|mssql)://[\w:@\-\.\/\%\?\=~\&]+')
 ENV_VAR_PATTERN = re.compile(r'(?m)^(DB_URL|DATABASE_URL|[A-Z_]*DB[A-Z_]*)[\s]*=[\s]*(.+)')
 ORM_MODEL_PATTERN = re.compile(r'class\s+(\w+)\s*\([^)]*models\.Model[^)]*\)')

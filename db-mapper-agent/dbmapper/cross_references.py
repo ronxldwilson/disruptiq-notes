@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Cross-reference analysis module for finding relationships between database artifacts."""
 
+import re
 from pathlib import Path
 from typing import List, Dict, Any, Set
 from collections import defaultdict
@@ -12,17 +13,21 @@ def analyze_cross_references(findings: List[Dict[str, Any]]) -> List[Dict[str, A
 
     # Group findings by file and type
     file_findings = defaultdict(lambda: defaultdict(list))
+    # Also group by type globally for efficient cross-file lookups
+    global_findings_by_type = defaultdict(list)
+
     for finding in findings:
         file_path = finding["file"]
         finding_type = finding["type"]
         file_findings[file_path][finding_type].append(finding)
+        global_findings_by_type[finding_type].append(finding)
 
     # Analyze relationships
     for finding in findings:
         enhanced_finding = finding.copy()
 
         # Add relationship information
-        relationships = _find_relationships(finding, file_findings)
+        relationships = _find_relationships(finding, file_findings, global_findings_by_type)
         if relationships:
             enhanced_finding["relationships"] = relationships
 
@@ -36,7 +41,7 @@ def analyze_cross_references(findings: List[Dict[str, Any]]) -> List[Dict[str, A
     return enhanced_findings
 
 
-def _find_relationships(finding: Dict[str, Any], file_findings: Dict[str, Dict[str, List[Dict[str, Any]]]]) -> List[Dict[str, Any]]:
+def _find_relationships(finding: Dict[str, Any], file_findings: Dict[str, Dict[str, List[Dict[str, Any]]]], global_findings_by_type: Dict[str, List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
     """Find relationships between this finding and others."""
     relationships = []
     finding_type = finding["type"]
@@ -46,19 +51,18 @@ def _find_relationships(finding: Dict[str, Any], file_findings: Dict[str, Dict[s
         # Connect models to their SQL usage
         model_name = finding.get("model_name", "")
         if model_name:
-            # Look for SQL queries that reference this model
-            for other_file, types_dict in file_findings.items():
-                for sql_finding in types_dict.get("raw_sql", []):
-                    sql_evidence = " ".join(sql_finding.get("evidence", [])).upper()
-                    if model_name.upper() in sql_evidence:
-                        relationships.append({
-                            "type": "used_by_query",
-                            "target_id": sql_finding["id"],
-                            "target_file": other_file,
-                            "description": f"Model '{model_name}' is used in SQL query"
-                        })
+            # Look for SQL queries that reference this model (across all files)
+            for sql_finding in global_findings_by_type.get("raw_sql", []):
+                sql_evidence = " ".join(sql_finding.get("evidence", [])).upper()
+                if model_name.upper() in sql_evidence:
+                    relationships.append({
+                        "type": "used_by_query",
+                        "target_id": sql_finding["id"],
+                        "target_file": sql_finding["file"],
+                        "description": f"Model '{model_name}' is used in SQL query"
+                    })
 
-            # Look for connections that might be used by this model
+            # Look for connections that might be used by this model (same file)
             for conn_finding in file_findings[file_path].get("connection", []):
                 relationships.append({
                     "type": "uses_connection",
@@ -68,7 +72,7 @@ def _find_relationships(finding: Dict[str, Any], file_findings: Dict[str, Dict[s
                 })
 
     elif finding_type == "connection":
-        # Connect connections to models and queries that might use them
+        # Connect connections to models and queries that might use them (same file)
         provider = finding.get("provider", "")
         for model_finding in file_findings[file_path].get("orm_model", []):
             relationships.append({
@@ -87,7 +91,7 @@ def _find_relationships(finding: Dict[str, Any], file_findings: Dict[str, Dict[s
             })
 
     elif finding_type == "migration":
-        # Connect migrations to models they might affect
+        # Connect migrations to models they might affect (same file)
         framework = finding.get("framework", "")
         migration_type = finding.get("migration_type", "")
 
@@ -105,7 +109,7 @@ def _find_relationships(finding: Dict[str, Any], file_findings: Dict[str, Dict[s
                     })
 
     elif finding_type == "raw_sql":
-        # Connect SQL queries to models they reference
+        # Connect SQL queries to models they reference (same file)
         sql_evidence = " ".join(finding.get("evidence", [])).upper()
 
         # Extract potential table/model names from SQL
@@ -160,23 +164,24 @@ def _analyze_usage_context(finding: Dict[str, Any], file_findings: Dict[str, Dic
     return context
 
 
+# Pre-compiled regex patterns for table extraction
+TABLE_PATTERNS = [
+    re.compile(r'FROM\s+(\w+)', re.IGNORECASE),
+    re.compile(r'JOIN\s+(\w+)', re.IGNORECASE),
+    re.compile(r'UPDATE\s+(\w+)', re.IGNORECASE),
+    re.compile(r'INSERT\s+INTO\s+(\w+)', re.IGNORECASE),
+    re.compile(r'DELETE\s+FROM\s+(\w+)', re.IGNORECASE),
+    re.compile(r'ALTER\s+TABLE\s+(\w+)', re.IGNORECASE),
+    re.compile(r'CREATE\s+TABLE\s+(\w+)', re.IGNORECASE)
+]
+
 def _extract_table_names_from_sql(sql: str) -> Set[str]:
     """Extract potential table names from SQL queries."""
     tables = set()
 
-    # Look for FROM, JOIN, UPDATE, INSERT INTO patterns
-    patterns = [
-        r'FROM\s+(\w+)',
-        r'JOIN\s+(\w+)',
-        r'UPDATE\s+(\w+)',
-        r'INSERT\s+INTO\s+(\w+)',
-        r'DELETE\s+FROM\s+(\w+)',
-        r'ALTER\s+TABLE\s+(\w+)',
-        r'CREATE\s+TABLE\s+(\w+)'
-    ]
-
-    for pattern in patterns:
-        matches = re.findall(pattern, sql, re.IGNORECASE)
+    # Use pre-compiled patterns
+    for pattern in TABLE_PATTERNS:
+        matches = pattern.findall(sql)
         tables.update(matches)
 
     return tables
@@ -222,5 +227,4 @@ def _calculate_risk_level(finding: Dict[str, Any], query_count: int, connection_
         return "low"
 
 
-# Import here to avoid circular imports
-import re
+# Import moved to top
