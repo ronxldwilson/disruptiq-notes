@@ -64,8 +64,10 @@ def main():
         if output is not None:
             unified_map[agent['name']] = output
 
-    # Output the unified map
-    print(json.dumps(unified_map, indent=2))
+    # Save the unified map to report.json
+    with open('report.json', 'w') as f:
+        json.dump(unified_map, f, indent=2)
+    print("Report saved to report.json")
 
 if __name__ == "__main__":
     main()
