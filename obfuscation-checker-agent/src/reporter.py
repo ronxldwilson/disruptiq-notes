@@ -146,8 +146,8 @@ class Reporter:
         print(f"  Low: {summary['low_severity']}")
         print()
         print("ANALYSIS METRICS:")
-        print(".3f")
-        print(".2f")
+        print(f"  Average Confidence: {summary['average_confidence']:.3f}")
+        print(f"  Risk Score: {summary['risk_score']:.2f}")
         print()
         print("CATEGORY BREAKDOWN:")
         for category, count in summary.get('categories', {}).items():
