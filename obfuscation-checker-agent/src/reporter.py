@@ -87,7 +87,7 @@ class Reporter:
 
     async def write_report(self, report: Dict[str, Any], is_final: bool = False, quiet: bool = False):
         """Write the report to a JSON file asynchronously, streaming to minimize memory usage."""
-        output_file = self.config.get("output_file", "report.json")
+        output_file = self.config.get("output_file", "output.json")
         async with aiofiles.open(output_file, 'w') as f:
             # Write the report structure, streaming findings to avoid loading all into memory
             await f.write('{\n')
