@@ -64,23 +64,82 @@ class ObfuscationPatterns:
             'method', 'url', 'path', 'route', 'endpoint', 'api', 'graphql', 'rest', 'http', 'https',
             'json', 'xml', 'html', 'css', 'js', 'ts', 'jsx', 'tsx', 'vue', 'react', 'angular', 'svelte',
             # JavaScript statements and built-ins
-            'debugger', 'console', 'alert', 'prompt', 'confirm',
+            'debugger', 'console', 'alert', 'prompt', 'confirm'
+            # [Previous words remain the same...]
+            
+            # Additional HTML/DOM terms
+            'canvas', 'audio', 'video', 'source', 'track', 'figure', 'figcaption',
+            'details', 'summary', 'dialog', 'menu', 'nav', 'aside', 'article',
+            'section', 'main', 'header', 'footer', 'address', 'time', 'progress',
+            'meter', 'output', 'input', 'label', 'select', 'option', 'datalist',
+            'fieldset', 'legend', 'form', 'table', 'thead', 'tbody', 'tfoot', 'tr',
+            'td', 'th', 'caption', 'col', 'colgroup', 'button', 'textarea',
 
-            # Common YAML/JSON config keys
-            'language', 'reviews', 'profile', 'poem', 'enabled', 'labels', 'drafts',
-            'docstrings', 'threshold', 'title', 'tools', 'grep', 'ast-grep', 'repo',
-            'changelog', 'changeset', 'config', 'version', 'name', 'description',
-            'author', 'license', 'dependencies', 'devDependencies', 'scripts', 'main',
-            'module', 'types', 'files', 'keywords', 'homepage', 'repository', 'bugs',
-            'engines', 'os', 'cpu', 'private', 'workspaces', 'resolutions', 'overrides',
-            'peerDependencies', 'optionalDependencies', 'bundledDependencies', 'bin',
-            'man', 'directories', 'exports', 'imports', 'browser', 'sideEffects',
-            # More common words from the output
-            'chain', 'pattern', 'benefits', 'boundaries', 'root', 'charset', 'strict',
-            'postgresql', 'v2', 'x', 't', 'k', 'i', 'j',
-            # Common UI/component terms
-            'subtitle', 'title', 'header', 'footer', 'content', 'children', 'props', 'state',
-            'className', 'style', 'onClick', 'onChange', 'disabled', 'enabled', 'visible', 'hidden'
+            # Additional CSS properties
+            'transition', 'animation', 'keyframes', 'duration', 'timing', 'delay',
+            'iteration', 'direction', 'fill', 'play', 'pause', 'running', 'paused',
+            'infinite', 'linear', 'ease', 'steps', 'cubic', 'bezier', 'spring',
+            'bounce', 'elastic', 'perspective', 'backface', 'visibility',
+            'overflow', 'clip', 'mask', 'blend', 'isolation', 'luminosity',
+            
+            # Programming concepts
+            'memoize', 'curry', 'partial', 'compose', 'pipe', 'throttle', 'debounce',
+            'singleton', 'factory', 'builder', 'prototype', 'decorator', 'observer',
+            'mediator', 'command', 'iterator', 'generator', 'proxy', 'facade',
+            'adapter', 'bridge', 'composite', 'flyweight', 'chain', 'interpreter',
+            'memento', 'state', 'strategy', 'template', 'visitor',
+
+            # Database terms
+            'query', 'schema', 'table', 'column', 'row', 'index', 'primary', 'foreign',
+            'key', 'constraint', 'unique', 'check', 'default', 'null', 'join', 'inner',
+            'outer', 'left', 'right', 'full', 'cross', 'union', 'intersect', 'except',
+            'group', 'having', 'order', 'limit', 'offset', 'fetch', 'cascade',
+            
+            # Web development
+            'fetch', 'axios', 'request', 'response', 'status', 'headers', 'body',
+            'params', 'query', 'cookie', 'session', 'token', 'auth', 'oauth',
+            'jwt', 'bearer', 'basic', 'digest', 'cors', 'proxy', 'cache', 'etag',
+            'expires', 'modified', 'content', 'type', 'length', 'encoding',
+            
+            # Testing terms
+            'test', 'suite', 'spec', 'mock', 'stub', 'spy', 'assert', 'expect',
+            'should', 'describe', 'context', 'before', 'after', 'each', 'all',
+            'done', 'pending', 'skip', 'only', 'timeout', 'retry', 'fail', 'pass',
+            
+            # Build tools and deployment
+            'build', 'deploy', 'release', 'stage', 'prod', 'dev', 'test', 'preview',
+            'bundle', 'chunk', 'asset', 'source', 'map', 'hash', 'version', 'tag',
+            'branch', 'merge', 'rebase', 'cherry', 'pick', 'squash', 'fixup',
+            
+            # Security terms
+            'auth', 'token', 'secret', 'key', 'salt', 'hash', 'encrypt', 'decrypt',
+            'sign', 'verify', 'cert', 'chain', 'trust', 'revoke', 'grant', 'deny',
+            'allow', 'block', 'filter', 'sanitize', 'escape', 'validate',
+            
+            # Performance terms
+            'cache', 'buffer', 'stream', 'chunk', 'batch', 'queue', 'stack', 'heap',
+            'memory', 'cpu', 'thread', 'process', 'worker', 'pool', 'cluster',
+            'shard', 'replica', 'master', 'slave', 'primary', 'secondary',
+            
+            # Common variable names
+            'temp', 'tmp', 'aux', 'buf', 'cur', 'prev', 'next', 'start', 'end',
+            'begin', 'finish', 'head', 'tail', 'front', 'back', 'top', 'bottom',
+            'left', 'right', 'mid', 'center', 'inner', 'outer', 'upper', 'lower',
+
+            # Math terms
+            'sum', 'avg', 'min', 'max', 'count', 'mean', 'median', 'mode', 'range',
+            'delta', 'diff', 'ratio', 'rate', 'total', 'partial', 'sqrt', 'pow',
+            'exp', 'log', 'sin', 'cos', 'tan', 'abs', 'floor', 'ceil', 'round',
+
+            # Time-related
+            'time', 'date', 'year', 'month', 'day', 'hour', 'minute', 'second',
+            'milli', 'micro', 'nano', 'timezone', 'utc', 'gmt', 'iso', 'unix',
+            'epoch', 'duration', 'interval', 'period', 'schedule', 'cron',
+            
+            # Common abbreviations
+            'dir', 'temp', 'doc', 'conf', 'log', 'info', 'err', 'warn', 'debug',
+            'proc', 'arg', 'param', 'cfg', 'str', 'num', 'bool', 'obj', 'arr',
+            'func', 'var', 'env', 'prod', 'dev', 'test', 'stmt', 'expr', 'impl'
         }
 
     def get_patterns(self):
