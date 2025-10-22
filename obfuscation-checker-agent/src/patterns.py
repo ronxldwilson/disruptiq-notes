@@ -64,7 +64,23 @@ class ObfuscationPatterns:
             'method', 'url', 'path', 'route', 'endpoint', 'api', 'graphql', 'rest', 'http', 'https',
             'json', 'xml', 'html', 'css', 'js', 'ts', 'jsx', 'tsx', 'vue', 'react', 'angular', 'svelte',
             # JavaScript statements and built-ins
-            'debugger', 'console', 'alert', 'prompt', 'confirm'
+            'debugger', 'console', 'alert', 'prompt', 'confirm',
+
+            # Common YAML/JSON config keys
+            'language', 'reviews', 'profile', 'poem', 'enabled', 'labels', 'drafts',
+            'docstrings', 'threshold', 'title', 'tools', 'grep', 'ast-grep', 'repo',
+            'changelog', 'changeset', 'config', 'version', 'name', 'description',
+            'author', 'license', 'dependencies', 'devDependencies', 'scripts', 'main',
+            'module', 'types', 'files', 'keywords', 'homepage', 'repository', 'bugs',
+            'engines', 'os', 'cpu', 'private', 'workspaces', 'resolutions', 'overrides',
+            'peerDependencies', 'optionalDependencies', 'bundledDependencies', 'bin',
+            'man', 'directories', 'exports', 'imports', 'browser', 'sideEffects',
+            # More common words from the output
+            'chain', 'pattern', 'benefits', 'boundaries', 'root', 'charset', 'strict',
+            'postgresql', 'v2', 'x', 't', 'k', 'i', 'j',
+            # Common UI/component terms
+            'subtitle', 'title', 'header', 'footer', 'content', 'children', 'props', 'state',
+            'className', 'style', 'onClick', 'onChange', 'disabled', 'enabled', 'visible', 'hidden'
         }
 
     def get_patterns(self):
@@ -246,10 +262,10 @@ class ObfuscationPatterns:
             },
             
             "computed_property_access": {
-            "pattern": r'\[[^\]]{10,}\]',
-                "description": "Complex computed property access with long expressions inside brackets. This makes it difficult to statically determine which properties are being accessed, hiding the data flow and potentially concealing malicious operations.",
-                "severity": "medium",
-                "category": "structure_obfuscation"
+            "pattern": r'\b\w+\s*\[\s*[^\]]{10,}\s*\]',
+            "description": "Complex computed property access with long expressions inside brackets following an identifier. This makes it difficult to statically determine which properties are being accessed, hiding the data flow and potentially concealing malicious operations.",
+            "severity": "medium",
+            "category": "structure_obfuscation"
             },
             "function_rebinding": {
             "pattern": r'\.[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*function',

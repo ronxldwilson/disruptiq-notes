@@ -19,11 +19,32 @@ class Analyzer:
         self.ast_analyzer = ASTAnalyzer(config)
         self.structure_analyzer = FileStructureAnalyzer(config)
 
+        # Define file types for pattern filtering
+        self.code_extensions = {
+            '.js', '.jsx', '.ts', '.tsx', '.py', '.java', '.c', '.cpp', '.h', '.hpp',
+            '.cs', '.php', '.rb', '.go', '.rs', '.swift', '.kt', '.scala', '.clj',
+            '.hs', '.ml', '.fs', '.elm', '.dart', '.lua', '.r', '.m', '.mm'
+        }
+        self.config_extensions = {
+            '.json', '.yaml', '.yml', '.xml', '.toml', '.ini', '.cfg', '.conf',
+            '.properties', '.env', '.md', '.txt', '.lock', '.editorconfig',
+            '.npmrc', '.yarnrc', '.gitignore', '.prettierignore', '.eslintignore',
+            '.eslintcache', '.mdc', '.snaplet', '.cursor'
+        }
+
     def _ensure_patterns_compiled(self):
         """Ensure patterns are compiled (call this in child processes)."""
         for pattern_name, pattern_info in self.patterns.items():
             if "compiled" not in pattern_info:
                 pattern_info["compiled"] = re.compile(pattern_info["pattern"])
+
+    def _is_code_file(self, file_path: Path) -> bool:
+        """Check if file is a source code file that should have variable patterns applied."""
+        return file_path.suffix.lower() in self.code_extensions
+
+    def _is_config_file(self, file_path: Path) -> bool:
+        """Check if file is a configuration/data file."""
+        return file_path.suffix.lower() in self.config_extensions
 
     def _is_css_class_line(self, line: str) -> bool:
         """Check if a line appears to be CSS class declarations or Tailwind usage."""
@@ -112,6 +133,13 @@ class Analyzer:
 
                     # Regex pattern matching (streaming version)
                     for pattern_name, pattern_info in self.patterns.items():
+                        # Skip variable-related patterns for config files
+                        if pattern_name in ["random_vars", "short_meaningless_vars", "single_char_vars", "obfuscated_vars"] and self._is_config_file(file_path):
+                            continue
+                        # Skip computed property access for config files (JSON arrays/objects are not obfuscated)
+                        if pattern_name == "computed_property_access" and self._is_config_file(file_path):
+                            continue
+
                         matches = pattern_info["compiled"].findall(line)
                         if matches:
                             # Filter matches (simplified for streaming)
@@ -120,10 +148,10 @@ class Analyzer:
                                 # Skip common legitimate words for variable-related patterns
                                 if pattern_name in ["random_vars", "short_meaningless_vars", "single_char_vars", "obfuscated_vars"] and match.lower() in self.common_words:
                                     continue
-                                # Skip base64 in package-lock.json integrity fields
+                            # Skip base64 in package-lock.json integrity fields
                                 if pattern_name in ["base64_strings", "encoded_urls"] and file_path.name == "package-lock.json" and "integrity" in line:
                                     continue
-                                filtered_matches.append(match)
+                            filtered_matches.append(match)
 
                             if filtered_matches:
                                 first_match = filtered_matches[0]
@@ -172,6 +200,13 @@ class Analyzer:
                 continue
 
             for pattern_name, pattern_info in self.patterns.items():
+                # Skip variable-related patterns for config files
+                if pattern_name in ["random_vars", "short_meaningless_vars", "single_char_vars", "obfuscated_vars"] and self._is_config_file(file_path):
+                    continue
+                # Skip computed property access for config files (JSON arrays/objects are not obfuscated)
+                if pattern_name == "computed_property_access" and self._is_config_file(file_path):
+                    continue
+
                 matches = pattern_info["compiled"].findall(line)
                 if matches:
                     # Filter matches
@@ -180,6 +215,16 @@ class Analyzer:
                         # Skip common legitimate words for variable-related patterns
                         if pattern_name in ["random_vars", "short_meaningless_vars", "single_char_vars", "obfuscated_vars"] and match.lower() in self.common_words:
                             continue
+                        # Skip TypeScript interface properties and object destructuring
+                        if pattern_name in ["random_vars", "short_meaningless_vars"]:
+                            # Skip interface properties (name: type;)
+                            if ":" in line and ";" in line:
+                                line_stripped = line.strip()
+                                if not line_stripped.startswith(('if ', 'for ', 'while ', 'const ', 'let ', 'var ', 'function ')) and ': ' in line and line_stripped.endswith(';'):
+                                    continue
+                            # Skip destructuring assignments ({ prop } = obj or function params ({ prop }: Type)
+                            if "{" in line and "}" in line and (": " in line or "=" in line or "(" in line):
+                                continue
                         # Skip base64 in package-lock.json integrity fields
                         if pattern_name in ["base64_strings", "encoded_urls"] and file_path.name == "package-lock.json" and "integrity" in line:
                             continue
