@@ -9,3 +9,4 @@ node_modules/
 *.exe
 .DS_Store
 network-mapper.log
+output.json

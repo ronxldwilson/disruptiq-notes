@@ -1,0 +1,971 @@
+openapi: 3.0.3
+info:
+  title: Next.js API Documentation
+  description: Comprehensive API for managing users, posts, products, categories, and orders
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /api/hello:
+    get:
+      summary: Get hello message
+      description: Returns a simple hello message
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Hello from the API!"
+
+  /api/users:
+    get:
+      summary: Get all users
+      description: Retrieve a list of all users with optional filtering by role
+      parameters:
+        - name: role
+          in: query
+          description: Filter users by role (admin or user)
+          required: false
+          schema:
+            type: string
+            enum: [admin, user]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Create a new user
+      description: Create a new user with validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum: [admin, user]
+                  default: user
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+        '409':
+          description: Email already exists
+
+  /api/users/{id}:
+    get:
+      summary: Get user by ID
+      description: Retrieve a specific user by their ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid user ID
+        '404':
+          description: User not found
+    put:
+      summary: Update user
+      description: Update an existing user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum: [admin, user]
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error or invalid ID
+        '404':
+          description: User not found
+        '409':
+          description: Email already exists
+    delete:
+      summary: Delete user
+      description: Delete a user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: User deleted successfully
+        '400':
+          description: Invalid user ID
+        '404':
+          description: User not found
+
+  /api/posts:
+    get:
+      summary: Get all posts
+      description: Retrieve a list of all posts with optional filtering
+      parameters:
+        - name: authorId
+          in: query
+          description: Filter posts by author ID
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: tag
+          in: query
+          description: Filter posts by tag
+          required: false
+          schema:
+            type: string
+        - name: published
+          in: query
+          description: Filter posts by published status
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      summary: Create a new post
+      description: Create a new post with validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - authorId
+              properties:
+                title:
+                  type: string
+                  minLength: 3
+                content:
+                  type: string
+                  minLength: 10
+                authorId:
+                  type: integer
+                  minimum: 1
+                tags:
+                  type: array
+                  items:
+                    type: string
+                published:
+                  type: boolean
+                  default: false
+      responses:
+        '201':
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Validation error
+
+  /api/posts/{id}:
+    get:
+      summary: Get post by ID
+      description: Retrieve a specific post by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Post ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Invalid post ID
+        '404':
+          description: Post not found
+    put:
+      summary: Update post
+      description: Update an existing post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Post ID
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  minLength: 3
+                content:
+                  type: string
+                  minLength: 10
+                authorId:
+                  type: integer
+                  minimum: 1
+                tags:
+                  type: array
+                  items:
+                    type: string
+                published:
+                  type: boolean
+      responses:
+        '200':
+          description: Post updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Validation error or invalid ID
+        '404':
+          description: Post not found
+    delete:
+      summary: Delete post
+      description: Delete a post by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Post ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Post deleted successfully
+        '400':
+          description: Invalid post ID
+        '404':
+          description: Post not found
+
+  /api/products:
+    get:
+      summary: Get all products
+      description: Retrieve a list of all products with optional filtering
+      parameters:
+        - name: categoryId
+          in: query
+          description: Filter products by category ID
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: minPrice
+          in: query
+          description: Filter products by minimum price
+          required: false
+          schema:
+            type: number
+            minimum: 0
+        - name: maxPrice
+          in: query
+          description: Filter products by maximum price
+          required: false
+          schema:
+            type: number
+            minimum: 0
+        - name: active
+          in: query
+          description: Filter products by active status
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      summary: Create a new product
+      description: Create a new product with validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - description
+                - price
+                - categoryId
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                description:
+                  type: string
+                  minLength: 10
+                price:
+                  type: number
+                  minimum: 0.01
+                categoryId:
+                  type: integer
+                  minimum: 1
+                stock:
+                  type: integer
+                  minimum: 0
+                  default: 0
+                active:
+                  type: boolean
+                  default: true
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Validation error
+
+  /api/products/{id}:
+    get:
+      summary: Get product by ID
+      description: Retrieve a specific product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid product ID
+        '404':
+          description: Product not found
+    put:
+      summary: Update product
+      description: Update an existing product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                description:
+                  type: string
+                  minLength: 10
+                price:
+                  type: number
+                  minimum: 0.01
+                categoryId:
+                  type: integer
+                  minimum: 1
+                stock:
+                  type: integer
+                  minimum: 0
+                active:
+                  type: boolean
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Validation error or invalid ID
+        '404':
+          description: Product not found
+    delete:
+      summary: Delete product
+      description: Delete a product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Product deleted successfully
+        '400':
+          description: Invalid product ID
+        '404':
+          description: Product not found
+
+  /api/categories:
+    get:
+      summary: Get all categories
+      description: Retrieve a list of all categories with optional filtering
+      parameters:
+        - name: active
+          in: query
+          description: Filter categories by active status
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+    post:
+      summary: Create a new category
+      description: Create a new category with validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - description
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                description:
+                  type: string
+                  minLength: 5
+                active:
+                  type: boolean
+                  default: true
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Validation error
+
+  /api/categories/{id}:
+    get:
+      summary: Get category by ID
+      description: Retrieve a specific category by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Category ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Invalid category ID
+        '404':
+          description: Category not found
+    put:
+      summary: Update category
+      description: Update an existing category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Category ID
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                description:
+                  type: string
+                  minLength: 5
+                active:
+                  type: boolean
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Validation error or invalid ID
+        '404':
+          description: Category not found
+    delete:
+      summary: Delete category
+      description: Delete a category by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Category ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Category deleted successfully
+        '400':
+          description: Invalid category ID
+        '404':
+          description: Category not found
+
+  /api/orders:
+    get:
+      summary: Get all orders
+      description: Retrieve a list of all orders with optional filtering
+      parameters:
+        - name: userId
+          in: query
+          description: Filter orders by user ID
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: status
+          in: query
+          description: Filter orders by status
+          required: false
+          schema:
+            type: string
+            enum: [pending, processing, shipped, delivered, cancelled]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+    post:
+      summary: Create a new order
+      description: Create a new order with validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - items
+              properties:
+                userId:
+                  type: integer
+                  minimum: 1
+                items:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                      - productId
+                      - quantity
+                      - price
+                    properties:
+                      productId:
+                        type: integer
+                        minimum: 1
+                      quantity:
+                        type: integer
+                        minimum: 1
+                      price:
+                        type: number
+                        minimum: 0.01
+                totalAmount:
+                  type: number
+                  minimum: 0
+                status:
+                  type: string
+                  enum: [pending, processing, shipped, delivered, cancelled]
+                  default: pending
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Validation error
+
+  /api/orders/{id}:
+    get:
+      summary: Get order by ID
+      description: Retrieve a specific order by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Order ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid order ID
+        '404':
+          description: Order not found
+    put:
+      summary: Update order
+      description: Update an existing order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Order ID
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  minimum: 1
+                items:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                      - productId
+                      - quantity
+                      - price
+                    properties:
+                      productId:
+                        type: integer
+                        minimum: 1
+                      quantity:
+                        type: integer
+                        minimum: 1
+                      price:
+                        type: number
+                        minimum: 0.01
+                totalAmount:
+                  type: number
+                  minimum: 0
+                status:
+                  type: string
+                  enum: [pending, processing, shipped, delivered, cancelled]
+      responses:
+        '200':
+          description: Order updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Validation error or invalid ID
+        '404':
+          description: Order not found
+    delete:
+      summary: Delete order
+      description: Delete an order by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Order ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Order deleted successfully
+        '400':
+          description: Invalid order ID
+        '404':
+          description: Order not found
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Alice Johnson"
+        email:
+          type: string
+          format: email
+          example: "alice@example.com"
+        role:
+          type: string
+          enum: [admin, user]
+          example: "admin"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "First Post"
+        content:
+          type: string
+          example: "This is the content of the first post."
+        authorId:
+          type: integer
+          example: 1
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["introduction", "welcome"]
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+        published:
+          type: boolean
+          example: true
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Laptop Pro"
+        description:
+          type: string
+          example: "High-performance laptop for professionals"
+        price:
+          type: number
+          format: float
+          example: 1299.99
+        categoryId:
+          type: integer
+          example: 1
+        stock:
+          type: integer
+          example: 50
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+        active:
+          type: boolean
+          example: true
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Electronics"
+        description:
+          type: string
+          example: "Electronic devices and accessories"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+        active:
+          type: boolean
+          example: true
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              productId:
+                type: integer
+                example: 1
+              quantity:
+                type: integer
+                example: 1
+              price:
+                type: number
+                format: float
+                example: 1299.99
+        totalAmount:
+          type: number
+          format: float
+          example: 1699.97
+        status:
+          type: string
+          enum: [pending, processing, shipped, delivered, cancelled]
+          example: "delivered"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-20T14:00:00Z"

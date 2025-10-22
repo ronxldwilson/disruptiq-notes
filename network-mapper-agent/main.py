@@ -170,7 +170,7 @@ def main():
     parser.add_argument('repo_or_command', help='path to repository root, or "scan" command')
     parser.add_argument('repo', nargs='?', help='path to repository root (if using scan command)')
     parser.add_argument('--repo', dest='repo_flag', help='path to repository root (alternative to positional)')
-    parser.add_argument('--output', default='report.json', help='output path (defaults to report.json)')
+    parser.add_argument('--output', default='output.json', help='output path (defaults to output.json)')
     parser.add_argument('--format', choices=['json', 'sarif', 'table'], default='json', help='output format')
     parser.add_argument('--ruleset', help='custom ruleset file')
     parser.add_argument('--languages', help='limit scanning to languages (comma-separated)')
