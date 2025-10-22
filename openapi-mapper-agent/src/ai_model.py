@@ -94,6 +94,18 @@ def enhance_spec_with_ai(endpoints, clients, batch_size=1):
             print(f"Warning: Could not find valid OpenAPI YAML in response for batch {batch_num}")
         current_spec_yaml = updated_spec_yaml.strip()
 
+        # Log the response
+        logging.info(f"Response from {client_name} for batch {batch_num}: {current_spec_yaml}")
+
+        # Validate the YAML
+        try:
+            import yaml
+            spec = yaml.safe_load(current_spec_yaml)
+            if not spec or 'openapi' not in spec or spec['openapi'] != '3.0.0':
+                print(f"Warning: Invalid OpenAPI 3.0.0 spec for batch {batch_num}")
+        except Exception as e:
+            print(f"Error validating YAML for batch {batch_num}: {e}")
+
         # Stream to output.yaml
         with open("output.yaml", "w", encoding="utf-8") as f:
             f.write(current_spec_yaml)

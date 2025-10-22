@@ -40,10 +40,16 @@ def extract_snippet(src, match_start):
 
 def parse_typescript_file(file_path):
     """
-    A very basic parser for TypeScript files, specifically for Next.js API routes.
-    Returns a list of endpoints, where each endpoint is a dictionary with path, methods, and code.
+    A basic parser for TypeScript files in Next.js API routes.
+    Handles both Pages Router (pages/api/) and App Router (app/api/).
+    Returns a list of endpoints.
+    Only processes files under /api/ paths.
     """
     if not os.path.exists(file_path):
+        return []
+    # Normalize path to use forward slashes
+    normalized_path = file_path.replace("\\", "/")
+    if "/api/" not in normalized_path:
         return []
 
     with open(file_path, "r", encoding="utf-8") as f:
@@ -51,23 +57,46 @@ def parse_typescript_file(file_path):
 
     endpoints = []
 
-    # Extract path from file path
-    path = os.path.splitext(file_path)[0].replace("\\", "/")
-    path = "/" + "/api/".join(path.split("/api/")[1:])
-    path = path.replace("/index", "")
-    path = re.sub(r'\[(.*?)\]', r'{\1}', path)
+    # Determine if App Router or Pages Router
+    is_app_router = "/app/" in normalized_path
 
-    # Find all methods in the handler
-    methods = re.findall(r"if \(req.method === '([A-Z]+)'\)", code)
-    if not methods:
-        methods = ["GET"] # Default to GET if no methods are specified
+    if is_app_router:
+        # App Router: file is route.ts in a directory, path is the directory
+        path = os.path.dirname(file_path).replace("\\", "/")
+        path = "/api/" + "/".join(path.split("/api/")[1:])
+        path = path.replace("/route", "")  # remove /route
+        path = re.sub(r'\[(.*?)\]', r'{\1}', path)
+        if not path:
+            path = "/"
 
-    # Extract snippet around the handler
-    handler_match = re.search(r'export\s+default', code)
-    if handler_match:
-        snippet = extract_snippet(code, handler_match.start())
+        # Find exported HTTP methods
+        methods = []
+        for method in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']:
+            if re.search(rf'export\s+async\s+function\s+{method}\b', code):
+                methods.append(method)
+        if not methods:
+            methods = ["GET"]  # Default
+
+        # Extract snippet: the whole file or around exports
+        snippet = code
     else:
-        snippet = code  # Fallback to full code
+        # Pages Router: export default handler
+        path = os.path.splitext(file_path)[0].replace("\\", "/")
+        path = "/api/" + "/".join(path.split("/api/")[1:])
+        path = path.replace("/index", "")
+        path = re.sub(r'\[(.*?)\]', r'{\1}', path)
+
+        # Find all methods in the handler
+        methods = re.findall(r"if \(req\.method === '([A-Z]+)'\)", code)
+        if not methods:
+            methods = ["GET"]  # Default
+
+        # Extract snippet around the handler
+        handler_match = re.search(r'export\s+default', code)
+        if handler_match:
+            snippet = extract_snippet(code, handler_match.start())
+        else:
+            snippet = code  # Fallback
 
     endpoints.append({
         "path": path,

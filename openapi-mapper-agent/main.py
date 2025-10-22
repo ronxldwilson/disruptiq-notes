@@ -51,7 +51,20 @@ def main(clients, path, batch_size=1):
     for file in files:
         endpoints = parse_file(file)
         all_endpoints.extend(endpoints)
-    print(f"Found {len(all_endpoints)} endpoints.")
+
+    # Deduplicate endpoints
+    unique_endpoints = {}
+    for ep in all_endpoints:
+        key = (ep['path'], tuple(sorted(ep['methods'])))
+        if key not in unique_endpoints:
+            unique_endpoints[key] = ep
+        else:
+            # Merge code if different
+            if ep['code'] != unique_endpoints[key]['code']:
+                unique_endpoints[key]['code'] += '\n\n' + ep['code']
+    all_endpoints = list(unique_endpoints.values())
+
+    print(f"Found {len(all_endpoints)} unique endpoints.")
 
     print("\n--- Step 3: Enhancing the OpenAPI spec with an AI model ---")
     response_generator = enhance_spec_with_ai(all_endpoints, clients, batch_size)
