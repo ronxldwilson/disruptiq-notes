@@ -1,7 +1,11 @@
 import yaml
 import re
 import time
+import logging
 from .clients.base_client import get_ai_client, ContextExceeded
+
+# Configure logging to save to client.log
+logging.basicConfig(filename='client.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def enhance_spec_with_ai(endpoints, clients, batch_size=1):
     """Uses AI models to enhance the OpenAPI spec incrementally in batches, switching clients on context errors."""
@@ -57,6 +61,8 @@ def enhance_spec_with_ai(endpoints, clients, batch_size=1):
         # Get the AI-generated spec, trying clients in order
         updated_spec_yaml = ""
         for client_name, model in clients:
+            logging.info(f"Making request to {client_name} with model {model} for batch {batch_num}")
+            logging.info(f"Prompt: {prompt}")
             try:
                 ai_client = get_ai_client(client_name, model)
                 response_generator = ai_client.get_response(prompt)
@@ -68,8 +74,10 @@ def enhance_spec_with_ai(endpoints, clients, batch_size=1):
                         break
                     updated_spec_yaml += chunk
                 if not has_error and updated_spec_yaml.strip():
-                    break  # success
+                    logging.info(f"Successfully received response from {client_name} with model {model} for batch {batch_num}")
+                break  # success
             except Exception as e:
+                logging.error(f"Error with {client_name}: {e}, trying next client...")
                 print(f"Error with {client_name}: {e}, trying next client...")
                 continue
         else:
