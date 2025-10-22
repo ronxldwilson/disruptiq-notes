@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import argparse
 import concurrent.futures
+import datetime
 import json
 import os
+import shutil
 import subprocess
 import sys
 import threading
@@ -82,15 +84,32 @@ def run_agent(agent, param=None, stop_event=None):
             print(f"Stdout: {stdout}", file=sys.stderr)
             return None
 
-        output_str = stdout.strip()
         print(f"{name} completed successfully.")
-        try:
-            # Try to parse as JSON
-            output = json.loads(output_str)
-        except json.JSONDecodeError:
-            # If not JSON, wrap the output as a list of lines
-            output = {"output": output_str.splitlines() if output_str else []}
-        return output
+
+        # Collate the output file
+        script_output_file = agent.get('script-output')
+        if not script_output_file:
+            print(f"Warning: No script-output defined for {name}")
+            return None
+
+        output_file_name = agent.get('output')
+        if not output_file_name:
+            print(f"Warning: No output defined for {name}")
+            return None
+
+        output_dir = 'output'
+        os.makedirs(output_dir, exist_ok=True)
+
+        src = os.path.join(cwd, script_output_file)
+        dst = os.path.join(output_dir, output_file_name)
+
+        if os.path.exists(src):
+            shutil.copy2(src, dst)
+            print(f"Copied {src} to {dst}")
+            return dst
+        else:
+            print(f"Warning: Script output file {src} not found for {name}")
+            return None
     except Exception as e:
         with processes_lock:
             if 'process' in locals() and process in processes:
@@ -111,7 +130,15 @@ def main():
         sys.exit(1)
 
     config = load_config(config_path)
-    unified_map = {}
+    report_data = {}
+
+    # Archive existing output if present
+    output_dir = 'output'
+    if os.path.exists(output_dir) and os.listdir(output_dir):
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        archive_name = f"output_archive_{timestamp}"
+        shutil.move(output_dir, archive_name)
+        print(f"Existing output moved to {archive_name}")
 
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
@@ -124,12 +151,12 @@ def main():
                 name = agent['name']
                 output = futures[name].result()
                 if output is not None:
-                    unified_map[name] = output
+                    report_data[name] = output
 
-        # Save the unified map to output.json
-        with open('output.json', 'w') as f:
-            json.dump(unified_map, f, indent=2)
-        print("Report saved to output.json")
+        # Save the report data to report.json
+        with open('report.json', 'w') as f:
+            json.dump(report_data, f, indent=2)
+        print("Report saved to report.json")
 
     except KeyboardInterrupt:
         print("Interrupted by user. Terminating all processes...", file=sys.stderr)
