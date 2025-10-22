@@ -17,5 +17,6 @@
   "min_variable_name_length": 1,
   "max_line_length": 1000,
   "output_file": "output.json",
-  "verbose": false
+  "verbose": false,
+  "prefer_git": true
 }

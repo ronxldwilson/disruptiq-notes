@@ -15,6 +15,7 @@ class Reporter:
         self.total_risk_score = 0.0
         self.total_findings_count = 0
         self.next_id = 1
+        self.shutdown_check = lambda: False
 
     def add_findings(self, findings: List):
         """Add findings to the report."""
@@ -98,6 +99,9 @@ class Reporter:
             # Stream findings directly from self.findings
             total_findings = len(self.findings)
             for i, finding in enumerate(self.findings):
+                if self.shutdown_check():
+                    print("Shutdown requested during report writing, aborting.")
+                    break
                 comma = ',' if i < len(self.findings) - 1 else ''
                 finding_dict = finding.to_dict()
                 # Write each finding as properly indented JSON

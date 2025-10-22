@@ -7,7 +7,8 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from main import main
+from orchestrator import Orchestrator
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    orchestrator = Orchestrator()
+    asyncio.run(orchestrator.run_analysis())
