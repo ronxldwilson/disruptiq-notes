@@ -126,10 +126,10 @@ def main():
                 if output is not None:
                     unified_map[name] = output
 
-        # Save the unified map to report.json
-        with open('report.json', 'w') as f:
+        # Save the unified map to output.json
+        with open('output.json', 'w') as f:
             json.dump(unified_map, f, indent=2)
-        print("Report saved to report.json")
+        print("Report saved to output.json")
 
     except KeyboardInterrupt:
         print("Interrupted by user. Terminating all processes...", file=sys.stderr)
