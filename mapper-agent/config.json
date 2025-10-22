@@ -28,13 +28,13 @@
       "name": "openapi_mapper",
       "path": "../openapi-mapper-agent",
       "script": "python main.py",
-      "output": "output.txt"
+      "output": "output.yaml"
     },
     {
       "name": "obfuscation_checker_agent",
       "path": "../obfuscation-checker-agent",
       "script": "python main.py",
-      "output": "output.txt"
+      "output": "output.json"
     },
     {
       "name": "code_mapper",
