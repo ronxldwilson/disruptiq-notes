@@ -1,3 +1,0 @@
-http://localhost:5000/api/users (POST)  # F:\disruptiq-notes\sqlmap-dev\sqlmap.py --flush-session "C:\Users\Ronald Wilson\AppData\Local\Programs\Python\Python311\python.exe" F:\disruptiq-notes\sqlmap-dev\sqlmap.py -u http://localhost:5000/api/users --output-dir attack-logs-dynamic\Get_User_by_Email__API__sqlmap --batch --level=5 --risk=3 --threads 5 -H "Content-Type: application/json" --data "{\"email\": \"test\"}" --technique BU --level 3 --risk 1
-
-{"email": "test"}

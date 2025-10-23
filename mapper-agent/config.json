@@ -30,7 +30,7 @@
     },
     {
       "name": "openapi_mapper",
-      "path": "../openapi-mapper-agent",
+      "path": "../openapi-spec-creator-agent",
       "script": "python main.py",
       "script-output": "output.yaml",
       "output":"openapi-spec-output.yaml"

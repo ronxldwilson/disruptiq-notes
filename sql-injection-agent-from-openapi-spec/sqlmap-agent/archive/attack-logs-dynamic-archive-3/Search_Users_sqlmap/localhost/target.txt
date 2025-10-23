@@ -1,3 +1,0 @@
-http://localhost:5000/search (POST)  # F:\disruptiq-notes\sqlmap-dev\sqlmap.py --flush-session "C:\Users\Ronald Wilson\AppData\Local\Programs\Python\Python311\python.exe" F:\disruptiq-notes\sqlmap-dev\sqlmap.py -u http://localhost:5000/search --output-dir attack-logs-dynamic\Search_Users_sqlmap --batch --level=5 --risk=3 --threads 5 --data q=test --dbs
-
-q=test

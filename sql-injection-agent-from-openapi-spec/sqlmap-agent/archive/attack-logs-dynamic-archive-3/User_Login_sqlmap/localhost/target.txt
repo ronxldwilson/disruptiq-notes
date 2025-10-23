@@ -1,3 +1,0 @@
-http://localhost:5000/login (POST)  # F:\disruptiq-notes\sqlmap-dev\sqlmap.py --flush-session "C:\Users\Ronald Wilson\AppData\Local\Programs\Python\Python311\python.exe" F:\disruptiq-notes\sqlmap-dev\sqlmap.py -u http://localhost:5000/login --output-dir attack-logs-dynamic\User_Login_sqlmap --batch --level=5 --risk=3 --threads 5 --data username=test&password=test --technique BU --level 3 --risk 1
-
-username=test&password=test

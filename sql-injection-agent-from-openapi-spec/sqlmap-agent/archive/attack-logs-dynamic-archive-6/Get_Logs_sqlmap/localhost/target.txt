@@ -1,1 +1,0 @@
-http://localhost:8000/_synthetic/logs?session_id=test (GET)  # F:\disruptiq-notes\sqlmap-dev\sqlmap.py -u http://localhost:8000/_synthetic/logs?session_id=test --output-dir attack-logs-dynamic\Get_Logs_sqlmap --batch --level=5 --risk=3 --threads 5 -p session_id --technique BU

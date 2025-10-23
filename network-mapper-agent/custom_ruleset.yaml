@@ -1,6 +1,0 @@
-detectors:
-  - id: hardcoded_url_v1
-    enabled: false
-
-  - id: port_exposure_v1
-    severity: critical

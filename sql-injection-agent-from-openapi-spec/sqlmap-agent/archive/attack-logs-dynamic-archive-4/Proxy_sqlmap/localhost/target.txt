@@ -1,1 +1,0 @@
-http://localhost:5000/proxy?url=test (GET)  # F:\disruptiq-notes\sqlmap-dev\sqlmap.py -u http://localhost:5000/proxy?url=test --output-dir attack-logs-dynamic\Proxy_sqlmap --batch --level=5 --risk=3 --threads 5 -p url --technique BU
